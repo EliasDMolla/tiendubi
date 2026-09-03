@@ -1,0 +1,1198 @@
+<div class="landing-root bg-darkBg text-slate-200 font-sans antialiased overflow-x-hidden selection:bg-purple-500 selection:text-white">
+<!-- HEADER / NAVIGATION -->
+    <header class="fixed top-0 left-0 w-full z-50 bg-darkBg/80 backdrop-blur-md border-b border-darkBorder/60 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo Tiendubi -->
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-accentViolet via-accentPurple to-accentPink flex items-center justify-center shadow-lg shadow-purple-500/20">
+                        <i data-lucide="store" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-display font-extrabold text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-purple-200 leading-none">
+                            Tiendubi
+                        </span>
+                        <span class="text-[9px] text-slate-500 font-medium tracking-tight hidden sm:inline">Cobrá, agendá y entregá desde un solo link</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex items-center gap-8">
+                    <a href="#como-funciona" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Cómo funciona</a>
+                    <a href="#usos" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">¿Para quién es?</a>
+                    <a href="#diferenciales" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Diferenciales</a>
+                    <a href="#planes" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Planes</a>
+                    <a href="#faq" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Preguntas frecuentes</a>
+                </nav>
+
+                <!-- Action Buttons -->
+                <div class="hidden md:flex items-center gap-4">
+                    <button (click)="openModal('login')" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors px-4 py-2">
+                        Ingresar
+                    </button>
+                    <button (click)="openModal('signup')" class="text-sm font-semibold bg-gradient-to-r from-accentViolet to-accentPurple text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-purple-500/20 active:scale-[0.98] transition-all">
+                        Crear cuenta gratis
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" (click)="toggleMobileMenu()" class="p-2 text-slate-400 hover:text-white transition-colors">
+                        <i [attr.data-lucide]="mobileDrawerOpen ? 'x' : 'menu'" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div id="mobile-drawer" [class.hidden]="!mobileDrawerOpen" class="mobile-drawer-panel md:hidden fixed left-0 right-0 top-20 bottom-0 z-40 px-6 py-8 border-b border-darkBorder flex flex-col gap-6">
+            <a href="#como-funciona" (click)="toggleMobileMenu()" class="text-lg font-medium text-slate-300 hover:text-white">Cómo funciona</a>
+            <a href="#usos" (click)="toggleMobileMenu()" class="text-lg font-medium text-slate-300 hover:text-white">¿Para quién es?</a>
+            <a href="#diferenciales" (click)="toggleMobileMenu()" class="text-lg font-medium text-slate-300 hover:text-white">Diferenciales</a>
+            <a href="#planes" (click)="toggleMobileMenu()" class="text-lg font-medium text-slate-300 hover:text-white">Planes</a>
+            <a href="#faq" (click)="toggleMobileMenu()" class="text-lg font-medium text-slate-300 hover:text-white">Preguntas frecuentes</a>
+            <div class="h-[1px] bg-darkBorder my-2"></div>
+            <button (click)="openModal('login'); toggleMobileMenu()" class="text-center font-semibold text-slate-400 hover:text-white py-3">
+                Ingresar
+            </button>
+            <button (click)="openModal('signup'); toggleMobileMenu()" class="w-full text-center font-semibold bg-gradient-to-r from-accentViolet to-accentPurple text-white py-3.5 rounded-xl">
+                Crear cuenta gratis
+            </button>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <main class="relative pt-32 pb-24 md:pt-40 md:pb-32 overflow-hidden">
+        <!-- Background Glowing Blobs -->
+        <div class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-accentViolet/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute top-1/3 right-1/4 translate-x-1/2 translate-y-1/2 w-96 h-96 bg-accentPurple/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                <!-- Hero Text Left -->
+                <div class="lg:col-span-7 flex flex-col gap-6 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 self-center lg:self-start bg-purple-500/10 border border-purple-500/20 px-3 py-1.5 rounded-full text-purple-400 text-xs font-semibold uppercase tracking-wider">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                        ⚡ Tu tienda simple para vender desde Instagram y WhatsApp
+                    </div>
+                    
+                    <h1 class="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl text-white leading-[1.1] tracking-tight">
+                        Vendé servicios, turnos y productos digitales <br class="hidden sm:inline">
+                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
+                            desde un solo link.
+                        </span>
+                    </h1>
+
+                    <p class="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light">
+                        Creá tu perfil público, cobrá con Mercado Pago y automatizá reservas, entregas y descargas. Ideal para profesionales y creadores que venden por Instagram o WhatsApp.
+                    </p>
+
+                    <!-- Interactive Link Builder Input -->
+                    <div class="mt-2 p-1.5 bg-darkCard/90 border border-darkBorder rounded-2xl max-w-lg mx-auto lg:mx-0 flex flex-col sm:flex-row items-center gap-2 shadow-2xl backdrop-blur-md">
+                        <div class="flex items-center px-4 py-2 text-slate-500 border-b sm:border-b-0 sm:border-r border-darkBorder w-full sm:w-auto font-medium">
+                            tiendubi.app/
+                            <input id="hero-username" type="text" [value]="heroUsername" (input)="updateHeroUsername($event)" placeholder="tu-nombre" class="bg-transparent text-white border-none outline-none focus:ring-0 ml-1 w-28 placeholder:text-slate-600 font-semibold">
+                        </div>
+                        <button (click)="claimUsername()" class="w-full sm:w-auto bg-gradient-to-r from-accentViolet to-accentPurple hover:from-indigo-500 hover:to-purple-600 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-md shadow-indigo-500/10 flex items-center justify-center gap-2 whitespace-nowrap active:scale-95">
+                            Crear mi link gratis
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+
+                    <!-- Trust Signals -->
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 mt-4 text-xs font-medium text-slate-500">
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="shield-check" class="w-4 h-4 text-accentEmerald"></i>
+                            Integrado con Mercado Pago
+                        </div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-700 hidden sm:block"></div>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="clock" class="w-4 h-4 text-accentEmerald"></i>
+                            Configurado en 5 minutos
+                        </div>
+                        <div class="w-1.5 h-1.5 rounded-full bg-slate-700 hidden sm:block"></div>
+                        <div class="flex items-center gap-1.5">
+                            <i data-lucide="code-2" class="w-4 h-4 text-accentEmerald"></i>
+                            Sin conocimientos técnicos
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hero Interactive Smartphone Preview Right -->
+                <div class="lg:col-span-5 flex justify-center relative">
+                    <!-- Glow element behind phone -->
+                    <div class="absolute inset-0 bg-gradient-to-tr from-accentViolet/20 to-accentPurple/20 rounded-full filter blur-3xl opacity-60"></div>
+                    
+                    <!-- iPhone Container -->
+                    <div class="relative w-80 h-[640px] bg-slate-900 rounded-[50px] p-3 border-[6px] border-slate-800 shadow-2xl shadow-black/80 flex flex-col overflow-hidden animate-float">
+                        <!-- Dynamic Island -->
+                        <div class="absolute top-4 left-1/2 -translate-x-1/2 w-28 h-5 bg-black rounded-full z-30 flex items-center justify-center gap-1 px-3">
+                            <div class="w-2 h-2 rounded-full bg-purple-500/40 animate-pulse"></div>
+                            <div class="text-[9px] text-purple-400 font-mono tracking-widest uppercase">tiendubi</div>
+                        </div>
+
+                        <!-- Inner Screen Content -->
+                        <div class="relative flex-1 bg-darkBg rounded-[38px] p-4 pt-10 flex flex-col justify-between overflow-y-auto overflow-x-hidden text-xs select-none">
+                            
+                            <!-- Simulator Header: Custom user name -->
+                            <div class="flex items-center justify-between border-b border-darkBorder/40 pb-2 mb-4 text-[10px] text-slate-500">
+                                <span class="font-mono">tiendubi.app/<span id="sim-display-username" class="text-slate-300 font-semibold">{{ displayUsername }}</span></span>
+                                <span class="bg-purple-500/10 text-purple-400 px-1.5 py-0.5 rounded font-mono text-[9px]">EN VIVO</span>
+                            </div>
+
+                            <!-- Simulator Screen Dynamic States -->
+                            <div id="sim-main-screen" [class.hidden]="simScreen !== 'main'" class="flex-1 flex flex-col gap-4">
+                                <!-- Profile Card Inside Phone -->
+                                <div class="text-center flex flex-col items-center gap-2">
+                                    <div class="relative">
+                                        <img src="https://placehold.co/100x100/1e293b/a5b4fc?text=🌿" alt="Sofia" class="w-16 h-16 rounded-full object-cover border-2 border-accentViolet shadow-lg">
+                                        <span class="absolute bottom-0 right-0 w-4.5 h-4.5 bg-accentEmerald border-2 border-darkBg rounded-full flex items-center justify-center text-[8px] text-white">✓</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-display font-bold text-sm text-white">Sofía Rodríguez</h3>
+                                        <p class="text-[10px] text-slate-400 mt-0.5">Nutricionista & Health Coach 🥑</p>
+                                    </div>
+                                </div>
+
+                                <!-- Sellable Offers Buttons inside Phone -->
+                                <div class="flex flex-col gap-2.5 mt-2">
+                                    <!-- Offer 1: Turno -->
+                                    <button (click)="simTriggerOffer('turno')" class="w-full bg-darkCard border border-darkBorder hover:border-accentViolet/50 hover:bg-slate-800/50 p-3 rounded-2xl flex items-center justify-between transition-all group text-left">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                                                <i data-lucide="calendar" class="w-4 h-4"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-semibold text-white text-[11px]">Asesoría Nutricional 1:1</h4>
+                                                <p class="text-[9px] text-slate-400 mt-0.5">Reserva tu fecha y hora online</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="font-bold text-slate-200 block">$22.000</span>
+                                            <span class="text-[8px] text-emerald-400 font-medium">Reservar</span>
+                                        </div>
+                                    </button>
+
+                                    <!-- Offer 2: Digital File -->
+                                    <button (click)="simTriggerOffer('ebook')" class="w-full bg-darkCard border border-darkBorder hover:border-accentPurple/50 hover:bg-slate-800/50 p-3 rounded-2xl flex items-center justify-between transition-all group text-left">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                                                <i data-lucide="book-open" class="w-4 h-4"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-semibold text-white text-[11px]">Guía de Desayunos (PDF)</h4>
+                                                <p class="text-[9px] text-slate-400 mt-0.5">Descarga inmediata tras el pago</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="font-bold text-slate-200 block">$4.500</span>
+                                            <span class="text-[8px] text-purple-400 font-medium">Comprar</span>
+                                        </div>
+                                    </button>
+
+                                    <!-- Offer 3: Digital Pack -->
+                                    <button (click)="simTriggerOffer('pack')" class="w-full bg-darkCard border border-darkBorder hover:border-accentEmerald/50 hover:bg-slate-800/50 p-3 rounded-2xl flex items-center justify-between transition-all group text-left">
+                                        <div class="flex items-center gap-2.5">
+                                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                                                <i data-lucide="package" class="w-4 h-4"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-semibold text-white text-[11px]">Pack Taller Cocina 2026</h4>
+                                                <p class="text-[9px] text-slate-400 mt-0.5">Recursos digitales privados</p>
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <span class="font-bold text-slate-200 block">$9.000</span>
+                                            <span class="text-[8px] text-emerald-400 font-medium">Ver pack</span>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- STEP 1: CALENDAR BOOKING SCREEN -->
+                            <div id="sim-booking-screen" [class.hidden]="simScreen !== 'booking'" class="flex-1 flex flex-col justify-between">
+                                <div>
+                                    <button (click)="simGoBack()" class="flex items-center gap-1 text-[10px] text-slate-400 mb-3 hover:text-white">
+                                        <i data-lucide="chevron-left" class="w-3 h-3"></i> Volver
+                                    </button>
+                                    <h4 class="font-bold text-white text-xs mb-2">Elegí fecha y hora de tu consulta</h4>
+                                    
+                                    <!-- Calendar Grid Helper -->
+                                    <div class="bg-darkCard rounded-xl p-2.5 border border-darkBorder text-center">
+                                        <div class="grid grid-cols-7 gap-1 text-[9px] text-slate-400 mb-2">
+                                            <span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span>
+                                        </div>
+                                        <div class="grid grid-cols-7 gap-1 text-[10px] font-medium">
+                                            <span class="text-slate-600">25</span><span class="text-slate-600">26</span><span class="text-slate-600">27</span><span class="text-slate-600">28</span><span class="text-slate-600">29</span>
+                                            <span class="bg-indigo-500 text-white rounded-md p-1">1</span>
+                                            <span class="hover:bg-slate-800 rounded-md p-1 cursor-pointer">2</span>
+                                            <span class="hover:bg-slate-800 rounded-md p-1 cursor-pointer">3</span>
+                                            <span class="hover:bg-slate-800 rounded-md p-1 cursor-pointer">4</span>
+                                            <span class="hover:bg-slate-800 rounded-md p-1 cursor-pointer">5</span>
+                                            <span class="hover:bg-slate-800 rounded-md p-1 cursor-pointer">6</span>
+                                            <span class="hover:bg-slate-800 rounded-md p-1 cursor-pointer">7</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Hour Slots -->
+                                    <div class="grid grid-cols-3 gap-2 mt-3">
+                                        <button (click)="selectHour($event)" class="hour-btn bg-darkCard hover:bg-indigo-500/20 border border-darkBorder rounded-lg p-1.5 text-center text-[10px] transition-all">09:00 hs</button>
+                                        <button (click)="selectHour($event)" class="hour-btn bg-indigo-500 text-white border border-transparent rounded-lg p-1.5 text-center text-[10px] transition-all">11:30 hs</button>
+                                        <button (click)="selectHour($event)" class="hour-btn bg-darkCard hover:bg-indigo-500/20 border border-darkBorder rounded-lg p-1.5 text-center text-[10px] transition-all">15:00 hs</button>
+                                    </div>
+                                </div>
+                                <button (click)="simTriggerPayment('turno')" class="w-full mt-4 bg-gradient-to-r from-accentViolet to-accentPurple text-white py-2.5 rounded-xl font-semibold">
+                                    Proceder al Pago
+                                </button>
+                            </div>
+
+                            <!-- STEP 2: SIMULATED MERCADO PAGO GATEWAY -->
+                            <div id="sim-payment-screen" [class.hidden]="simScreen !== 'payment'" class="flex-1 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center gap-1.5 text-[10px] text-slate-400 mb-4">
+                                        <div class="w-4 h-4 rounded-full bg-[#00A1E4] flex items-center justify-center text-[8px] text-white font-bold">M</div>
+                                        Pasarela de Pago Segura
+                                    </div>
+                                    
+                                    <div class="bg-[#00A1E4]/10 border border-[#00A1E4]/20 p-3 rounded-2xl text-center flex flex-col gap-1.5 mb-4">
+                                        <span class="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">Total a transferir</span>
+                                        <span id="sim-payment-amount" class="text-xl font-bold text-[#00A1E4]">{{ simPaymentAmount }}</span>
+                                        <span class="text-[8px] text-slate-400">Hacia Mercado Pago Sofía Rodríguez</span>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <div class="bg-darkCard border border-darkBorder p-2.5 rounded-xl flex items-center justify-between text-[10px]">
+                                            <span class="text-slate-400">Método</span>
+                                            <span class="text-white font-semibold">Dinero en cuenta o Tarjeta</span>
+                                        </div>
+                                        <div class="bg-darkCard border border-darkBorder p-2.5 rounded-xl flex items-center justify-between text-[10px]">
+                                            <span class="text-slate-400">Referencia</span>
+                                            <span id="sim-ref" class="text-white font-mono">{{ simReference }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button (click)="simConfirmPayment()" class="w-full bg-[#00A1E4] hover:bg-[#008fcc] text-white py-2.5 rounded-xl font-bold transition-colors flex items-center justify-center gap-1.5">
+                                    <i data-lucide="credit-card" class="w-4 h-4"></i> Pagar con Mercado Pago
+                                </button>
+                            </div>
+
+                            <!-- STEP 3: SUCCESS AUTOMATIC DELIVERY -->
+                            <div id="sim-success-screen" [class.hidden]="simScreen !== 'success'" class="flex-1 flex flex-col items-center justify-center text-center gap-4">
+                                <div class="w-12 h-12 rounded-full bg-accentEmerald/20 border border-accentEmerald/30 flex items-center justify-center text-accentEmerald">
+                                    <i data-lucide="check" class="w-6 h-6"></i>
+                                </div>
+                                
+                                <div>
+                                    <h4 class="font-display font-bold text-sm text-white">¡Pago Procesado con éxito!</h4>
+                                    <p id="sim-success-desc" class="text-[10px] text-slate-400 mt-1">{{ simSuccessDesc }}</p>
+                                </div>
+
+                                <!-- Dynamic Delivery Action based on purchase type -->
+                                <div id="sim-delivery-action" class="w-full mt-2">
+                                    <!-- Ebook Download Link -->
+                                    <a id="sim-dl-btn" href="#" [class.hidden]="simType !== 'ebook'" class="w-full bg-accentPurple text-white py-2.5 rounded-xl font-semibold flex items-center justify-center gap-1.5 hover:bg-purple-600 transition-colors">
+                                        <i data-lucide="download" class="w-3.5 h-3.5"></i> Descargar PDF Directo
+                                    </a>
+                                    <!-- Calendar Google Link -->
+                                    <div id="sim-calendar-msg" [class.hidden]="simType !== 'turno'" class="bg-darkCard border border-darkBorder rounded-xl p-2.5 text-[9px] text-left">
+                                        <div class="flex items-center gap-1.5 text-accentEmerald font-semibold mb-1">
+                                            <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Turno Agendado
+                                        </div>
+                                        Agendado para: 1 de Junio 11:30 hs.<br>
+                                        Tu link de Zoom se envió al email ingresado.
+                                    </div>
+                                    <!-- Private Product Access -->
+                                    <div id="sim-pack-preview" [class.hidden]="simType !== 'pack'" class="bg-darkCard border border-darkBorder rounded-xl p-2 text-center">
+                                        <p class="text-[8px] text-slate-400 mb-1.5">Recursos digitales desbloqueados:</p>
+                                        <div class="grid grid-cols-2 gap-1">
+                                            <div class="h-12 rounded bg-slate-800 overflow-hidden relative">
+                                                <img src="https://placehold.co/80x50/312e81/ffffff?text=Taller" class="w-full h-full object-cover">
+                                            </div>
+                                            <div class="h-12 rounded bg-slate-800 overflow-hidden relative">
+                                                <img src="https://placehold.co/80x50/1e1b4b/ffffff?text=Cocina" class="w-full h-full object-cover">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button (click)="simReset()" class="text-[10px] text-slate-400 underline hover:text-white mt-4">
+                                    Probar otra simulación
+                                </button>
+                            </div>
+
+                            <!-- Simulator Footer/Branding inside Phone -->
+                            <div class="mt-4 pt-3 border-t border-darkBorder/40 text-[9px] text-center text-slate-600 flex items-center justify-center gap-1">
+                                <i data-lucide="lock" class="w-2.5 h-2.5"></i> Desarrollado por Tiendubi
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- PROBLEM SECTION: EL LABERINTO DE WHATSAPP -->
+    <section id="problema" class="py-24 border-t border-darkBorder relative bg-gradient-to-b from-darkBg to-slate-950/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <!-- Header section of Problem -->
+            <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col gap-4">
+                <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">El verdadero problema</span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white">
+                    El día tiene 24 horas. <br class="hidden sm:inline">¿Cuántas pasás respondiendo mensajes?
+                </h2>
+                <p class="text-slate-400 text-base sm:text-lg">
+                    Vender por redes sociales es genial, pero la gestión manual te está robando tiempo valioso y espantando a los clientes que no quieren esperar a que les respondas.
+                </p>
+            </div>
+
+            <!-- Pain Points Cards Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Pain Card 1 -->
+                <div class="bg-darkCard/50 border border-darkBorder hover:border-slate-800 p-6 sm:p-8 rounded-3xl flex flex-col gap-4 transition-all hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400">
+                        <i data-lucide="message-square-off" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-white">💬 El eterno chat de ventas</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        "Hola, ¿qué precios tenés?", "¿Tenés turnos libres?". Pasás horas de tu día enviando la misma información por WhatsApp, repitiendo precios una y otra vez como un bot manual.
+                    </p>
+                </div>
+
+                <!-- Pain Card 2 -->
+                <div class="bg-darkCard/50 border border-darkBorder hover:border-slate-800 p-6 sm:p-8 rounded-3xl flex flex-col gap-4 transition-all hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400">
+                        <i data-lucide="wallet-cards" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-white">💸 La fricción del cobro</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Tener que pasar el alias de tu banco, esperar que el cliente te mande la captura del comprobante, revisar tu homebanking y corroborar de manera manual si el dinero realmente se acreditó.
+                    </p>
+                </div>
+
+                <!-- Pain Card 3 -->
+                <div class="bg-darkCard/50 border border-darkBorder hover:border-slate-800 p-6 sm:p-8 rounded-3xl flex flex-col gap-4 transition-all hover:-translate-y-1">
+                    <div class="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400">
+                        <i data-lucide="send-to-back" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-white">📦 La entrega manual</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Recordar mandarle el PDF al comprador por mail, subir archivos pesados a Drive, o cruzar los dedos para no olvidarte de anotar un turno coordinado en una agenda de papel que siempre perdés.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMPARISON: ANTES VS AHORA -->
+    <section class="py-24 border-t border-darkBorder relative bg-darkBg overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 flex flex-col gap-3">
+                <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">El Gran Contraste</span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white">
+                    Recuperá tu tiempo y tu paz mental
+                </h2>
+                <p class="text-slate-400 max-w-2xl mx-auto">
+                    Mirá cómo cambia tu rutina de trabajo cuando pasás de la coordinación analógica al piloto automático.
+                </p>
+            </div>
+
+            <!-- Grid Comparison Container -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                <!-- BEFORE: Caos Manual -->
+                <div class="bg-red-500/[0.02] border border-red-500/10 rounded-3xl p-8 flex flex-col justify-between">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold rounded-full mb-6">
+                            <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                            El Antes (Caos Manual)
+                        </div>
+                        <ul class="flex flex-col gap-5">
+                            <li class="flex items-start gap-3">
+                                <div class="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0 mt-0.5">✕</div>
+                                <span class="text-slate-300 text-sm"><strong class="text-white font-medium">Paso 1:</strong> Tu cliente te pide información por Instagram o chat de WhatsApp.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0 mt-0.5">✕</div>
+                                <span class="text-slate-300 text-sm"><strong class="text-white font-medium">Paso 2:</strong> Respondés cuando podés, mandás tarifas, PDFs explicativos y esperás.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0 mt-0.5">✕</div>
+                                <span class="text-slate-300 text-sm"><strong class="text-white font-medium">Paso 3:</strong> Le pasás tu CBU/Alias y le pedís la captura del comprobante de transferencia.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-5 h-5 rounded-full bg-red-500/10 flex items-center justify-center text-red-400 shrink-0 mt-0.5">✕</div>
+                                <span class="text-slate-300 text-sm"><strong class="text-white font-medium">Paso 4:</strong> Buscás los archivos en Drive o coordinás de forma manual la hora del turno.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-red-500/10 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-400">
+                            <i data-lucide="skull" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-red-400 uppercase tracking-wider font-semibold block">Tu Rol</span>
+                            <span class="text-slate-200 font-medium text-sm">Operador y cobrador las 24 horas del día.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AFTER: Piloto Automático -->
+                <div class="bg-gradient-to-br from-purple-500/[0.04] to-pink-500/[0.04] border border-purple-500/20 rounded-3xl p-8 flex flex-col justify-between shadow-xl shadow-purple-500/[0.02]">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-accentEmerald/10 border border-accentEmerald/20 text-accentEmerald text-xs font-semibold rounded-full mb-6">
+                            <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+                            El Ahora con Tiendubi
+                        </div>
+                        <ul class="flex flex-col gap-5">
+                            <li class="flex items-start gap-3">
+                                <div class="w-5 h-5 rounded-full bg-accentEmerald/10 flex items-center justify-center text-accentEmerald shrink-0 mt-0.5">✓</div>
+                                <span class="text-slate-300 text-sm"><strong class="text-white font-medium">Paso 1:</strong> El cliente hace un solo clic en el link único de tu biografía.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-5 h-5 rounded-full bg-accentEmerald/10 flex items-center justify-center text-accentEmerald shrink-0 mt-0.5">✓</div>
+                                <span class="text-slate-300 text-sm"><strong class="text-white font-medium">Paso 2:</strong> Elige de tu perfil el servicio, turno o archivo digital que quiere comprar.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-5 h-5 rounded-full bg-accentEmerald/10 flex items-center justify-center text-accentEmerald shrink-0 mt-0.5">✓</div>
+                                <span class="text-slate-300 text-sm"><strong class="text-white font-medium">Paso 3:</strong> Paga de forma segura e instantánea con Mercado Pago.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <div class="w-5 h-5 rounded-full bg-accentEmerald/10 flex items-center justify-center text-accentEmerald shrink-0 mt-0.5">✓</div>
+                                <span class="text-slate-300 text-sm"><strong class="text-white font-medium">Paso 4:</strong> Tiendubi le entrega el archivo o confirma la reserva automáticamente.</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="mt-8 pt-6 border-t border-purple-500/10 flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-accentEmerald/10 flex items-center justify-center text-accentEmerald">
+                            <i data-lucide="party-popper" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <span class="text-xs text-accentEmerald uppercase tracking-wider font-semibold block">Tu Rol</span>
+                            <span class="text-slate-200 font-medium text-sm">Hacer tu verdadero trabajo. Tu link vende, cobra y entrega por vos.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- USES: CATEGORÍAS DE PROFESIONALES -->
+    <section id="usos" class="py-24 border-t border-darkBorder relative bg-slate-950/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col gap-3">
+                <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">¿Para quién es?</span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white">
+                    Para quienes venden conocimiento, servicios o contenido digital
+                </h2>
+                <p class="text-slate-400">
+                    No importa si vendés tu tiempo, mentorías o descargas. Si se puede agendar o descargar, podés automatizarlo en tu link de Tiendubi.
+                </p>
+            </div>
+
+            <!-- Dynamic Tabs Navigation -->
+            <div class="flex flex-wrap justify-center gap-3 mb-12">
+                <button (click)="switchTab('productos')" id="tab-btn-productos" class="tab-btn px-5 py-3 rounded-2xl font-semibold text-sm transition-all flex items-center gap-2 bg-gradient-to-r from-accentViolet to-accentPurple text-white">
+                    <i data-lucide="package" class="w-4 h-4"></i>
+                    Productos digitales
+                </button>
+                <button (click)="switchTab('salud')" id="tab-btn-salud" class="tab-btn px-5 py-3 rounded-2xl font-semibold text-sm transition-all flex items-center gap-2 bg-darkCard border border-darkBorder text-slate-400 hover:text-white hover:border-slate-800">
+                    <i data-lucide="brain" class="w-4 h-4"></i>
+                    🧠 Salud y Coaching
+                </button>
+                <button (click)="switchTab('creadores')" id="tab-btn-creadores" class="tab-btn px-5 py-3 rounded-2xl font-semibold text-sm transition-all flex items-center gap-2 bg-darkCard border border-darkBorder text-slate-400 hover:text-white hover:border-slate-800">
+                    <i data-lucide="palette" class="w-4 h-4"></i>
+                    🎨 Creadores y Diseñadores
+                </button>
+                <button (click)="switchTab('talleres')" id="tab-btn-talleres" class="tab-btn px-5 py-3 rounded-2xl font-semibold text-sm transition-all flex items-center gap-2 bg-darkCard border border-darkBorder text-slate-400 hover:text-white hover:border-slate-800">
+                    <i data-lucide="ticket" class="w-4 h-4"></i>
+                    🎟️ Talleres y Eventos
+                </button>
+            </div>
+
+            <!-- Interactive Tab Content Display -->
+            <div class="bg-darkCard/80 border border-darkBorder rounded-[32px] p-8 sm:p-12 relative overflow-hidden">
+                <!-- Tab 1: Productos digitales -->
+                <div id="tab-content-productos" class="tab-content grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-7 flex flex-col gap-6">
+                        <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-white">Cobrá y entregá tus reportajes sin mover un dedo</h3>
+                        <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                            Olvidate de enviar links de Drive pesados y desordenados. Subí tus recursos digitales, archivos o accesos privados a una tienda protegida. El cliente entra, compra de forma digital y recibe el producto al instante.
+                        </p>
+                        <div class="flex flex-col gap-3">
+                            <div class="flex items-center gap-3 text-sm text-slate-300">
+                                <div class="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">✓</div>
+                                Entrega automática de archivos, links y accesos privados.
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-slate-300">
+                                <div class="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">✓</div>
+                                Venta de productos individuales, bundles o packs cerrados.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-5 bg-darkBg/60 border border-darkBorder rounded-2xl p-6 relative">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-300 font-bold">F</div>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Pack digital: Cocina para emprender</h4>
+                                <p class="text-[10px] text-slate-500">12 recursos disponibles</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div class="aspect-square bg-slate-800 rounded relative overflow-hidden group">
+                                <img src="https://placehold.co/100x100/1e293b/a5b4fc?text=MARCA+DE+AGUA" class="w-full h-full object-cover opacity-80">
+                                <span class="absolute inset-0 bg-indigo-500/10 text-[8px] font-mono flex items-center justify-center uppercase text-white/50 tracking-widest pointer-events-none">TIENDUBI</span>
+                            </div>
+                            <div class="aspect-square bg-slate-800 rounded relative overflow-hidden group">
+                                <img src="https://placehold.co/100x100/1e293b/a5b4fc?text=MARCA+DE+AGUA" class="w-full h-full object-cover opacity-80">
+                                <span class="absolute inset-0 bg-indigo-500/10 text-[8px] font-mono flex items-center justify-center uppercase text-white/50 tracking-widest pointer-events-none">TIENDUBI</span>
+                            </div>
+                            <div class="aspect-square bg-slate-800 rounded relative overflow-hidden group">
+                                <img src="https://placehold.co/100x100/1e293b/a5b4fc?text=MARCA+DE+AGUA" class="w-full h-full object-cover opacity-80">
+                                <span class="absolute inset-0 bg-indigo-500/10 text-[8px] font-mono flex items-center justify-center uppercase text-white/50 tracking-widest pointer-events-none">TIENDUBI</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex justify-between items-center bg-darkBg p-2 rounded-xl">
+                            <span class="text-[10px] text-slate-400">Precio del producto:</span>
+                            <span class="text-xs font-bold text-emerald-400">$1.500 c/u</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Salud (Hidden by default) -->
+                <div id="tab-content-salud" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-7 flex flex-col gap-6">
+                        <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-white">Agenda consultas online sin idas y vueltas</h3>
+                        <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                            Ofrecé tus sesiones médicas, psicológicas o de coaching. Tus pacientes eligen el día y horario disponible según tu agenda integrada, realizan el pago seguro del total o de la seña en el momento, y reciben los detalles de la videollamada al instante.
+                        </p>
+                        <div class="flex flex-col gap-3">
+                            <div class="flex items-center gap-3 text-sm text-slate-300">
+                                <div class="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">✓</div>
+                                Integrado de forma bidireccional con tu Google Calendar.
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-slate-300">
+                                <div class="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">✓</div>
+                                Envío de recordatorios automáticos por mail.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-5 bg-darkBg/60 border border-darkBorder rounded-2xl p-6">
+                        <div class="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 flex gap-3 items-center mb-4">
+                            <i data-lucide="video" class="w-6 h-6 text-indigo-400"></i>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Consulta Online: Nutrición Integral</h4>
+                                <p class="text-[10px] text-slate-400">Plataforma integrada vía Zoom / Google Meet</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="bg-darkBg p-2.5 rounded-xl flex items-center justify-between text-xs">
+                                <span class="text-slate-400">Duración:</span>
+                                <span class="text-white font-medium">50 minutos</span>
+                            </div>
+                            <div class="bg-darkBg p-2.5 rounded-xl flex items-center justify-between text-xs">
+                                <span class="text-slate-400">Frecuencia recomendada:</span>
+                                <span class="text-white font-medium">Quincenal o Mensual</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Creadores (Hidden by default) -->
+                <div id="tab-content-creadores" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-7 flex flex-col gap-6">
+                        <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-white">Tus infoproductos se entregan mientras dormís</h3>
+                        <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                            Ebooks, templates de Notion, presets, cursos grabados o audios exclusivos. Cargás tu material digital una sola vez en Tiendubi, lo enlazás en tus redes, y dejás que el sistema lo cobre y lo envíe directamente a la bandeja de entrada del comprador 24/7.
+                        </p>
+                        <div class="flex flex-col gap-3">
+                            <div class="flex items-center gap-3 text-sm text-slate-300">
+                                <div class="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">✓</div>
+                                Enlaces de descarga encriptados y temporales.
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-slate-300">
+                                <div class="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">✓</div>
+                                Carga de archivos de hasta 5GB directamente en la nube.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-5 bg-darkBg/60 border border-darkBorder rounded-2xl p-6 flex flex-col gap-4">
+                        <div class="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4 flex gap-3 items-center">
+                            <i data-lucide="file-text" class="w-6 h-6 text-purple-400"></i>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Guía de Entrenamiento.pdf</h4>
+                                <p class="text-[10px] text-slate-400">12.5 MB • PDF Interactivo</p>
+                            </div>
+                        </div>
+                        <div class="bg-darkBg p-3 rounded-xl border border-darkBorder/60 flex items-center justify-between">
+                            <div class="flex items-center gap-1.5 text-slate-400 text-xs">
+                                <i data-lucide="hard-drive" class="w-4 h-4"></i>
+                                Almacenamiento Seguro
+                            </div>
+                            <span class="text-xs text-purple-400 font-semibold">Entrega instantánea</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Talleres (Hidden by default) -->
+                <div id="tab-content-talleres" class="tab-content hidden grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    <div class="lg:col-span-7 flex flex-col gap-6">
+                        <h3 class="font-display font-extrabold text-2xl sm:text-3xl text-white">Ventas de cupos para seminarios y clases</h3>
+                        <p class="text-slate-400 leading-relaxed text-sm sm:text-base">
+                            ¿Haces talleres virtuales o presenciales? Vendé el acceso de forma integrada. Tiendubi registra los correos electrónicos, efectúa el pago, envía un ticket virtual de confirmación con las coordenadas de ingreso y arma un listado ordenado de tus alumnos para vos.
+                        </p>
+                        <div class="flex flex-col gap-3">
+                            <div class="flex items-center gap-3 text-sm text-slate-300">
+                                <div class="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">✓</div>
+                                Límite automático de cupos para no sobrecargar el aula.
+                            </div>
+                            <div class="flex items-center gap-3 text-sm text-slate-300">
+                                <div class="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">✓</div>
+                                Registro rápido sin registros eternos por parte de los alumnos.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-5 bg-darkBg/60 border border-darkBorder rounded-2xl p-6 flex flex-col gap-3">
+                        <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex gap-3 items-center">
+                            <i data-lucide="ticket" class="w-6 h-6 text-emerald-400"></i>
+                            <div>
+                                <h4 class="text-xs font-bold text-white">Workshop de Finanzas Personales</h4>
+                                <p class="text-[10px] text-slate-400">12 de Julio • Presencial u Online</p>
+                            </div>
+                        </div>
+                        <div class="bg-darkBg p-2.5 rounded-xl flex items-center justify-between text-xs">
+                            <span class="text-slate-400">Cupos restantes:</span>
+                            <span class="text-red-400 font-bold">¡Últimos 3 lugares!</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOW IT WORKS: PASO A PASO -->
+    <section id="como-funciona" class="py-24 border-t border-darkBorder bg-darkBg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col gap-3">
+                <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">Es súper simple</span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white">
+                    Tu negocio automatizado en 4 simples pasos
+                </h2>
+                <p class="text-slate-400">
+                    Literalmente te va a llevar menos tiempo que el que tardás en tomarte un café.
+                </p>
+            </div>
+
+            <!-- Steps Roadmap Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+                <!-- Step 1 -->
+                <div class="flex flex-col gap-4 relative">
+                    <div class="text-6xl font-extrabold font-display bg-clip-text text-transparent bg-gradient-to-r from-purple-500/20 to-slate-800 pointer-events-none select-none">
+                        01
+                    </div>
+                    <h3 class="font-display font-bold text-lg text-white">Creás tu perfil único</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Elegís tu nombre único (ej: <code class="bg-slate-900 border border-darkBorder px-1.5 py-0.5 rounded text-purple-400">tiendubi.app/tu-marca</code>) y personalizás el diseño con tus logos y colores.
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="flex flex-col gap-4 relative">
+                    <div class="text-6xl font-extrabold font-display bg-clip-text text-transparent bg-gradient-to-r from-purple-500/20 to-slate-800 pointer-events-none select-none">
+                        02
+                    </div>
+                    <h3 class="font-display font-bold text-lg text-white">Cargás tu contenido</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Subís tus PDFs, archivos descargables, links privados o recursos digitales. Vos decidís el precio y el medio de pago.
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="flex flex-col gap-4 relative">
+                    <div class="text-6xl font-extrabold font-display bg-clip-text text-transparent bg-gradient-to-r from-purple-500/20 to-slate-800 pointer-events-none select-none">
+                        03
+                    </div>
+                    <h3 class="font-display font-bold text-lg text-white">Conectás Mercado Pago</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Asociás tu cuenta de Mercado Pago con un solo clic. El dinero de cada venta ingresará directo a tu cuenta de manera local, sin comisiones ocultas.
+                    </p>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="flex flex-col gap-4 relative">
+                    <div class="text-6xl font-extrabold font-display bg-clip-text text-transparent bg-gradient-to-r from-purple-500/20 to-slate-800 pointer-events-none select-none">
+                        04
+                    </div>
+                    <h3 class="font-display font-bold text-lg text-white">Compartís y cobrás</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Pegás tu link de Tiendubi en tu biografía de Instagram o lo dejás en tu respuesta automática de WhatsApp. El sistema vende y entrega por vos.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- REAL BENEFITS: BENTO GRID STYLE -->
+    <section class="py-24 border-t border-darkBorder bg-slate-950/20 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col gap-3">
+                <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">Beneficios Reales</span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white">
+                    Menos tiempo administrativo, más facturación
+                </h2>
+                <p class="text-slate-400">
+                    Menos tareas manuales, más ventas ordenadas. Tiendubi automatiza cobros, reservas y entregas para que no tengas que coordinar todo por mensaje.
+                </p>
+            </div>
+
+            <!-- Bento Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-fr">
+                <!-- Grid Element 1: 8cols -->
+                <div class="bg-darkCard/40 border border-darkBorder rounded-3xl p-8 md:col-span-8 flex flex-col justify-between group hover:border-slate-800 transition-colors">
+                    <div class="flex flex-col gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
+                            <i data-lucide="message-square-text" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-white">Adiós a las respuestas repetitivas de WhatsApp</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed max-w-xl">
+                            Filtrá las consultas básicas de tarifas o calendarios de atención. Dejá el chat para coordinar proyectos personalizados de alto presupuesto o para cerrar alianzas estratégicas reales.
+                        </p>
+                    </div>
+                    <div class="mt-6 flex items-center gap-3">
+                        <span class="text-[11px] text-accentEmerald bg-accentEmerald/10 border border-accentEmerald/20 px-2 py-1 rounded-md font-mono font-semibold">⭐ Tu link responde por vos</span>
+                    </div>
+                </div>
+
+                <!-- Grid Element 2: 4cols -->
+                <div class="bg-darkCard/40 border border-darkBorder rounded-3xl p-8 md:col-span-4 flex flex-col justify-between group hover:border-slate-800 transition-colors">
+                    <div class="flex flex-col gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-white">Cero fricción de compra</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Tus compradores podrán adquirir tus contenidos un sábado a las 3 de la madrugada sin necesidad de esperar a que te despiertes para pasarles tu Alias.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Grid Element 3: 4cols -->
+                <div class="bg-darkCard/40 border border-darkBorder rounded-3xl p-8 md:col-span-4 flex flex-col justify-between group hover:border-slate-800 transition-colors">
+                    <div class="flex flex-col gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                            <i data-lucide="shield-check" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-white">Tus archivos siempre protegidos</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            Cargas completamente encriptadas, accesos con contraseñas temporales y marcas de agua dinámicas para evitar plagios en tus proyectos visuales.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Grid Element 4: 8cols -->
+                <div class="bg-darkCard/40 border border-darkBorder rounded-3xl p-8 md:col-span-8 flex flex-col justify-between group hover:border-slate-800 transition-colors">
+                    <div class="flex flex-col gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl text-white">Un panel de administración simplificado</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed max-w-xl">
+                            Olvidate de las planillas de Excel que se desorganizan. Monitoreá tus ventas del mes, gestioná tus clientes, mirá la agenda de tus reservas y conocé cuáles son tus productos más vendidos en una sola pantalla interactiva.
+                        </p>
+                    </div>
+                    <div class="mt-6 flex items-center gap-3">
+                        <span class="text-[11px] text-purple-400 bg-purple-500/10 border border-purple-500/20 px-2 py-1 rounded-md font-mono font-semibold">✨ Diseñado especialmente para pantallas de celulares</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DIFFERENTIATOR: POR QUÉ TIENDUBI NO ES UNA TIENDA ONLINE COMÚN -->
+    <section id="diferenciales" class="py-24 border-t border-darkBorder bg-darkBg overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col gap-3">
+                <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">Nuestros Diferenciales</span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white">
+                    No somos otra tienda online tradicional
+                </h2>
+                <p class="text-slate-400">
+                    Diseñamos una herramienta ágil, creada y pensada de forma específica para quienes comercializan su conocimiento o servicios en redes sociales.
+                </p>
+            </div>
+
+            <!-- Features Comparison Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Diff Card 1 -->
+                <div class="bg-gradient-to-b from-darkCard to-darkBg border border-darkBorder p-8 rounded-3xl flex flex-col gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400">
+                        <i data-lucide="globe-2" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-white">🇦🇷 Nacido y pensado para Latam</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Integración directa y nativa con <strong>Mercado Pago</strong>. Cobrás tus ventas en pesos al instante de forma local, evitando complicaciones impositivas internacionales.
+                    </p>
+                </div>
+
+                <!-- Diff Card 2 -->
+                <div class="bg-gradient-to-b from-darkCard to-darkBg border border-darkBorder p-8 rounded-3xl flex flex-col gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400">
+                        <i data-lucide="sliders-horizontal" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-white">⚡ Cero configuraciones técnicas</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        No requerís comprar dominios, configurar servidores pesados o diseñar usando maquetadores visuales imposibles. Todo viene listo para cargar tus productos y empezar a facturar de inmediato.
+                    </p>
+                </div>
+
+                <!-- Diff Card 3 -->
+                <div class="bg-gradient-to-b from-darkCard to-darkBg border border-darkBorder p-8 rounded-3xl flex flex-col gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400">
+                        <i data-lucide="target" class="w-6 h-6"></i>
+                    </div>
+                    <h3 class="font-display font-bold text-xl text-white">🎯 Foco absoluto en la inmediatez</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Sin carritos de compra eternos con 10 pasos que ahuyentan a tu comprador. Formularios de compra limpios y optimizados exclusivamente para dispositivos móviles.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING PLANS -->
+    <section id="planes" class="py-24 border-t border-darkBorder bg-slate-950/40 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 flex flex-col gap-3">
+                <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">Nuestras Tarifas</span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white">
+                    Planes transparentes para cada etapa
+                </h2>
+                <p class="text-slate-400">
+                    Elegí el plan que mejor se adapte al volumen actual de tu negocio digital. Sin cargos sorpresa de mantenimiento.
+                </p>
+
+                <!-- Billing Interval Switcher -->
+                <div class="inline-flex items-center gap-2 self-center bg-darkCard border border-darkBorder p-1.5 rounded-2xl mt-4 self-center mx-auto">
+                    <button (click)="switchBilling('mensual')" id="billing-btn-mensual" class="px-4 py-2 text-xs font-semibold rounded-xl transition-all bg-purple-550 bg-indigo-500 text-white shadow">Mensual</button>
+                    <button (click)="switchBilling('anual')" id="billing-btn-anual" class="px-4 py-2 text-xs font-semibold rounded-xl transition-all text-slate-400 hover:text-white flex items-center gap-1">
+                        Anual
+                        <span class="bg-emerald-500/10 text-accentEmerald text-[9px] px-1.5 py-0.5 rounded-full font-bold">Ahorrá 20%</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Plans Comparative Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
+                <!-- Plan 1: Gratis -->
+                <div class="bg-darkCard/50 border border-darkBorder rounded-[32px] p-8 flex flex-col justify-between transition-all hover:border-slate-800">
+                    <div>
+                        <div class="mb-6">
+                            <span class="text-slate-400 text-xs uppercase tracking-wider font-semibold block mb-2">Ideal para dar tus primeros pasos</span>
+                            <h3 class="font-display font-extrabold text-2xl text-white">Plan Inicial</h3>
+                            <p class="text-slate-400 text-xs mt-2 leading-relaxed">Validá tu primer servicio digital o infoproducto sin costos fijos mensuales.</p>
+                        </div>
+
+                        <div class="my-8">
+                            <span class="text-4xl font-extrabold font-display text-white">$0</span>
+                            <span class="text-slate-500 text-xs">ARS / mes para siempre</span>
+                            <div class="text-[11px] text-purple-400 font-semibold mt-2 bg-purple-500/5 border border-purple-500/10 py-1.5 px-3 rounded-lg inline-block">
+                                + 5% de comisión por venta procesada
+                            </div>
+                        </div>
+
+                        <div class="h-[1px] bg-darkBorder my-6"></div>
+
+                        <ul class="flex flex-col gap-4 text-xs text-slate-300">
+                            <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                Perfil público autogenerado <span class="font-mono">tiendubi.app/tu-marca</span>
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                Hasta 3 productos digitales activos (PDFs, plantillas, etc.)
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                Hasta 1 servicio de reserva manual integrado
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                Cobros de tus ventas integrados con Mercado Pago
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                Entrega automática básica de archivos por email
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-8">
+                        <button (click)="openModal('signup')" class="w-full py-4 rounded-2xl bg-slate-900 border border-darkBorder hover:border-slate-700 text-white font-semibold text-sm transition-all active:scale-[0.98]">
+                            Empezar gratis hoy
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Plan 2: Pro -->
+                <div class="relative bg-gradient-to-b from-darkCard to-indigo-950/20 border-2 border-purple-500 rounded-[32px] p-8 flex flex-col justify-between shadow-2xl shadow-purple-500/[0.05]">
+                    <!-- Badge Featured -->
+                    <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-accentViolet via-accentPurple to-accentPink text-white text-[10px] font-extrabold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg">
+                        MÁS RECOMENDADO ⭐
+                    </span>
+
+                    <div>
+                        <div class="mb-6">
+                            <span class="text-purple-400 text-xs uppercase tracking-wider font-semibold block mb-2">Para profesionales independientes</span>
+                            <h3 class="font-display font-extrabold text-2xl text-white">Plan Pro</h3>
+                            <p class="text-slate-400 text-xs mt-2 leading-relaxed">Para emprendedores consolidados que quieren eliminar comisiones por transacción.</p>
+                        </div>
+
+                        <div class="my-8">
+                            <div class="flex items-baseline gap-1.5">
+                                <span id="price-value" class="text-4xl font-extrabold font-display text-white">{{ priceValue }}</span>
+                                <span class="text-slate-400 text-xs font-semibold">ARS / mes</span>
+                            </div>
+                            <span id="price-interval-label" class="text-slate-500 text-[10px] mt-1 block">{{ priceIntervalLabel }}</span>
+                            <div class="text-[11px] text-accentEmerald font-semibold mt-2 bg-emerald-500/5 border border-emerald-500/10 py-1.5 px-3 rounded-lg inline-block">
+                                + 0% de comisión (Te quedás con el 100%)
+                            </div>
+                        </div>
+
+                        <div class="h-[1px] bg-darkBorder my-6"></div>
+
+                        <ul class="flex flex-col gap-4 text-xs text-slate-300">
+                            <li class="flex items-center gap-2.5 font-semibold text-white">
+                                <i data-lucide="plus" class="w-4.5 h-4.5 text-accentPurple"></i>
+                                Todo lo del plan Inicial, y además:
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                Productos digitales y descargas <strong class="text-white font-medium">ilimitadas</strong>
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                Reservas ilimitadas integradas con Google Calendar
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                Productos digitales y recursos privados ilimitados
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                Conexión de dominio propio (ej: <span class="font-mono">tudominio.com</span>)
+                            </li>
+                            <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                Cupones de descuento y notificaciones automatizadas
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="mt-8">
+                        <button (click)="openModal('signup')" class="w-full py-4 rounded-2xl bg-gradient-to-r from-accentViolet via-accentPurple to-accentPink text-white font-semibold text-sm hover:shadow-lg hover:shadow-purple-500/20 active:scale-[0.98] transition-all">
+                            Activar Plan Pro
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section id="faq" class="py-24 border-t border-darkBorder bg-darkBg">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 flex flex-col gap-3">
+                <span class="text-purple-400 text-xs font-semibold uppercase tracking-widest">Preguntas frecuentes</span>
+                <h2 class="font-display font-extrabold text-3xl sm:text-4xl text-white">
+                    Despejá todas tus dudas
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base">
+                    Todo lo que necesitás saber sobre cobros, automatizaciones y el funcionamiento general de la plataforma.
+                </p>
+            </div>
+
+            <!-- Accordion List -->
+            <div class="space-y-4">
+                <!-- FAQ Item 1 -->
+                <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
+                    <button (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                        <span>¿Qué puedo vender exactamente con Tiendubi?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
+                            Podés vender servicios reservables, productos digitales, archivos descargables, accesos privados, packs y talleres.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 2 -->
+                <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
+                    <button (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                        <span>¿Necesito saber algo de programación o diseño web?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
+                            Para nada. Tiendubi se pensó para personas que no quieren lidiar con WordPress, plugins complicados, ni integraciones raras de bases de datos. En 5 minutos cargás tus datos, subís tus productos y el sistema autogenera tu perfil de forma optimizada y adaptativa para celulares.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 3 -->
+                <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
+                    <button (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                        <span>¿Cómo cobro el dinero de mis ventas?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
+                            Utilizamos la pasarela líder de la región: <strong>Mercado Pago</strong>. Vinculás tu cuenta con un clic, tus clientes pagan con tarjeta de crédito, débito o dinero en cuenta, y el dinero ingresa directamente a tu billetera virtual en el momento, sin intermediarios.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 4 -->
+                <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
+                    <button (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                        <span>¿Tiendubi retiene mi dinero en su plataforma?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
+                            No, nunca. El dinero va directamente desde tu comprador hacia tu cuenta de <strong>Mercado Pago</strong> vinculada. Tiendubi no procesa los fondos en tránsito ni los retiene. Solo debitamos la pequeña comisión del plan de forma transparente.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 5 -->
+                <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
+                    <button (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                        <span>¿Puedo vender servicios y archivos a la vez?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
+                            ¡Totalmente! Esa es la magia de Tiendubi. En tu mismo perfil podés tener un botón para reservar turnos de asesorías y, justo abajo, un eBook digital, un pack descargable o un acceso privado. Todo convive de forma fluida.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ Item 6 -->
+                <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
+                    <button (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                        <span>¿Mis clientes necesitan tener una cuenta?</span>
+                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                    </button>
+                    <div class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                        <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
+                            No. El proceso de compra está optimizado para ser lo más directo posible. Tu cliente solo ingresa a tu link, selecciona lo que quiere comprar, completa su correo electrónico de contacto, paga y recibe la descarga o confirmación. Sin registros molestos.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINAL CALL TO ACTION & FOOTER -->
+    <section class="py-24 border-t border-darkBorder bg-slate-950 relative overflow-hidden">
+        <!-- Visual details bg -->
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-60 bg-gradient-to-t from-accentPurple/5 to-transparent blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 flex flex-col gap-6">
+            <h2 class="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight leading-tight">
+                Dejá de coordinar ventas una por una. <br class="hidden sm:inline">Empezá a vender en piloto automático.
+            </h2>
+            <p class="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+                Creá tu link gratis y empezá a vender sin coordinar todo por WhatsApp.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4">
+                <button (click)="openModal('signup')" class="w-full sm:w-auto bg-gradient-to-r from-accentViolet via-accentPurple to-accentPink text-white font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-purple-500/15 transition-all hover:-translate-y-0.5 active:scale-95">
+                    Crear mi cuenta gratis
+                </button>
+                <!-- NOTA: Reemplaza este enlace (5493518112233) por tu número real de WhatsApp de soporte técnico/comercial -->
+                <a href="https://wa.me/5493518112233?text=Hola,%20quiero%20conocer%20mas%20de%20Tiendubi" target="_blank" class="w-full sm:w-auto bg-slate-900 border border-darkBorder hover:border-slate-700 text-slate-300 font-semibold px-8 py-4 rounded-2xl transition-all hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2">
+                    <i data-lucide="message-circle" class="w-5 h-5 text-emerald-400"></i>
+                    Escribinos por WhatsApp
+                </a>
+            </div>
+
+            <!-- Quick footer details -->
+            <div class="mt-20 pt-8 border-t border-darkBorder/40 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
+                        <i data-lucide="store" class="w-3.5 h-3.5 text-white"></i>
+                    </div>
+                    <span>© 2026 Tiendubi. Todos los derechos reservados.</span>
+                </div>
+                <div class="flex items-center gap-6">
+                    <a href="#" class="hover:text-white transition-colors">Términos de servicio</a>
+                    <a href="#" class="hover:text-white transition-colors">Políticas de privacidad</a>
+                    <a href="#" class="hover:text-white transition-colors">Contacto</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- INTERACTIVE SIGNUP / ONBOARDING MODAL -->
+    <div id="auth-modal" [class.hidden]="!authModalOpen" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-darkCard border border-darkBorder rounded-[32px] max-w-md w-full p-8 relative flex flex-col gap-6 shadow-2xl">
+            <!-- Close Button -->
+            <button (click)="closeModal()" class="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+
+            <div class="flex flex-col gap-2">
+                <h3 id="modal-title" class="font-display font-extrabold text-2xl text-white">Comenzá Gratis</h3>
+                <p id="modal-desc" class="text-xs text-slate-400">Automatizá tus ventas y reservas hoy mismo.</p>
+            </div>
+
+            <!-- Dynamic Interactive Registration Form -->
+            <form (submit)="handleAuthSubmit($event)" class="flex flex-col gap-4">
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-slate-400">Tu correo electrónico</label>
+                    <input [(ngModel)]="authEmail" name="authEmail" type="email" required placeholder="nombre@ejemplo.com" class="w-full bg-darkBg border border-darkBorder focus:border-accentViolet rounded-xl p-3.5 text-sm outline-none text-white placeholder:text-slate-600 transition-colors">
+                </div>
+
+                <div class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-slate-400">Contraseña</label>
+                    <input [(ngModel)]="authPassword" name="authPassword" type="password" required placeholder="Mínimo 8 caracteres" class="w-full bg-darkBg border border-darkBorder focus:border-accentViolet rounded-xl p-3.5 text-sm outline-none text-white placeholder:text-slate-600 transition-colors">
+                </div>
+
+                <!-- Username confirmation if sign up -->
+                <div id="modal-username-block" [class.hidden]="authMode === 'login'" class="flex flex-col gap-1.5">
+                    <label class="text-xs font-semibold text-slate-400">Elegí tu subdominio</label>
+                    <div class="flex items-center bg-darkBg border border-darkBorder rounded-xl p-3.5 text-sm">
+                        <span class="text-slate-600 mr-1 font-mono">tiendubi.app/</span>
+                        <input id="modal-username-input" name="modalUsername" type="text" [value]="modalUsername" (input)="updateModalUsername($event)" placeholder="nombre-marca" class="bg-transparent border-none outline-none focus:ring-0 text-white w-full placeholder:text-slate-700 font-medium">
+                    </div>
+                </div>
+
+                <p *ngIf="authErrorMessage" class="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-xs font-medium text-red-300">
+                    {{ authErrorMessage }}
+                </p>
+                <p *ngIf="authSuccessMessage" class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs font-medium text-emerald-300">
+                    {{ authSuccessMessage }}
+                </p>
+
+                <button type="submit" [disabled]="isAuthSubmitting || (authMode === 'signup' && !!authSuccessMessage)" class="w-full mt-2 bg-gradient-to-r from-accentViolet to-accentPurple text-white font-semibold py-4 rounded-xl shadow-lg shadow-purple-500/10 active:scale-98 transition-all disabled:cursor-not-allowed disabled:opacity-60">
+                    {{ authMode === 'login' ? (isAuthSubmitting ? 'Ingresando...' : 'Ingresar') : (isAuthSubmitting ? 'Enviando link...' : authSuccessMessage ? 'Link enviado' : 'Registrarme e Iniciar') }}
+                </button>
+            </form>
+
+            <div class="text-[11px] text-slate-500 text-center">
+                Al registrarte, aceptás los Términos y Condiciones generales del servicio.
+            </div>
+        </div>
+    </div>
+
+    <!-- CUSTOM TOAST MESSAGE BOX (Alternative to Alert) -->
+    <div id="toast" [class.translate-y-24]="!toastVisible" [class.opacity-0]="!toastVisible" [class.translate-y-0]="toastVisible" [class.opacity-100]="toastVisible" class="fixed bottom-6 right-6 z-50 bg-slate-900 border border-darkBorder p-4 rounded-2xl flex items-center gap-3 shadow-2xl translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div id="toast-icon-wrapper" class="w-8 h-8 rounded-lg flex items-center justify-center" [ngClass]="toastType === 'success' ? 'bg-emerald-500/10 text-accentEmerald' : 'bg-red-500/10 text-red-400'">
+            <i id="toast-icon" [attr.data-lucide]="toastType === 'success' ? 'check' : 'alert-circle'" class="w-4 h-4"></i>
+        </div>
+        <div>
+            <h5 id="toast-title" class="font-bold text-xs text-white">{{ toastTitle }}</h5>
+            <p id="toast-msg" class="text-[10px] text-slate-400 mt-0.5">{{ toastMsg }}</p>
+        </div>
+    </div>
+</div>

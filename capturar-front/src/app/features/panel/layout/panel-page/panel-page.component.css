@@ -1,0 +1,21 @@
+:host {
+  display: block;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #f8fafc;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+  color: #2563eb;
+}
+
+.sidebar-link.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(241, 245, 249, 1);
+}

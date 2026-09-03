@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galería de Evento | CapturAr</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #fbfcfd; }
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            opacity: 0.2;
+            font-size: 2rem;
+            font-weight: 800;
+            white-space: nowrap;
+            pointer-events: none;
+            user-select: none;
+            color: white;
+            text-transform: uppercase;
+        }
+        .photo-grid-item:hover .overlay { opacity: 1; }
+        .cart-drawer { transition: transform 0.3s ease-in-out; }
+        .is-cart-open .cart-drawer { transform: translateX(0); }
+    </style>
+</head>
+<body class="text-slate-900">
+
+    <!-- Header del Evento -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:block">
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Fotógrafo</p>
+                    <p class="text-sm font-bold">Estudio Lumière</p>
+                </div>
+                <div class="h-8 w-[1px] bg-slate-200 hidden sm:block"></div>
+                <div>
+                    <h1 class="text-lg font-black tracking-tight text-blue-600">XV - Martina García</h1>
+                    <p class="text-xs text-slate-500 font-medium">Hotel Alvear • 15 Mayo 2024</p>
+                </div>
+            </div>
+            
+            <button onclick="toggleCart()" class="relative p-3 bg-slate-950 text-white rounded-2xl hover:bg-blue-600 transition-all flex items-center gap-2">
+                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                <span class="text-sm font-bold hidden sm:inline">Mi Carrito</span>
+                <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Buscador y Filtros -->
+    <section class="bg-slate-50 py-8 border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row gap-4 items-center">
+            <div class="relative flex-1 w-full">
+                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                <input type="text" placeholder="Busca tu número de dorsal o nombre..." class="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none font-medium">
+            </div>
+            <div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                <button class="px-6 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold whitespace-nowrap hover:bg-slate-100 transition">📸 Recepción</button>
+                <button class="px-6 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold whitespace-nowrap hover:bg-slate-100 transition">💃 Baile</button>
+                <button class="px-6 py-4 bg-white border border-slate-200 rounded-2xl text-sm font-bold whitespace-nowrap hover:bg-slate-100 transition">🎂 Torta</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Galería de Fotos -->
+    <main class="max-w-7xl mx-auto px-4 py-12">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8" id="photo-gallery">
+            <!-- Las fotos se generan dinámicamente o por el servidor -->
+            <!-- Ejemplo de Item -->
+            <div class="photo-grid-item relative group rounded-3xl overflow-hidden bg-slate-200 aspect-[3/4] shadow-sm">
+                <img src="https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500" alt="Boda Evento">
+                <div class="watermark uppercase tracking-widest font-black">CapturAr Muestra</div>
+                <div class="overlay absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 transition-opacity flex flex-col justify-end p-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-white text-xs font-bold uppercase tracking-widest opacity-70">Foto #1204</p>
+                            <p class="text-white font-black text-xl">$1.200</p>
+                        </div>
+                        <button onclick="addToCart(1204, 1200)" class="w-12 h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-90">
+                            <i data-lucide="plus" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Duplicados de ejemplo para visualización -->
+            <div class="photo-grid-item relative group rounded-3xl overflow-hidden bg-slate-200 aspect-[3/4] shadow-sm">
+                <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500" alt="Fiesta">
+                <div class="watermark">CapturAr</div>
+                <div class="overlay absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 transition-opacity flex flex-col justify-end p-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-white text-xs font-bold uppercase tracking-widest opacity-70">Foto #1205</p>
+                            <p class="text-white font-black text-xl">$1.200</p>
+                        </div>
+                        <button onclick="addToCart(1205, 1200)" class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center"><i data-lucide="plus" class="w-6 h-6"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="photo-grid-item relative group rounded-3xl overflow-hidden bg-slate-200 aspect-[3/4] shadow-sm">
+                <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500" alt="Invitados">
+                <div class="watermark">CapturAr</div>
+                <div class="overlay absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 transition-opacity flex flex-col justify-end p-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-white text-xs font-bold uppercase tracking-widest opacity-70">Foto #1206</p>
+                            <p class="text-white font-black text-xl">$1.200</p>
+                        </div>
+                        <button onclick="addToCart(1206, 1200)" class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center"><i data-lucide="plus" class="w-6 h-6"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="photo-grid-item relative group rounded-3xl overflow-hidden bg-slate-200 aspect-[3/4] shadow-sm">
+                <img src="https://images.unsplash.com/photo-1519225495810-7517c31230d6?auto=format&fit=crop&q=80&w=600" class="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500" alt="Baile">
+                <div class="watermark">CapturAr</div>
+                <div class="overlay absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 transition-opacity flex flex-col justify-end p-6">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-white text-xs font-bold uppercase tracking-widest opacity-70">Foto #1207</p>
+                            <p class="text-white font-black text-xl">$1.200</p>
+                        </div>
+                        <button onclick="addToCart(1207, 1200)" class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center"><i data-lucide="plus" class="w-6 h-6"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Carrito Lateral (Drawer) -->
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 translate-x-full cart-drawer border-l border-slate-200">
+        <div class="flex flex-col h-full">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h2 class="text-xl font-black">Tu Carrito</h2>
+                <button onclick="toggleCart()" class="p-2 hover:bg-slate-100 rounded-full transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+            </div>
+            
+            <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-4 text-center text-slate-400">
+                <i data-lucide="image" class="w-12 h-12 mx-auto mb-4 opacity-20"></i>
+                <p>No seleccionaste ninguna foto aún.</p>
+            </div>
+
+            <div class="p-8 bg-slate-50 border-t border-slate-200">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="font-bold text-slate-500">Total a pagar:</span>
+                    <span id="cart-total" class="text-3xl font-black">$0</span>
+                </div>
+                <button onclick="showCheckout()" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-500 transition shadow-xl shadow-blue-500/20 uppercase tracking-widest text-sm">
+                    Ir a pagar ahora
+                </button>
+                <p class="mt-4 text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest">Descarga inmediata tras el pago</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Pago (Checkout) -->
+    <div id="checkout-modal" class="fixed inset-0 z-[60] hidden bg-slate-950/80 backdrop-blur-md items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-2xl font-black italic">Finalizar Compra</h3>
+                    <button onclick="hideCheckout()" class="p-2 bg-slate-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Email para envío de fotos</label>
+                        <input type="email" placeholder="tu@email.com" class="w-full p-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500 font-bold">
+                    </div>
+
+                    <div class="p-6 border-2 border-blue-600 bg-blue-50 rounded-2xl flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                                <i data-lucide="credit-card" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-black">Mercado Pago</p>
+                                <p class="text-[10px] text-blue-600 font-bold uppercase tracking-widest">Acreditación instantánea</p>
+                            </div>
+                        </div>
+                        <i data-lucide="chevron-right" class="w-5 h-5 text-blue-600"></i>
+                    </div>
+
+                    <div class="p-6 border border-slate-200 rounded-2xl flex items-center justify-between opacity-50 grayscale">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center">
+                                <i data-lucide="banknote" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm font-black">Transferencia CBU</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="w-full mt-10 bg-slate-950 text-white font-black py-5 rounded-2xl hover:bg-blue-600 transition-all flex items-center justify-center gap-3">
+                    Pagar <span id="checkout-total">$0</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Banner Informativo -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-lg">
+        <div class="bg-white/80 backdrop-blur-lg border border-slate-200 p-4 rounded-2xl shadow-xl flex items-center gap-4">
+            <div class="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-600">
+                <i data-lucide="info" class="w-5 h-5"></i>
+            </div>
+            <p class="text-xs font-medium text-slate-600 leading-relaxed">
+                Todas las fotos se entregan en **máxima resolución** y sin marcas de agua inmediatamente después del pago.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let cart = [];
+
+        function toggleCart() {
+            document.body.classList.toggle('is-cart-open');
+        }
+
+        function addToCart(id, price) {
+            if (!cart.some(item => item.id === id)) {
+                cart.push({ id, price });
+                updateCartUI();
+                // Efecto visual en el botón de carrito
+                const btn = document.querySelector('button[onclick="toggleCart()"]');
+                btn.classList.add('scale-110', 'bg-blue-600');
+                setTimeout(() => btn.classList.remove('scale-110', 'bg-blue-600'), 300);
+            }
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items');
+            const totalEl = document.getElementById('cart-total');
+            const countEl = document.getElementById('cart-count');
+            const checkoutTotal = document.getElementById('checkout-total');
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <i data-lucide="image" class="w-12 h-12 mx-auto mb-4 opacity-20"></i>
+                    <p>No seleccionaste ninguna foto aún.</p>
+                `;
+                totalEl.innerText = '$0';
+                countEl.innerText = '0';
+                checkoutTotal.innerText = '$0';
+            } else {
+                container.innerHTML = cart.map((item, index) => `
+                    <div class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <div class="w-12 h-12 bg-slate-200 rounded-lg flex-shrink-0"></div>
+                        <div class="flex-1 text-left">
+                            <p class="text-xs font-bold text-slate-900 italic">Foto #${item.id}</p>
+                            <p class="text-sm font-black text-blue-600">$${item.price}</p>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-slate-300 hover:text-red-500 transition">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                `).join('');
+                
+                const total = cart.reduce((sum, item) => sum + item.price, 0);
+                totalEl.innerText = `$${total}`;
+                checkoutTotal.innerText = `$${total}`;
+                countEl.innerText = cart.length;
+            }
+            lucide.createIcons();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        function showCheckout() {
+            if (cart.length === 0) return;
+            document.getElementById('checkout-modal').classList.remove('hidden');
+            document.getElementById('checkout-modal').classList.add('flex');
+        }
+
+        function hideCheckout() {
+            document.getElementById('checkout-modal').classList.add('hidden');
+            document.getElementById('checkout-modal').classList.remove('flex');
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>

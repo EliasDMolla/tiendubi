@@ -1,0 +1,125 @@
+<div class="p-8 space-y-6">
+  <div>
+    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Owner</p>
+    <h1 class="text-2xl font-black">Control del Sistema</h1>
+    <p class="text-sm text-slate-500 mt-1">Acceso restringido al propietario. Gestión de estudios, ventas y operaciones.</p>
+  </div>
+
+  <p *ngIf="errorMessage" class="text-sm font-bold text-red-600">{{ errorMessage }}</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="rounded-2xl border border-slate-200 bg-white p-4">
+      <p class="text-[11px] uppercase font-black text-slate-400">Estudios totales</p>
+      <p class="text-2xl font-black">{{ dashboard.totalUsers }}</p>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-4">
+      <p class="text-[11px] uppercase font-black text-slate-400">Nuevos (mes)</p>
+      <p class="text-2xl font-black">{{ dashboard.newUsersThisMonth }}</p>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-4">
+      <p class="text-[11px] uppercase font-black text-slate-400">Crecimiento total</p>
+      <p class="text-2xl font-black">{{ dashboard.userGrowthPercent | number:'1.0-1' }}%</p>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-4">
+      <p class="text-[11px] uppercase font-black text-slate-400">Crecimiento mes</p>
+      <p class="text-2xl font-black">{{ dashboard.newUsersGrowthPercent | number:'1.0-1' }}%</p>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-4">
+      <p class="text-[11px] uppercase font-black text-slate-400">GB usados totales</p>
+      <p class="text-2xl font-black">{{ (dashboard.totalStorageUsedBytes / 1073741824) | number:'1.2-2' }} GB</p>
+    </div>
+  </div>
+
+  <div class="rounded-3xl border border-slate-200 bg-white p-6 space-y-4">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <h2 class="text-lg font-black">Estudios</h2>
+      <input
+        [(ngModel)]="search"
+        (ngModelChange)="onSearchChanged()"
+        type="text"
+        placeholder="Buscar por email o nombre..."
+        class="w-full sm:w-80 rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+      />
+    </div>
+
+    <p *ngIf="isLoadingUsers" class="text-sm text-slate-500">Cargando estudios...</p>
+
+    <div class="overflow-x-auto" *ngIf="!isLoadingUsers">
+      <table class="w-full min-w-[860px] text-sm">
+        <thead>
+          <tr class="text-left text-[10px] uppercase tracking-widest text-slate-400 border-b border-slate-200">
+            <th class="py-3 pr-3 font-black">Estudio</th>
+            <th class="py-3 pr-3 font-black">Plan</th>
+            <th class="py-3 pr-3 font-black">Estado</th>
+            <th class="py-3 pr-3 font-black">GB usados</th>
+            <th class="py-3 pr-3 font-black">Último login</th>
+            <th class="py-3 pr-3 font-black text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let study of studies" class="border-b border-slate-100 last:border-b-0">
+            <td class="py-3 pr-3">
+              <p class="font-bold text-slate-800">{{ study.fullName || 'Sin nombre' }}</p>
+              <p class="text-xs text-slate-500">{{ study.email }}</p>
+            </td>
+            <td class="py-3 pr-3 font-bold text-slate-700">{{ study.planType }}</td>
+            <td class="py-3 pr-3">
+              <span class="inline-flex px-2 py-1 rounded-full text-[11px] font-black"
+                    [ngClass]="study.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'">
+                {{ study.isActive ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+            <td class="py-3 pr-3 font-bold text-slate-700">{{ (study.storageUsedBytes / 1073741824) | number:'1.2-2' }} GB</td>
+            <td class="py-3 pr-3 text-slate-600">{{ study.lastLogin ? (study.lastLogin | date:'dd/MM/yyyy HH:mm') : 'Sin datos' }}</td>
+            <td class="py-3 pr-3 text-right">
+              <div class="inline-flex items-center gap-2">
+                <button (click)="viewStudy(study)" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-black">Ver datos</button>
+                <button (click)="toggleStudyStatus(study)" class="px-3 py-1.5 rounded-lg border border-amber-300 text-amber-700 text-xs font-black">{{ study.isActive ? 'Desactivar' : 'Activar' }}</button>
+                <button (click)="deleteStudy(study)" class="px-3 py-1.5 rounded-lg border border-red-300 text-red-700 text-xs font-black">Eliminar</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="flex items-center justify-center gap-2" *ngIf="totalPages > 1">
+      <button (click)="goToPage(page - 1)" [disabled]="page <= 1" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-black disabled:opacity-40">Anterior</button>
+      <span class="text-xs font-black uppercase text-slate-500">Página {{ page }} / {{ totalPages }}</span>
+      <button (click)="goToPage(page + 1)" [disabled]="page >= totalPages" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-black disabled:opacity-40">Siguiente</button>
+    </div>
+  </div>
+
+  <div class="rounded-3xl border border-slate-200 bg-white p-6 space-y-3">
+    <h2 class="text-lg font-black">Módulos Owner (siguiente fase)</h2>
+    <ul class="text-sm text-slate-700 space-y-1">
+      <li>• Ventas globales por estudio + ganancia neta</li>
+      <li>• Aprobar ventas por transferencia</li>
+      <li>• Reenviar fotos de ventas</li>
+      <li>• Calcular a acreditar a fotógrafos</li>
+      <li>• Retiros solicitados (fecha y monto)</li>
+    </ul>
+  </div>
+
+  <div *ngIf="isLoadingStudyDetail || selectedStudy || selectedStudyError" class="rounded-3xl border border-slate-200 bg-white p-6 space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 class="text-lg font-black">Detalle del estudio</h2>
+      <button *ngIf="selectedStudy" (click)="closeStudyDetail()" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-black">Cerrar</button>
+    </div>
+
+    <p *ngIf="isLoadingStudyDetail" class="text-sm text-slate-500">Cargando detalle...</p>
+    <p *ngIf="selectedStudyError" class="text-sm font-bold text-red-600">{{ selectedStudyError }}</p>
+
+    <div *ngIf="selectedStudy" class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+      <p><span class="font-black">Email:</span> {{ selectedStudy.email }}</p>
+      <p><span class="font-black">Nombre:</span> {{ selectedStudy.fullName || 'Sin nombre' }}</p>
+      <p><span class="font-black">Plan:</span> {{ selectedStudy.planType }}</p>
+      <p><span class="font-black">Uso:</span> {{ selectedStudy.usageTypeName }}</p>
+      <p><span class="font-black">Verificado:</span> {{ selectedStudy.emailVerified ? 'Sí' : 'No' }}</p>
+      <p><span class="font-black">Activo:</span> {{ selectedStudy.isActive ? 'Sí' : 'No' }}</p>
+      <p><span class="font-black">GB usados:</span> {{ (selectedStudy.storageUsedBytes / 1073741824) | number:'1.2-2' }} GB</p>
+      <p><span class="font-black">Creado:</span> {{ selectedStudy.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+      <p><span class="font-black">Último login:</span> {{ selectedStudy.lastLogin ? (selectedStudy.lastLogin | date:'dd/MM/yyyy HH:mm') : 'Sin datos' }}</p>
+    </div>
+  </div>
+</div>

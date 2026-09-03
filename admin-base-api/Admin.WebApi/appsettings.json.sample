@@ -1,0 +1,83 @@
+{
+  "ConnectionStrings": {
+    "PostgresConnection": "Host=localhost;Port=5432;Database=tiendubi;Username=postgres;Password=your_password"
+  },
+  "Jwt": {
+    "Secret": "your-super-secret-key-change-this-in-production-min-32-chars"
+  },
+  "Google": {
+    "Enabled": false,
+    "ClientId": "",
+    "ClientSecret": ""
+  },
+  "AppSettings": {
+    "ProjectName": "Tiendubi",
+    "FrontendUrl": "http://localhost:4200"
+  },
+  "OwnerSecurity": {
+    "OwnerEmail": "owner@email.com"
+  },
+  "DataProtection": {
+    "KeysPath": "/app/keys"
+  },
+  "Features": {
+    "RegistrationEnabled": true,
+    "PhotoUploadEnabled": true
+  },
+  "Payment": {
+    "Enabled": false,
+    "MercadoPagoEnabled": false,
+    "TransfersEnabled": true,
+    "MonthlyPrice": 2999,
+    "Currency": "ARS",
+    "TrialDays": 30,
+    "CommissionPercent": 15,
+    "DiscountCode": "",
+    "DiscountPercent": 0,
+    "TransferHolderName": "",
+    "TransferBankName": "",
+    "TransferAlias": "",
+    "TransferCbu": "",
+    "TransferAccountInfo": ""
+  },
+  "MercadoPagoSettings": {
+    "ClientId": "",
+    "ClientSecret": "",
+    "RedirectUri": "https://api.tudominio.com/api/payments/mercadopago/callback",
+    "CommissionPercentage": 15,
+    "PublicKey": "",
+    "AccessToken": "",
+    "SuccessUrl": "http://localhost:4200/plans?payment=success",
+    "FailureUrl": "http://localhost:4200/plans?payment=failure",
+    "PendingUrl": "http://localhost:4200/plans?payment=pending",
+    "NotificationUrl": "https://localhost:5001/api/mercadopago/notify"
+  },
+  "R2": {
+    "AccountId": "your-cloudflare-account-id",
+    "AccessKeyId": "your-r2-access-key-id",
+    "SecretAccessKey": "your-r2-secret-access-key",
+    "BucketName": "capturar",
+    "PublicBaseUrl": "https://pub-xxxxxxxx.r2.dev"
+  },
+  "Email": {
+    "SmtpHost": "smtp.gmail.com",
+    "SmtpPort": "587",
+    "SmtpUser": "your-email@gmail.com",
+    "SmtpPassword": "your-app-password",
+    "FromEmail": "your-email@gmail.com",
+    "FromName": "Tiendubi"
+  },
+  "PhotoDeliveryRetry": {
+    "Enabled": true,
+    "MaxAttempts": 5,
+    "PollIntervalSeconds": 60,
+    "BackoffMinutes": [ 0, 1, 5, 30, 120 ]
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}

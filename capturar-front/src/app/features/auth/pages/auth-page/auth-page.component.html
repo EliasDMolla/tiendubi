@@ -1,0 +1,316 @@
+<section *ngIf="currentView === 'login'" class="auth-shell min-h-screen overflow-x-hidden text-slate-200">
+  <div class="flex flex-col items-center justify-center min-h-screen p-4">
+    <!-- <div class="mb-8 flex items-center justify-center">
+      <img src="capturar-logo-sinfondo.PNG" alt="CapturAr" class="h-32 w-auto" />
+    </div> -->
+
+    <div class="auth-panel bg-darkCard/95 p-8 md:p-10 rounded-[2rem] shadow-2xl shadow-black/40 w-full max-w-md border border-darkBorder">
+      <h1 class="text-2xl font-black mb-2 italic text-center">¡Hola de nuevo!</h1>
+      <p class="text-slate-500 text-sm text-center mb-8 font-medium">Ingresa a tu panel</p>
+
+      <form (submit)="onLoginSubmit($event)" class="space-y-5">
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Email Profesional</label>
+          <input [(ngModel)]="loginEmail" name="loginEmail" type="text" required maxlength="120" autocomplete="email" placeholder="nombre@estudio.com" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition font-medium">
+        </div>
+        <div>
+          <div class="flex justify-between items-center mb-2 px-1">
+            <label class="block text-[10px] font-black uppercase text-slate-400">Contraseña</label>
+            <button (click)="navigateTo('forgot')" type="button" class="text-[10px] font-black uppercase text-blue-600 hover:text-blue-500">¿Olvidaste?</button>
+          </div>
+          <input [(ngModel)]="loginPassword" name="loginPassword" type="password" required autocomplete="current-password" placeholder="********************" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition font-medium">
+        </div>
+        <p *ngIf="successMessage" class="text-sm text-emerald-700 font-medium">{{ successMessage }}</p>
+        <p *ngIf="errorMessage" class="text-sm text-red-600 font-medium">{{ errorMessage }}</p>
+        <button [disabled]="isLoading || !isLoginFormValid" type="submit" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-500 transition shadow-xl shadow-blue-500/20 uppercase tracking-widest text-xs mt-4 disabled:opacity-60 disabled:cursor-not-allowed">
+          {{ isLoading ? 'Ingresando...' : 'Entrar al Panel' }}
+        </button>
+      </form>
+
+      <div class="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-amber-700">Demo guiado</p>
+        <p class="mt-2 text-sm font-medium text-slate-700">Ingresa con una cuenta ya cargada con eventos deportivos, fotos demo y ventas. La cuenta navega completa, pero no permite cambios.</p>
+        <button (click)="loginWithDemo()" [disabled]="isLoading || isDemoLoading" type="button" class="mt-4 w-full rounded-2xl border border-slate-900 bg-slate-900 px-4 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
+          {{ isDemoLoading ? 'Abriendo demo...' : 'Entrar al demo solo lectura' }}
+        </button>
+      </div>
+
+      <div class="mt-8 pt-8 border-t border-slate-100 text-center">
+        <p *ngIf="registrationEnabled; else registerDisabled" class="text-sm text-slate-500 font-medium">
+          ¿Aún no tienes cuenta?
+          <button (click)="navigateTo('register')" class="text-blue-600 font-bold hover:underline">Regístrate gratis</button>
+        </p>
+        <ng-template #registerDisabled>
+          <p class="text-sm text-slate-500 font-medium">El registro está deshabilitado temporalmente.</p>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section *ngIf="currentView === 'forgot'" class="auth-shell min-h-screen overflow-x-hidden text-slate-200">
+  <div class="flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="auth-panel bg-darkCard/95 p-8 md:p-10 rounded-[2rem] shadow-2xl shadow-black/40 w-full max-w-md border border-darkBorder">
+      <h1 class="text-2xl font-black mb-2 italic text-center">Recuperar acceso</h1>
+      <p class="text-slate-500 text-sm text-center mb-8 font-medium">Te enviamos un link para crear una contrasena nueva</p>
+
+      <form (submit)="onForgotPasswordSubmit($event)" class="space-y-5">
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Email Profesional</label>
+          <input [(ngModel)]="forgotEmail" name="forgotEmail" type="email" required maxlength="120" autocomplete="email" placeholder="nombre@estudio.com" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition font-medium">
+        </div>
+        <p *ngIf="successMessage" class="text-sm text-emerald-700 font-medium">{{ successMessage }}</p>
+        <p *ngIf="errorMessage" class="text-sm text-red-600 font-medium">{{ errorMessage }}</p>
+        <button [disabled]="isForgotLoading" type="submit" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-500 transition shadow-xl shadow-blue-500/20 uppercase tracking-widest text-xs mt-4 disabled:opacity-60 disabled:cursor-not-allowed">
+          {{ isForgotLoading ? 'Enviando...' : 'Enviar link de recuperacion' }}
+        </button>
+      </form>
+
+      <button (click)="backToLogin()" type="button" class="w-full mt-6 text-sm text-blue-600 font-bold hover:underline">Volver al ingreso</button>
+    </div>
+  </div>
+</section>
+<section *ngIf="currentView === 'register' && registrationEnabled" class="auth-shell min-h-screen overflow-x-hidden text-slate-200">
+  <div class="flex flex-col items-center justify-center min-h-screen p-4">
+    <!-- <div class="mb-8 flex items-center justify-center">
+      <img src="capturar-logo-sinfondo.PNG" alt="CapturAr" class="h-32 w-auto" />
+    </div> -->
+
+    <div class="auth-panel bg-darkCard/95 p-8 md:p-10 rounded-[2rem] shadow-2xl shadow-black/40 w-full max-w-lg border border-darkBorder">
+      <h1 class="text-2xl font-black mb-2 italic text-center">Comienza a vender</h1>
+      <p class="text-slate-500 text-sm text-center mb-8 font-medium">Crea tu cuenta profesional en segundos</p>
+
+      <form (submit)="onRegisterSubmit($event)" class="grid md:grid-cols-2 gap-5">
+        <div class="md:col-span-2">
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Nombre de Marca o Estudio</label>
+          <input [(ngModel)]="registerBrand" name="registerBrand" type="text" required minlength="2" maxlength="80" autocomplete="organization" placeholder="Estudio" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Nombre público</label>
+          <div class="flex items-center rounded-2xl border border-slate-100 bg-slate-50 transition focus-within:border-blue-500">
+            <span class="pl-4 text-sm font-bold text-slate-500">tiendubi.app/</span>
+            <input [(ngModel)]="registerPublicSlug" (input)="updateRegisterPublicSlug($event)" name="registerPublicSlug" type="text" required minlength="2" maxlength="40" autocomplete="off" placeholder="tu-nombre-de-negocio" class="min-w-0 flex-1 border-0 bg-transparent p-4 pl-1 font-medium outline-none focus:ring-0">
+          </div>
+          <p class="text-[11px] text-slate-500 mt-2 px-1">Usá letras, números o guiones. Este nombre no puede repetirse.</p>
+        </div>
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Nombre</label>
+          <input [(ngModel)]="registerFirstName" name="registerFirstName" type="text" required minlength="2" maxlength="60" autocomplete="given-name" placeholder="Lucía" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+        </div>
+        <div>
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Apellido</label>
+          <input [(ngModel)]="registerLastName" name="registerLastName" type="text" required minlength="2" maxlength="60" autocomplete="family-name" placeholder="Pérez" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Email Profesional</label>
+          <input [(ngModel)]="registerEmail" name="registerEmail" type="email" required maxlength="120" autocomplete="email" placeholder="lucia@estudio.com" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Celular</label>
+          <input [(ngModel)]="registerPhone" name="registerPhone" type="tel" maxlength="20" autocomplete="tel" pattern="^\+?[0-9()\-\s]{8,20}$" placeholder="+54 9 11 1234-5678" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+          <p class="text-[11px] text-slate-500 mt-2 px-1">Opcional. Ejemplo válido: +54 9 11 1234-5678</p>
+        </div>
+        <div class="md:col-span-2">
+          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Contraseña</label>
+          <input [(ngModel)]="registerPassword" name="registerPassword" type="password" required minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+          <p class="text-[11px] text-slate-500 mt-2 px-1">Debe tener al menos 8 caracteres, una letra y un número.</p>
+        </div>
+        <p *ngIf="errorMessage" class="md:col-span-2 text-sm text-red-600 font-medium">{{ errorMessage }}</p>
+        <button [disabled]="isLoading || !isRegisterFormValid" type="submit" class="md:col-span-2 w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-blue-600 transition shadow-xl uppercase tracking-widest text-xs mt-2 disabled:opacity-60 disabled:cursor-not-allowed">
+          {{ isLoading ? 'Creando cuenta...' : 'Crear mi cuenta PRO' }}
+        </button>
+      </form>
+
+      <div class="mt-8 pt-8 border-t border-slate-100 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+        Al unirte, aceptas nuestros Términos y Privacidad
+      </div>
+      <button (click)="navigateTo('login')" class="w-full mt-4 text-sm text-blue-600 font-bold hover:underline">Ya tengo cuenta, quiero ingresar</button>
+    </div>
+  </div>
+</section>
+
+<div *ngIf="currentView === 'dashboard'" class="min-h-screen text-slate-900 overflow-x-hidden">
+  <div class="flex w-full">
+    <aside class="w-64 bg-white border-r border-slate-200 hidden lg:flex flex-col sticky top-0 h-screen">
+      <div class="p-8 flex items-center gap-3">
+        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
+          <i data-lucide="aperture" class="w-5 h-5 text-white"></i>
+        </div>
+        <span class="font-black text-xl tracking-tighter">CapturAr</span>
+      </div>
+
+      <nav class="flex-1 px-4 space-y-2">
+        <a class="sidebar-link active flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm">
+          <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+        </a>
+        <a class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
+          <i data-lucide="calendar" class="w-5 h-5"></i> Mis Eventos
+        </a>
+        <a class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
+          <i data-lucide="dollar-sign" class="w-5 h-5"></i> Ventas
+        </a>
+        <a class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
+          <i data-lucide="image" class="w-5 h-5"></i> GalerÃ­a Master
+        </a>
+        <a class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
+          <i data-lucide="settings" class="w-5 h-5"></i> Ajustes
+        </a>
+      </nav>
+
+      <div class="p-4 mt-auto">
+        <button (click)="navigateTo('login')" class="flex items-center gap-3 p-3 w-full text-slate-400 hover:text-red-500 font-bold text-sm transition-colors">
+          <i data-lucide="log-out" class="w-5 h-5"></i> Cerrar SesiÃ³n
+        </button>
+        <div class="bg-slate-900 rounded-2xl p-4 text-white mt-4">
+          <p class="text-[10px] font-black uppercase text-slate-400 mb-1">Plan Pro</p>
+          <p class="text-xs mb-3">50GB de 100GB usados</p>
+          <div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+            <div class="bg-blue-500 h-full w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto">
+      <header class="h-20 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-30">
+        <h2 class="text-lg font-bold">Panel de Control</h2>
+        <div class="flex items-center gap-4">
+          <button class="p-2 text-slate-400 hover:text-slate-900 transition"><i data-lucide="bell" class="w-5 h-5"></i></button>
+          <div class="flex items-center gap-3 pl-4 border-l border-slate-200">
+            <div class="text-right">
+              <p class="text-xs font-black">Estudio LumiÃ¨re</p>
+              <p class="text-[10px] text-slate-400 font-bold">ID: 48293</p>
+            </div>
+            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">L</div>
+          </div>
+        </div>
+      </header>
+
+      <div class="p-8 space-y-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="glass-card p-6 rounded-[2rem] shadow-sm">
+            <div class="flex justify-between items-start mb-4">
+              <div class="p-3 bg-green-500/10 text-green-600 rounded-xl"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+              <span class="text-[10px] font-bold text-green-600">+12% vs mes pasado</span>
+            </div>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Ingresos Totales</p>
+            <p class="text-3xl font-black mt-1">$142.800</p>
+          </div>
+          <div class="glass-card p-6 rounded-[2rem] shadow-sm">
+            <div class="flex justify-between items-start mb-4">
+              <div class="p-3 bg-blue-500/10 text-blue-600 rounded-xl"><i data-lucide="camera" class="w-5 h-5"></i></div>
+            </div>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Fotos Vendidas</p>
+            <p class="text-3xl font-black mt-1">342</p>
+          </div>
+          <div class="glass-card p-6 rounded-[2rem] shadow-sm">
+            <div class="flex justify-between items-start mb-4">
+              <div class="p-3 bg-purple-500/10 text-purple-600 rounded-xl"><i data-lucide="eye" class="w-5 h-5"></i></div>
+            </div>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Visualizaciones</p>
+            <p class="text-3xl font-black mt-1">1.2k</p>
+          </div>
+          <div class="glass-card p-6 rounded-[2rem] shadow-sm">
+            <div class="flex justify-between items-start mb-4">
+              <div class="p-3 bg-orange-500/10 text-orange-600 rounded-xl"><i data-lucide="calendar" class="w-5 h-5"></i></div>
+            </div>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Eventos Activos</p>
+            <p class="text-3xl font-black mt-1">4</p>
+          </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-2 space-y-8">
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
+              <div class="flex justify-between items-center mb-8">
+                <h3 class="text-xl font-black">Subir Nuevo Evento</h3>
+                <button class="text-blue-600 text-sm font-bold">Ver GuÃ­a de Carga</button>
+              </div>
+
+              <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <div class="space-y-2">
+                  <label class="text-[10px] font-black uppercase text-slate-400">Nombre del Evento</label>
+                  <input type="text" placeholder="Ej: XV Martina GarcÃ­a" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+                </div>
+                <div class="space-y-2">
+                  <label class="text-[10px] font-black uppercase text-slate-400">Precio por Foto ($)</label>
+                  <input type="number" placeholder="1200" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+                </div>
+              </div>
+
+              <div class="border-2 border-dashed border-slate-200 rounded-[2rem] p-12 text-center hover:border-blue-500 transition-colors group cursor-pointer bg-slate-50/50">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <i data-lucide="upload-cloud" class="w-8 h-8"></i>
+                </div>
+                <h4 class="font-black text-lg mb-1">Arrastra tus fotos aquÃ­</h4>
+                <p class="text-slate-400 text-sm mb-6 font-medium">Soporta JPG, PNG y TIFF hasta 20MB por archivo</p>
+                <button class="bg-white border border-slate-200 text-slate-900 font-bold px-8 py-3 rounded-xl hover:bg-slate-900 hover:text-white transition shadow-sm">Seleccionar Archivos</button>
+              </div>
+
+              <div class="mt-8 flex justify-end">
+                <button class="bg-blue-600 text-white font-black px-10 py-4 rounded-2xl hover:bg-blue-500 transition shadow-xl shadow-blue-500/20">
+                  Publicar GalerÃ­a
+                </button>
+              </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
+              <h3 class="text-xl font-black mb-8">Eventos Recientes</h3>
+              <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white"><i data-lucide="star" class="w-6 h-6"></i></div>
+                    <div>
+                      <p class="font-bold text-sm">XV - Martina GarcÃ­a</p>
+                      <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">1.240 Fotos â€¢ $1.200 c/u</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block">
+                      <p class="text-sm font-black">$48.200</p>
+                      <p class="text-[10px] text-green-600 font-bold uppercase">En Ventas</p>
+                    </div>
+                    <button class="p-2 hover:bg-white rounded-lg transition border border-transparent hover:border-slate-200"><i data-lucide="external-link" class="w-4 h-4 text-slate-400"></i></button>
+                    <button class="p-2 hover:bg-white rounded-lg transition border border-transparent hover:border-slate-200"><i data-lucide="more-vertical" class="w-4 h-4 text-slate-400"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-8">
+            <div class="bg-slate-900 p-8 rounded-[2.5rem] text-white shadow-xl shadow-slate-900/20">
+              <h3 class="text-lg font-black mb-6">Ãšltimas Ventas</h3>
+              <div class="space-y-6">
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-blue-400"><i data-lucide="shopping-cart" class="w-5 h-5"></i></div>
+                  <div class="flex-1">
+                    <p class="text-xs font-bold">Foto #1204 - Martina G.</p>
+                    <p class="text-[10px] text-slate-400">hace 5 minutos</p>
+                  </div>
+                  <p class="text-sm font-black text-green-400">+$1.200</p>
+                </div>
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-blue-400"><i data-lucide="shopping-cart" class="w-5 h-5"></i></div>
+                  <div class="flex-1">
+                    <p class="text-xs font-bold">Pack x5 - MaratÃ³n BA</p>
+                    <p class="text-[10px] text-slate-400">hace 22 minutos</p>
+                  </div>
+                  <p class="text-sm font-black text-green-400">+$4.500</p>
+                </div>
+              </div>
+              <button class="w-full mt-8 border border-white/10 bg-white/5 py-4 rounded-xl text-xs font-bold hover:bg-white/10 transition">Ver todo el historial</button>
+            </div>
+
+            <div class="bg-blue-600 p-8 rounded-[2.5rem] text-white overflow-hidden relative">
+              <i data-lucide="lightbulb" class="absolute -right-4 -bottom-4 w-32 h-32 opacity-10 rotate-12"></i>
+              <h3 class="font-black text-lg mb-2">Tip de venta</h3>
+              <p class="text-sm text-blue-100 leading-relaxed mb-6">Los eventos con **QR impreso** en las mesas venden un 40% mÃ¡s que los compartidos por link.</p>
+              <button class="bg-white text-blue-600 font-black px-6 py-3 rounded-xl text-xs uppercase tracking-widest">Descargar Pack QR</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

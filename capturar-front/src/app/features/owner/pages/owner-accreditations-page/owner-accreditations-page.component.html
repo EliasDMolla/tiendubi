@@ -1,0 +1,95 @@
+<section class="p-8 space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-black">Acreditaciones a Fotógrafos</h1>
+      <p class="text-sm text-slate-500 font-medium">Solo owner: cálculo de montos a acreditar por estudio</p>
+    </div>
+    <button (click)="loadData()" class="px-4 py-2 rounded-xl border border-slate-200 text-sm font-bold text-slate-600 hover:bg-slate-50 transition">
+      Actualizar
+    </button>
+  </div>
+
+  <p *ngIf="errorMessage" class="text-sm text-red-600 font-medium">{{ errorMessage }}</p>
+  <p *ngIf="successMessage" class="text-sm text-emerald-700 font-medium">{{ successMessage }}</p>
+
+  <div *ngIf="isLoading" class="text-sm text-slate-500">Cargando acreditaciones...</div>
+
+  <ng-container *ngIf="!isLoading">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <article class="bg-white border border-slate-200 rounded-2xl p-5">
+        <p class="text-[11px] font-black uppercase text-slate-400">A acreditar ahora</p>
+        <p class="text-2xl font-black mt-1">{{ summary.totalToAccreditNow | currency:'ARS':'symbol':'1.0-0' }}</p>
+      </article>
+      <article class="bg-white border border-slate-200 rounded-2xl p-5">
+        <p class="text-[11px] font-black uppercase text-slate-400">Pendiente</p>
+        <p class="text-2xl font-black mt-1">{{ summary.totalPending | currency:'ARS':'symbol':'1.0-0' }}</p>
+      </article>
+      <article class="bg-white border border-slate-200 rounded-2xl p-5">
+        <p class="text-[11px] font-black uppercase text-slate-400">Disponible</p>
+        <p class="text-2xl font-black mt-1">{{ summary.totalAvailable | currency:'ARS':'symbol':'1.0-0' }}</p>
+      </article>
+      <article class="bg-white border border-slate-200 rounded-2xl p-5">
+        <p class="text-[11px] font-black uppercase text-slate-400">Retirado</p>
+        <p class="text-2xl font-black mt-1">{{ summary.totalWithdrawn | currency:'ARS':'symbol':'1.0-0' }}</p>
+      </article>
+      <article class="bg-white border border-slate-200 rounded-2xl p-5">
+        <p class="text-[11px] font-black uppercase text-slate-400">Fotógrafos</p>
+        <p class="text-2xl font-black mt-1">{{ summary.photographersCount }}</p>
+      </article>
+    </div>
+
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100">
+        <h2 class="font-black">Detalle por Estudio</h2>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-slate-50 text-slate-500 uppercase text-[11px] font-black tracking-wide">
+            <tr>
+              <th class="text-left px-5 py-3">Estudio</th>
+              <th class="text-left px-5 py-3">Email</th>
+              <th class="text-left px-5 py-3">Datos de pago</th>
+              <th class="text-right px-5 py-3">Pendiente</th>
+              <th class="text-right px-5 py-3">Disponible</th>
+              <th class="text-right px-5 py-3">Retirado</th>
+              <th class="text-right px-5 py-3">A acreditar ahora</th>
+              <th class="text-right px-5 py-3">Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of summary.photographers" class="border-t border-slate-100">
+              <td class="px-5 py-3 font-semibold">{{ row.studioName }}</td>
+              <td class="px-5 py-3 text-slate-500">{{ row.studioEmail }}</td>
+              <td class="px-5 py-3 text-xs text-slate-600">
+                <div *ngIf="row.withdrawalAliasOrCbu; else noPayoutData">
+                  <div><span class="font-semibold">Titular:</span> {{ row.withdrawalHolderName || '-' }}</div>
+                  <div><span class="font-semibold">Banco:</span> {{ row.withdrawalBankName || '-' }}</div>
+                  <div><span class="font-semibold">Alias/CBU:</span> {{ row.withdrawalAliasOrCbu }}</div>
+                </div>
+                <ng-template #noPayoutData>
+                  <span class="text-slate-400">No cargado</span>
+                </ng-template>
+              </td>
+              <td class="px-5 py-3 text-right">{{ row.pendingAmount | currency:'ARS':'symbol':'1.0-0' }}</td>
+              <td class="px-5 py-3 text-right">{{ row.availableAmount | currency:'ARS':'symbol':'1.0-0' }}</td>
+              <td class="px-5 py-3 text-right">{{ row.totalWithdrawn | currency:'ARS':'symbol':'1.0-0' }}</td>
+              <td class="px-5 py-3 text-right font-bold">{{ row.toAccreditNow | currency:'ARS':'symbol':'1.0-0' }}</td>
+              <td class="px-5 py-3 text-right">
+                <button
+                  (click)="markPaidOut(row.photographerId, row.studioName)"
+                  [disabled]="isProcessing || row.toAccreditNow <= 0"
+                  class="px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs font-black uppercase tracking-wide hover:bg-indigo-500 disabled:opacity-60 disabled:cursor-not-allowed">
+                  Marcar acreditado
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="summary.photographers.length === 0">
+              <td colspan="8" class="px-5 py-10 text-center text-slate-500">No hay datos para acreditar aún.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </ng-container>
+</section>

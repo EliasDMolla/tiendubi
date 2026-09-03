@@ -1,0 +1,246 @@
+<div class="min-h-screen bg-slate-50 text-slate-900">
+  <div class="max-w-7xl mx-auto px-4 py-10 space-y-6">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div>
+        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Panel</p>
+        <h1 class="text-2xl font-black">Galería</h1>
+      </div>
+
+      <div class="w-full sm:w-80">
+        <label class="space-y-2 block">
+          <span class="text-xs font-black uppercase text-slate-400">Publicación</span>
+          <select
+            [(ngModel)]="selectedEventId"
+            (ngModelChange)="onEventChange()"
+            [disabled]="isLoadingEvents"
+            class="w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 bg-white"
+          >
+            <option [ngValue]="null">Selecciona un evento</option>
+            <option *ngFor="let event of events" [ngValue]="event.id">
+              {{ event.name }}
+            </option>
+          </select>
+        </label>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-3xl border border-slate-200">
+      <p *ngIf="errorMessage" class="text-sm font-medium text-red-600">{{ errorMessage }}</p>
+      <p *ngIf="isLoadingEvents || isLoadingPhotos" class="text-sm text-slate-500">Cargando galería...</p>
+
+      <div *ngIf="!isLoadingEvents && !isLoadingPhotos && selectedEventId" class="space-y-5">
+        <div class="flex items-center justify-between gap-3 flex-wrap">
+          <p class="text-sm text-slate-500">
+            <span class="font-bold text-slate-700">{{ selectedEventName }}</span> · {{ totalCount }} fotos
+          </p>
+
+          <div class="relative w-full md:w-80">
+            <input
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="onSearchChanged()"
+              type="text"
+              placeholder="Buscar por nombre o etiqueta..."
+              class="w-full rounded-lg border border-slate-300 bg-white pl-4 pr-3 py-2 text-sm outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              (click)="goToPreviousPage()"
+              [disabled]="page <= 1 || isLoadingPhotos"
+              class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-black uppercase tracking-widest disabled:opacity-40"
+            >
+              Anterior
+            </button>
+            <span class="text-xs font-black uppercase text-slate-500">Página {{ page }} / {{ totalPages }}</span>
+            <button
+              type="button"
+              (click)="goToNextPage()"
+              [disabled]="page >= totalPages || isLoadingPhotos"
+              class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-black uppercase tracking-widest disabled:opacity-40"
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 overflow-x-auto pb-1" *ngIf="totalPages > 1">
+          <button
+            type="button"
+            *ngFor="let pageNumber of pageNumbers"
+            (click)="goToPage(pageNumber)"
+            class="min-w-9 h-9 px-3 rounded-lg border text-xs font-black"
+            [ngClass]="pageNumber === page ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-300 hover:border-slate-500'"
+          >
+            {{ pageNumber }}
+          </button>
+        </div>
+
+        <div *ngIf="hasPhotos; else noPhotos" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+          <div
+            *ngFor="let photo of photos"
+            (click)="openPhoto(photo)"
+            class="group relative block rounded-xl overflow-hidden border border-slate-200 bg-slate-100"
+          >
+            <button
+              type="button"
+              (click)="requestDeletePhoto(photo, $event)"
+              [disabled]="deletingPhotoId === photo.photoId"
+              class="absolute top-2 right-2 z-10 px-2 py-1 rounded-md bg-black/70 text-white text-[10px] font-black uppercase tracking-wider hover:bg-red-600 transition disabled:opacity-50"
+            >
+              {{ deletingPhotoId === photo.photoId ? '...' : 'Borrar' }}
+            </button>
+            <img
+              [src]="photo.thumbnailUrl"
+              [alt]="photo.fileName"
+              class="w-full h-32 object-cover"
+              loading="lazy"
+            />
+            <div class="px-2 py-2 bg-white border-t border-slate-100">
+              <p class="text-[11px] text-slate-600 truncate">{{ photo.fileName }}</p>
+              <p class="text-[10px] font-black uppercase" [ngClass]="photo.isFailed ? 'text-red-600' : (photo.isProcessed ? 'text-emerald-600' : 'text-slate-500')">
+                {{ photo.isFailed ? 'Fallida' : (photo.isProcessed ? 'Procesada' : 'Pendiente') }}
+              </p>
+              <p *ngIf="photo.tags.length > 0" class="text-[10px] text-slate-500 truncate mt-1">
+                #{{ photo.tags.join(' #') }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noPhotos>
+          <p class="text-sm text-slate-500">Este evento todavía no tiene fotos.</p>
+        </ng-template>
+      </div>
+
+      <p *ngIf="!isLoadingEvents && !selectedEventId" class="text-sm text-slate-500">
+        Selecciona un evento para ver su galería.
+      </p>
+    </div>
+  </div>
+
+  <div
+    *ngIf="selectedPhoto"
+    class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4"
+    (click)="closePhoto()"
+  >
+    <div class="relative max-w-6xl w-full" (click)="$event.stopPropagation()">
+      <button
+        type="button"
+        (click)="closePhoto()"
+        class="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/60 text-white hover:bg-black/80"
+        aria-label="Cerrar vista previa"
+      >
+        ✕
+      </button>
+
+      <button
+        *ngIf="selectedPhoto"
+        type="button"
+        (click)="requestDeletePhoto(selectedPhoto, $event)"
+        [disabled]="deletingPhotoId === selectedPhoto.photoId"
+        class="absolute top-3 left-3 z-10 px-3 py-2 rounded-full bg-red-600/90 text-white text-xs font-black uppercase tracking-wider hover:bg-red-700 transition disabled:opacity-60"
+      >
+        {{ deletingPhotoId === selectedPhoto.photoId ? 'Eliminando...' : 'Eliminar foto' }}
+      </button>
+
+      <button
+        type="button"
+        (click)="openPreviousPhoto($event)"
+        [disabled]="!hasPreviousPhoto"
+        class="absolute top-1/2 left-3 -translate-y-1/2 z-10 px-3 py-2 rounded-full bg-black/60 text-white text-xs font-black uppercase tracking-wider hover:bg-black/80 disabled:opacity-40"
+      >
+        ‹
+      </button>
+
+      <button
+        type="button"
+        (click)="openNextPhoto($event)"
+        [disabled]="!hasNextPhoto"
+        class="absolute top-1/2 right-3 -translate-y-1/2 z-10 px-3 py-2 rounded-full bg-black/60 text-white text-xs font-black uppercase tracking-wider hover:bg-black/80 disabled:opacity-40"
+      >
+        ›
+      </button>
+
+      <div class="relative w-full h-[90vh] rounded-2xl bg-black/40 overflow-hidden">
+        <img
+          *ngIf="selectedPhotoUrl"
+          [src]="selectedPhotoUrl"
+          (load)="onSelectedPhotoLoaded()"
+          [alt]="selectedPhoto.fileName"
+          class="w-full h-full object-contain transition-opacity duration-300"
+          [class.opacity-0]="!isSelectedPhotoLoaded"
+          [class.opacity-100]="isSelectedPhotoLoaded"
+        />
+
+        <div *ngIf="isLoadingSelectedPhoto" class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/80">
+          <div class="w-10 h-10 rounded-full border-4 border-white/25 border-t-white animate-spin"></div>
+          <p class="text-sm font-bold">Cargando foto en alta calidad...</p>
+        </div>
+
+        <div *ngIf="!isLoadingSelectedPhoto && selectedPhotoError" class="absolute inset-0 flex items-center justify-center text-red-300 text-sm font-bold px-4 text-center">
+          {{ selectedPhotoError }}
+        </div>
+
+        <div class="absolute left-3 right-3 bottom-3 z-10 bg-black/65 rounded-xl p-3 border border-white/15" (click)="$event.stopPropagation()">
+          <label class="block text-[10px] font-black uppercase tracking-widest text-white/70 mb-2">
+            Etiquetas (separadas por coma)
+          </label>
+          <div class="flex items-center gap-2">
+            <input
+              #tagsInputElement
+              [(ngModel)]="tagsInput"
+              type="text"
+              placeholder="Ej: 182, Recepción, Baile"
+              class="flex-1 rounded-lg border border-white/20 bg-white/10 text-white placeholder:text-white/40 px-3 py-2 text-sm outline-none focus:border-blue-400"
+            />
+            <button
+              type="button"
+              (click)="savePhotoTags($event)"
+              [disabled]="isSavingTags"
+              class="px-3 py-2 rounded-lg bg-blue-600 text-white text-xs font-black uppercase tracking-widest hover:bg-blue-500 disabled:opacity-60"
+            >
+              {{ isSavingTags ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+          <p *ngIf="tagsMessage" class="text-[11px] font-bold mt-2" [ngClass]="tagsMessage === 'Etiquetas guardadas' ? 'text-emerald-300' : 'text-red-300'">
+            {{ tagsMessage }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="pendingDeletePhoto"
+    class="fixed inset-0 z-[60] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+    (click)="cancelDeletePhoto()"
+  >
+    <div class="w-full max-w-md bg-white rounded-2xl p-6 border border-slate-200 shadow-2xl" (click)="$event.stopPropagation()">
+      <h3 class="text-lg font-black text-slate-900 mb-2">Eliminar foto</h3>
+      <p class="text-sm text-slate-600 mb-6">
+        ¿Seguro que quieres eliminar <span class="font-bold">{{ pendingDeletePhoto.fileName }}</span>? Esta acción no se puede deshacer.
+      </p>
+
+      <div class="flex items-center justify-end gap-3">
+        <button
+          type="button"
+          (click)="cancelDeletePhoto()"
+          [disabled]="deletingPhotoId === pendingDeletePhoto.photoId"
+          class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-black uppercase tracking-wider disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="confirmDeletePhoto($event)"
+          [disabled]="deletingPhotoId === pendingDeletePhoto.photoId"
+          class="px-4 py-2 rounded-lg bg-red-600 text-white text-xs font-black uppercase tracking-wider hover:bg-red-700 disabled:opacity-60"
+        >
+          {{ deletingPhotoId === pendingDeletePhoto.photoId ? 'Eliminando...' : 'Sí, eliminar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

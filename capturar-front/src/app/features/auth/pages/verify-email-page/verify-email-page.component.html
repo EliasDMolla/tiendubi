@@ -1,0 +1,25 @@
+<section class="min-h-screen bg-[#080A10] px-4 py-12 text-slate-200">
+  <div class="mx-auto flex min-h-[calc(100vh-6rem)] max-w-lg flex-col items-center justify-center text-center">
+    <div class="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#6366F1] via-[#A855F7] to-[#EC4899] text-white shadow-lg shadow-purple-500/20">
+      <span class="text-2xl">{{ isLoading ? '...' : isSuccess ? '✓' : '!' }}</span>
+    </div>
+
+    <p class="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-purple-300">
+      Tiendubi
+    </p>
+    <h1 class="mb-4 text-3xl font-extrabold text-white">
+      {{ isLoading ? 'Validando cuenta' : isSuccess ? 'Cuenta validada' : 'No se pudo validar' }}
+    </h1>
+    <p class="mb-8 text-sm leading-relaxed text-slate-400">
+      {{ message }}
+    </p>
+
+    <a
+      routerLink="/auth"
+      [queryParams]="{ view: 'login' }"
+      class="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[#6366F1] to-[#A855F7] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-500/10 transition hover:shadow-purple-500/20"
+    >
+      Ir a ingresar
+    </a>
+  </div>
+</section>

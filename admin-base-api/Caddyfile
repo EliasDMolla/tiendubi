@@ -1,0 +1,3 @@
+api.capturar.ordenapp.ar {
+    reverse_proxy tiendubi-webapi:8081
+}

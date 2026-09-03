@@ -1,0 +1,96 @@
+<div class="market-store min-h-screen bg-slate-50 text-slate-950">
+  <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <div class="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4">
+      <div class="min-w-0">
+        <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Tienda pública</p>
+        <h1 class="truncate text-xl font-black tracking-tight">{{ studioName }}</h1>
+      </div>
+      <a routerLink="/landing" class="rounded-xl border border-slate-200 px-4 py-2 text-xs font-black uppercase tracking-widest text-slate-600 transition hover:bg-slate-50">Tiendubi</a>
+    </div>
+  </header>
+
+  <section class="border-b border-slate-200 bg-white">
+    <div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
+      <div class="max-w-3xl">
+        <p class="mb-3 inline-flex rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-[11px] font-black uppercase tracking-widest text-indigo-700">
+          Productos digitales, físicos y recursos privados
+        </p>
+        <h2 class="text-4xl font-black tracking-tight sm:text-5xl">Comprá directo a {{ studioName }}</h2>
+        <p class="mt-4 text-base leading-relaxed text-slate-500">
+          Explorá recursos, archivos descargables, links privados, productos físicos y colecciones publicadas por esta tienda.
+        </p>
+      </div>
+
+      <div class="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+        <div class="relative">
+          <i data-lucide="search" class="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400"></i>
+          <input
+            [(ngModel)]="searchTerm"
+            (input)="onSearchInput()"
+            type="text"
+            placeholder="Buscar productos..."
+            class="w-full rounded-2xl border border-slate-200 bg-white py-4 pl-12 pr-4 font-bold outline-none transition focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="mx-auto max-w-7xl px-4 py-10">
+    <div *ngIf="isLoading" class="py-16 text-center font-bold text-slate-500">Cargando productos...</div>
+
+    <div *ngIf="notFoundMessage" class="py-16 text-center text-slate-500">
+      <p class="font-bold">{{ notFoundMessage }}</p>
+    </div>
+
+    <div *ngIf="!isLoading && !notFoundMessage" class="mb-6 flex items-center justify-between gap-4">
+      <div>
+        <p class="text-[11px] font-black uppercase tracking-widest text-slate-400">Catálogo</p>
+        <h3 class="text-lg font-black">{{ filteredEvents.length }} producto{{ filteredEvents.length === 1 ? '' : 's' }}</h3>
+      </div>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+      <article *ngFor="let event of filteredEvents" class="product-card overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-200/70">
+        <a [routerLink]="['/', studioSlug, 'evento', event.id]" class="block">
+          <div class="relative aspect-[4/5] overflow-hidden bg-slate-100">
+            <img [src]="event.coverPhotoUrl || fallbackImageUrl" (error)="onImageError($event)" [alt]="event.name" class="h-full w-full object-cover transition duration-500 hover:scale-105" />
+            <div class="absolute left-3 top-3 rounded-full bg-white/90 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-700 backdrop-blur">
+              {{ productTypeLabel(event.productType) }}
+            </div>
+          </div>
+        </a>
+
+        <div class="space-y-4 p-5">
+          <div>
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ studioName }}</p>
+            <h2 class="mt-1 line-clamp-2 text-xl font-black">{{ event.name }}</h2>
+            <p class="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-500">{{ event.description || 'Producto publicado en la tienda.' }}</p>
+          </div>
+
+          <div class="flex items-end justify-between gap-4">
+            <div>
+              <p *ngIf="event.priceType === 'free'" class="text-2xl font-black text-emerald-700">Gratis</p>
+              <p *ngIf="event.priceType !== 'free'" class="text-2xl font-black">${{ event.pricePerPhoto | number:'1.0-0' }}</p>
+              <p *ngIf="event.originalPrice && event.priceType !== 'free'" class="text-sm font-bold text-slate-400 line-through">${{ event.originalPrice | number:'1.0-0' }}</p>
+            </div>
+            <a [routerLink]="['/', studioSlug, 'evento', event.id]" class="rounded-xl bg-slate-950 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-indigo-600">
+              Ver producto
+            </a>
+          </div>
+
+          <div class="flex flex-wrap gap-2 border-t border-slate-100 pt-4 text-[11px] font-bold text-slate-500">
+            <span *ngIf="event.digitalAssetCount" class="rounded-full bg-slate-100 px-2.5 py-1">{{ event.digitalAssetCount }} archivo{{ event.digitalAssetCount === 1 ? '' : 's' }}</span>
+            <span *ngIf="event.photoCount" class="rounded-full bg-slate-100 px-2.5 py-1">{{ event.photoCount }} recurso{{ event.photoCount === 1 ? '' : 's' }}</span>
+            <span class="rounded-full bg-slate-100 px-2.5 py-1">Entrega segura</span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div *ngIf="!isLoading && !notFoundMessage && filteredEvents.length === 0" class="py-16 text-center text-slate-500">
+      <i data-lucide="search-x" class="mx-auto mb-4 h-12 w-12 opacity-40"></i>
+      <p class="font-bold">No encontramos productos para esta búsqueda.</p>
+    </div>
+  </main>
+</div>

@@ -1,0 +1,343 @@
+<div class="min-h-screen bg-slate-50 text-slate-950">
+  <div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+    <header class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-[11px] font-black uppercase tracking-widest text-slate-400">Panel</p>
+        <h1 class="text-2xl font-black tracking-tight">Productos</h1>
+      </div>
+      <button
+        (click)="toggleCreateForm()"
+        [disabled]="isReadOnlyUser"
+        class="rounded-xl bg-slate-950 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        Nuevo producto
+      </button>
+    </header>
+
+    <div *ngIf="isReadOnlyUser" class="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+      Estas viendo la cuenta demo. Puedes inspeccionar productos, pero no crear, editar ni subir archivos.
+    </div>
+
+    <section
+      *ngIf="showCreateForm"
+      class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 p-4 backdrop-blur-sm sm:p-6"
+      (click)="cancelEdit()"
+    >
+      <div class="mx-auto max-w-3xl rounded-[28px] border border-slate-200 bg-white p-5 shadow-2xl shadow-slate-950/20 sm:p-7" (click)="$event.stopPropagation()">
+      <div class="mb-6 flex items-start justify-between gap-4">
+        <div class="flex flex-col gap-2">
+          <p class="text-[11px] font-black uppercase tracking-widest text-indigo-500">
+            {{ editingEventId === null ? 'Nuevo producto' : 'Editar producto' }}
+          </p>
+          <h2 class="text-xl font-black">{{ editingEventId === null ? 'Nuevo producto' : name || 'Editar producto' }}</h2>
+        </div>
+        <button type="button" (click)="cancelEdit()" class="rounded-xl border border-slate-200 p-2 text-slate-500 transition hover:bg-slate-50 hover:text-slate-950" aria-label="Cerrar">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+      </div>
+
+      <form (submit)="onSubmit($event)" class="space-y-6">
+        <div class="space-y-6">
+          <label class="block space-y-2">
+            <div class="flex items-center justify-between gap-3">
+              <span class="form-label">Portada *</span>
+              <span class="text-[11px] font-bold text-slate-400">Ideal 800x1000px</span>
+            </div>
+            <div
+              class="cover-drop"
+              (dragover)="$event.preventDefault()"
+              (drop)="onCoverDrop($event)"
+              (click)="coverInput.click()"
+            >
+              <input #coverInput type="file" accept="image/png,image/jpeg,image/webp" class="hidden" (change)="onCoverSelected($event)" />
+              <img *ngIf="coverPreviewUrl" [src]="coverPreviewUrl" alt="Portada seleccionada" class="h-full w-full object-cover" />
+              <div *ngIf="!coverPreviewUrl" class="flex h-full flex-col items-center justify-center p-6 text-center">
+                <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                  <i data-lucide="image-plus" class="h-6 w-6"></i>
+                </div>
+                <p class="font-black">Arrastrá una imagen o hacé click</p>
+                <p class="mt-1 text-sm text-slate-500">PNG, JPG hasta 5MB · Ideal 800x1000px</p>
+              </div>
+            </div>
+          </label>
+
+          <label class="block space-y-2">
+            <div class="flex items-center justify-between gap-3">
+              <span class="form-label">Nombre *</span>
+              <span class="text-[11px] font-bold text-slate-400">{{ nameCounter }}</span>
+            </div>
+            <input
+              [(ngModel)]="name"
+              name="name"
+              required
+              maxlength="100"
+              type="text"
+              class="form-input"
+              placeholder="Ej: Guía de Instagram"
+            />
+          </label>
+
+          <label class="block space-y-2">
+            <div class="flex items-center justify-between gap-3">
+              <span class="form-label">Descripción</span>
+              <span class="text-[11px] font-bold text-slate-400">{{ descriptionCounter }}</span>
+            </div>
+            <textarea
+              [(ngModel)]="description"
+              name="description"
+              maxlength="3000"
+              rows="7"
+              class="form-input resize-y"
+              placeholder="Describí tu producto..."
+            ></textarea>
+          </label>
+
+          <div class="rounded-2xl border border-violet-200 bg-violet-50 p-4">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="form-label text-violet-700">Instrucciones para el comprador</span>
+                  <span class="rounded-full bg-violet-600 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-white">Pro</span>
+                </div>
+                <p class="mt-1 text-sm text-violet-800/80">
+                  Agregá instrucciones que el comprador recibe tras la compra: cómo usar el producto, datos de acceso o próximos pasos.
+                </p>
+              </div>
+              <button type="button" class="hidden rounded-xl bg-violet-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white sm:block">
+                Actualizar a Pro
+              </button>
+            </div>
+            <textarea
+              [(ngModel)]="buyerInstructions"
+              name="buyerInstructions"
+              rows="4"
+              maxlength="3000"
+              class="form-input mt-4 border-violet-200 bg-white"
+              placeholder="Ej: Después de comprar, descargá el archivo y abrilo con..."
+            ></textarea>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200 p-4">
+            <p class="form-label mb-3">Tipo de precio</p>
+            <div class="grid gap-3 sm:grid-cols-2">
+              <button type="button" (click)="onPriceTypeChange('paid')" class="choice-card" [class.choice-card-active]="priceType === 'paid'">
+                <span class="font-black">De pago</span>
+                <span class="text-sm text-slate-500">Cobrás por tu producto</span>
+              </button>
+              <button type="button" (click)="onPriceTypeChange('free')" class="choice-card" [class.choice-card-active]="priceType === 'free'">
+                <span class="font-black">Gratis</span>
+                <span class="text-sm text-slate-500">Solo se pide el email</span>
+              </button>
+            </div>
+
+            <div *ngIf="priceType === 'paid'" class="mt-4 grid gap-4 sm:grid-cols-2">
+              <label class="block space-y-2">
+                <span class="form-label">Precio (ARS) *</span>
+                <input
+                  [ngModel]="pricePerPhotoInput"
+                  (ngModelChange)="onPricePerPhotoInputChange($event)"
+                  name="pricePerPhoto"
+                  required
+                  type="text"
+                  inputmode="numeric"
+                  class="form-input"
+                  placeholder="4990"
+                />
+                <p *ngIf="pricePerPhoto <= 0" class="text-xs font-bold text-red-600">El precio debe ser mayor a 0</p>
+              </label>
+
+              <label class="block space-y-2">
+                <span class="form-label">Precio original (tachado)</span>
+                <input
+                  [ngModel]="originalPriceInput"
+                  (ngModelChange)="onOriginalPriceInputChange($event)"
+                  name="originalPrice"
+                  type="text"
+                  inputmode="numeric"
+                  class="form-input"
+                  placeholder="Opcional"
+                />
+                <p class="text-xs text-slate-500">Si lo completás, se muestra tachado al lado del precio actual.</p>
+              </label>
+            </div>
+
+            <div *ngIf="priceType === 'paid'" class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p class="form-label mb-3">Medios de pago para este producto</p>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <button type="button" (click)="togglePaymentMethod('mercadopago')" class="choice-card bg-white" [class.choice-card-active]="paymentMercadoPago">
+                  <span class="font-black">Mercado Pago</span>
+                  <span class="text-sm text-slate-500">Requiere conectar tu cuenta en Ajustes.</span>
+                </button>
+                <button type="button" (click)="togglePaymentMethod('transfer')" class="choice-card bg-white" [class.choice-card-active]="paymentTransfer">
+                  <span class="font-black">Alias / CBU / CVU</span>
+                  <span class="text-sm text-slate-500">Usa tus datos de transferencia de Ajustes.</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200 p-4">
+            <p class="form-label mb-3">Tipo de producto *</p>
+            <div class="grid gap-3">
+              <label class="choice-card cursor-pointer" [class.choice-card-active]="productType === 'digital_file'">
+                <input [(ngModel)]="productType" name="productType" type="radio" value="digital_file" class="sr-only" />
+                <span class="font-black">Producto digital (archivo)</span>
+                <span class="text-sm text-slate-500">Subí archivos para entregar automáticamente desde Cloudflare.</span>
+              </label>
+
+              <label class="choice-card cursor-pointer" [class.choice-card-active]="productType === 'digital_link'">
+                <input [(ngModel)]="productType" name="productType" type="radio" value="digital_link" class="sr-only" />
+                <span class="font-black">Producto digital (link)</span>
+                <span class="text-sm text-slate-500">Entregá un enlace privado, una clase, una carpeta o una reunión.</span>
+              </label>
+
+              <label class="choice-card cursor-pointer" [class.choice-card-active]="productType === 'physical'">
+                <input [(ngModel)]="productType" name="productType" type="radio" value="physical" class="sr-only" />
+                <span class="font-black">Producto físico</span>
+                <span class="text-sm text-slate-500">Ideal para impresiones, packs, merchandising o entregas manuales.</span>
+              </label>
+            </div>
+          </div>
+
+          <label *ngIf="productType === 'digital_link'" class="block space-y-2">
+            <span class="form-label">Link de entrega *</span>
+            <input [(ngModel)]="deliveryLink" name="deliveryLink" type="url" class="form-input" placeholder="https://..." />
+          </label>
+
+          <div *ngIf="productType === 'digital_file'" class="rounded-2xl border border-slate-200 p-4">
+            <div class="mb-3 flex items-center justify-between gap-3">
+              <span class="form-label">Archivos digitales *</span>
+              <span class="text-[11px] font-bold text-slate-400">{{ digitalFileCounter }}</span>
+            </div>
+            <div
+              class="file-drop"
+              (dragover)="$event.preventDefault()"
+              (drop)="onDigitalFilesDrop($event)"
+              (click)="digitalInput.click()"
+            >
+              <input #digitalInput type="file" multiple class="hidden" (change)="onDigitalFilesSelected($event)" />
+              <div class="flex h-full flex-col items-center justify-center p-6 text-center">
+                <div class="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+                  <i data-lucide="upload-cloud" class="h-6 w-6"></i>
+                </div>
+                <p class="font-black">Subí tu archivo</p>
+                <p class="mt-1 text-sm text-slate-500">PDF, ZIP, MP4, MP3, JPG, PNG y más · Hasta 500MB</p>
+              </div>
+            </div>
+
+            <div *ngIf="digitalFiles.length > 0" class="mt-4 space-y-2">
+              <div *ngFor="let file of digitalFiles; let index = index" class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-bold">{{ file.name }}</p>
+                  <p class="text-xs text-slate-500">{{ formatFileSize(file.size) }}</p>
+                </div>
+                <button type="button" (click)="removeDigitalFile(index)" class="rounded-lg px-2 py-1 text-xs font-black uppercase tracking-widest text-red-600 hover:bg-red-50">
+                  Quitar
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="existingDigitalAssets.length > 0" class="mt-4 space-y-2">
+              <p class="text-[11px] font-black uppercase tracking-widest text-slate-400">Ya cargados</p>
+              <div *ngFor="let asset of existingDigitalAssets" class="flex items-center justify-between gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2">
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-bold text-emerald-950">{{ asset.originalFileName }}</p>
+                  <p class="text-xs text-emerald-700">{{ formatFileSize(asset.sizeBytes) }}</p>
+                </div>
+                <span class="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">Subido</span>
+              </div>
+            </div>
+          </div>
+
+          <label class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+            <input [(ngModel)]="isPublished" name="isPublished" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+            <span class="text-sm text-slate-700">Producto público (visible en tu sitio público)</span>
+          </label>
+
+          <p *ngIf="uploadProgressMessage" class="rounded-xl border border-indigo-200 bg-indigo-50 p-3 text-sm font-bold text-indigo-700">{{ uploadProgressMessage }}</p>
+          <p *ngIf="errorMessage" class="rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700">{{ errorMessage }}</p>
+          <p *ngIf="successMessage" class="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-bold text-emerald-700">{{ successMessage }}</p>
+
+          <div class="flex justify-end gap-3">
+            <button *ngIf="editingEventId !== null" type="button" (click)="cancelEdit()" class="rounded-xl border border-slate-300 px-5 py-3 text-xs font-black uppercase tracking-widest">
+              Cancelar
+            </button>
+            <button [disabled]="isSaving || isUploadingAssets || isReadOnlyUser" type="submit" class="rounded-xl bg-indigo-600 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-indigo-500 disabled:opacity-60">
+              {{ isSaving || isUploadingAssets ? 'Guardando...' : editingEventId === null ? 'Crear producto' : 'Guardar cambios' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- <aside class="space-y-4">
+          <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <p class="form-label mb-3">Resumen</p>
+            <div class="space-y-2 text-sm">
+              <p class="flex justify-between gap-3 text-slate-600">
+                <span>Cliente paga</span>
+                <span class="font-black text-slate-950">{{ priceType === 'free' ? 'Gratis' : grossAmountLabel }}</span>
+              </p>
+              <p class="flex justify-between gap-3 text-slate-600">
+                <span>Comisión {{ commissionPercentLabel }}</span>
+                <span class="font-black text-slate-950">{{ commissionAmountLabel }}</span>
+              </p>
+              <p class="flex justify-between gap-3 text-slate-700">
+                <span>Vas a recibir</span>
+                <span class="font-black text-emerald-700">{{ netAmountLabel }}</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200 bg-white p-4">
+            <p class="form-label mb-3">Entrega</p>
+            <p class="text-sm text-slate-600">
+              {{ productType === 'digital_file' ? 'Los archivos se guardan en Cloudflare R2 y quedan asociados al producto.' : productType === 'digital_link' ? 'El comprador recibe el link y las instrucciones luego de comprar.' : 'La entrega física queda registrada para coordinar manualmente.' }}
+            </p>
+          </div>
+        </aside> -->
+      </form>
+      </div>
+    </section>
+
+    <section class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <div class="mb-5 flex items-center justify-between">
+        <div>
+          <p class="text-[11px] font-black uppercase tracking-widest text-slate-400">Catálogo</p>
+          <h2 class="text-lg font-black">Mis productos</h2>
+        </div>
+      </div>
+
+      <p *ngIf="isLoadingEvents" class="text-sm text-slate-500">Cargando productos...</p>
+      <p *ngIf="!isLoadingEvents && events.length === 0" class="text-sm text-slate-500">Aún no tenés productos creados.</p>
+
+      <div *ngIf="!isLoadingEvents && events.length > 0" class="grid gap-4">
+        <article *ngFor="let event of events" class="grid gap-4 rounded-2xl border border-slate-200 p-4 sm:grid-cols-[88px_minmax(0,1fr)_auto] sm:items-center">
+          <div class="h-28 w-full overflow-hidden rounded-xl bg-slate-100 sm:h-28 sm:w-20">
+            <img *ngIf="event.coverImageUrl" [src]="event.coverImageUrl" alt="" class="h-full w-full object-cover" />
+            <div *ngIf="!event.coverImageUrl" class="flex h-full w-full items-center justify-center text-slate-300">
+              <i data-lucide="image" class="h-7 w-7"></i>
+            </div>
+          </div>
+          <div class="min-w-0">
+            <div class="mb-1 flex flex-wrap items-center gap-2">
+              <p class="truncate font-black">{{ event.name }}</p>
+              <span class="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500">{{ productTypeLabel(event.productType) }}</span>
+              <span class="rounded-full px-2 py-1 text-[10px] font-black uppercase tracking-widest" [ngClass]="event.isPublished ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'">
+                {{ event.isPublished ? 'Publicado' : 'Borrador' }}
+              </span>
+            </div>
+            <p class="line-clamp-2 text-sm text-slate-500">{{ event.description || 'Sin descripción' }}</p>
+            <p class="mt-2 text-sm font-black">{{ event.priceType === 'free' ? 'Gratis' : ('$' + (event.pricePerPhoto | number:'1.0-0')) }}</p>
+          </div>
+          <div class="flex flex-wrap gap-2 sm:justify-end">
+            <button type="button" (click)="confirmDeleteEvent(event)" [disabled]="isReadOnlyUser || deletingEventId === event.id" class="rounded-lg border border-red-200 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50">
+              {{ deletingEventId === event.id ? 'Eliminando...' : 'Eliminar' }}
+            </button>
+            <button type="button" (click)="startEditEvent(event)" [disabled]="isReadOnlyUser" class="rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-black uppercase tracking-widest disabled:cursor-not-allowed disabled:opacity-50">Editar</button>
+            <!-- <button type="button" (click)="goToPhotographerGallery(event)" class="rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-black uppercase tracking-widest">Galería</button> -->
+            <!-- <button type="button" (click)="goToUpload(event)" [disabled]="isReadOnlyUser" class="rounded-lg bg-slate-950 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-white disabled:cursor-not-allowed disabled:opacity-50">Contenido</button> -->
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+</div>

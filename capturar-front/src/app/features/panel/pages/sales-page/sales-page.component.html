@@ -1,0 +1,205 @@
+<div class="p-8 space-y-8">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-black text-slate-900">Módulo de ventas</h2>
+      <p class="text-sm text-slate-500">Revisa tus ganancias y las ventas que tiene tu cuenta.</p>
+    </div>
+    <button
+      (click)="syncSales()"
+      [disabled]="isSyncing"
+      class="px-5 py-3 rounded-xl bg-slate-900 text-white text-xs font-black uppercase tracking-wider hover:bg-blue-600 transition disabled:opacity-60 disabled:cursor-not-allowed"
+    >
+      {{ isSyncing ? 'Actualizando…' : 'Actualizar ventas' }}
+    </button>
+  </div>
+
+  <p *ngIf="errorMessage" class="text-sm text-red-600 font-medium">{{ errorMessage }}</p>
+  <p *ngIf="syncMessage" class="text-xs font-bold uppercase tracking-wide text-slate-500">{{ syncMessage }}</p>
+
+  <!-- <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm space-y-2">
+    <p class="text-[11px] font-black uppercase tracking-widest text-slate-500">Ayuda rápida</p>
+    <p class="text-sm text-slate-700"><span class="font-bold">Comisión vigente:</span> {{ commissionPercentLabel }}.</p>
+    <p class="text-sm text-slate-700"><span class="font-bold">Disponible:</span> monto listo para liquidar.</p>
+    <p class="text-sm text-slate-700"><span class="font-bold">Pendiente:</span> ventas cobradas que todavía están en clearing.</p>
+    <p class="text-sm text-slate-700"><span class="font-bold">Actualizar ventas:</span> refresca los montos del panel.</p>
+  </div> -->
+
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Disponible</p>
+      <p class="text-3xl font-black mt-2 text-green-600" *ngIf="!isLoading; else loadingMetric">${{ summary.availableAmount | number:'1.0-0' }}</p>
+      <p class="text-xs text-slate-500 mt-2">Listo para liquidar</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Pendiente</p>
+      <p class="text-3xl font-black mt-2 text-yellow-600" *ngIf="!isLoading; else loadingMetric">${{ summary.pendingAmount | number:'1.0-0' }}</p>
+      <p class="text-xs text-slate-500 mt-2" *ngIf="summary.nextAvailableAt; else pendingWithoutDate">
+        Disponible para retirar el {{ summary.nextAvailableAt | date:'dd/MM/yyyy HH:mm' }}
+      </p>
+      <ng-template #pendingWithoutDate>
+        <p class="text-xs text-slate-500 mt-2">Acredita luego del clearing</p>
+      </ng-template>
+    </div>
+
+    <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total retirado</p>
+      <p class="text-3xl font-black mt-2 text-sky-600" *ngIf="!isLoading; else loadingMetric">${{ summary.totalWithdrawn | number:'1.0-0' }}</p>
+      <p class="text-xs text-slate-500 mt-2">Histórico retirado</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Ventas totales</p>
+      <p class="text-3xl font-black mt-2" *ngIf="!isLoading; else loadingMetric">${{ summary.totalSalesAllTime | number:'1.0-0' }}</p>
+      <p class="text-xs text-slate-500 mt-2">{{ summary.totalPhotosSold | number:'1.0-0' }} fotos vendidas</p>
+    </div>
+  </div>
+
+  <ng-template #loadingMetric>
+    <span class="text-3xl font-black mt-2 inline-block">...</span>
+  </ng-template>
+
+  <!-- <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Mes actual</p>
+      <p class="text-3xl font-black mt-2" *ngIf="!isLoading; else loadingMonth">${{ summary.totalSalesThisMonth | number:'1.0-0' }}</p>
+      <p class="text-xs text-slate-500 mt-2">{{ summary.photosSoldThisMonth | number:'1.0-0' }} ventas en el mes</p>
+    </div>
+
+    <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Eventos activos</p>
+      <p class="text-3xl font-black mt-2" *ngIf="!isLoading; else loadingMonth">{{ summary.activeEventsCount | number:'1.0-0' }}</p>
+      <p class="text-xs text-slate-500 mt-2">Con ventas y productos publicados</p>
+    </div>
+  </div> -->
+
+  <ng-template #loadingMonth>
+    <span class="text-3xl font-black mt-2 inline-block">...</span>
+  </ng-template>
+
+  <!-- <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h3 class="text-xl font-black text-slate-900">Módulo de retiros</h3>
+        <p class="text-sm text-slate-500">Retira tu saldo disponible y consulta el historial de retiros.</p>
+      </div>
+      <button
+        (click)="withdrawAvailable()"
+        [disabled]="isWithdrawing || isLoading || summary.availableAmount <= 0"
+        class="px-5 py-3 rounded-xl bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-500 transition disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        {{ isWithdrawing ? 'Procesando retiro...' : ('Retirar $' + (summary.availableAmount | number:'1.0-0')) }}
+      </button>
+    </div>
+
+    <p *ngIf="withdrawalMessage" class="text-sm font-medium" [ngClass]="withdrawalSuccess ? 'text-emerald-700' : 'text-red-600'">
+      {{ withdrawalMessage }}
+    </p>
+
+    <div class="overflow-x-auto" *ngIf="hasLiquidations; else emptyLiquidations">
+      <table class="w-full min-w-[640px] text-sm">
+        <thead>
+          <tr class="text-left text-[10px] uppercase tracking-widest text-slate-400 border-b border-slate-200">
+            <th class="py-3 pr-3 font-black">Fecha y hora</th>
+            <th class="py-3 pr-3 font-black text-right">Monto</th>
+            <th class="py-3 pr-3 font-black text-right">Ventas incluidas</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let liquidation of liquidations" class="border-b border-slate-100 last:border-b-0">
+            <td class="py-3 pr-3 text-slate-700 font-medium">{{ liquidation.liquidationDate | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td class="py-3 pr-3 text-right font-black text-slate-900">${{ liquidation.amount | number:'1.0-0' }}</td>
+            <td class="py-3 pr-3 text-right text-slate-600">{{ liquidation.ordersCount }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #emptyLiquidations>
+      <p class="text-sm text-slate-500">Todavía no tienes retiros registrados.</p>
+    </ng-template>
+  </div> -->
+
+  <!-- <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
+    <h3 class="text-xl font-black mb-6">Ventas por evento</h3>
+
+    <div class="space-y-4" *ngIf="hasSalesByEvent; else emptySales">
+      <div *ngFor="let event of salesByEvent" class="p-4 rounded-2xl border border-slate-100 bg-slate-50 flex items-center justify-between gap-4">
+        <div class="min-w-0">
+          <p class="font-bold text-sm text-slate-900 truncate">{{ event.eventName }}</p>
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ event.photosSold }} ventas</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-6 text-right">
+          <div>
+            <p class="text-[10px] uppercase font-black tracking-wide text-slate-400">Total</p>
+            <p class="text-sm font-black">${{ event.totalSales | number:'1.0-0' }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase font-black tracking-wide text-slate-400">Pendiente</p>
+            <p class="text-sm font-black text-yellow-600">${{ event.pendingAmount | number:'1.0-0' }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase font-black tracking-wide text-slate-400">Disponible</p>
+            <p class="text-sm font-black text-green-600">${{ event.availableAmount | number:'1.0-0' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptySales>
+      <p class="text-sm text-slate-500">Aún no tienes ventas registradas.</p>
+    </ng-template>
+  </div> -->
+
+  <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
+    <h3 class="text-xl font-black mb-6">Detalle de ventas</h3>
+
+    <div class="overflow-x-auto" *ngIf="hasSaleDetails; else emptySaleDetails">
+      <table class="w-full min-w-[920px] text-sm">
+        <thead>
+          <tr class="text-left text-[10px] uppercase tracking-widest text-slate-400 border-b border-slate-200">
+            <th class="py-3 pr-3 font-black">Fecha</th>
+            <th class="py-3 pr-3 font-black">Evento</th>
+            <th class="py-3 pr-3 font-black">Fotos</th>
+            <th class="py-3 pr-3 font-black">Comprador</th>
+            <th class="py-3 pr-3 font-black">Medio de pago</th>
+            <th class="py-3 pr-3 font-black text-right">Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let sale of saleDetails" class="border-b border-slate-100 last:border-b-0">
+            <td class="py-3 pr-3 text-slate-600">{{ sale.soldAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td class="py-3 pr-3 font-bold text-slate-800">{{ sale.eventName }}</td>
+            <td class="py-3 pr-3">
+              <p class="font-bold text-slate-800">{{ sale.quantity }} foto{{ sale.quantity === 1 ? '' : 's' }}</p>
+              <ul class="mt-1 space-y-1" *ngIf="sale.purchasedPhotos.length > 0; else noPurchasedPhotos">
+                <li class="text-xs text-slate-500" *ngFor="let photo of sale.purchasedPhotos">
+                  #{{ photo.photoId }} {{ photo.label }}
+                </li>
+              </ul>
+              <ng-template #noPurchasedPhotos>
+                <p class="text-xs text-amber-600 font-medium mt-1">Sin detalle de fotos</p>
+              </ng-template>
+            </td>
+            <td class="py-3 pr-3">
+              <p class="font-bold text-slate-800">{{ sale.buyerName || 'Sin nombre' }}</p>
+              <p class="text-xs text-slate-500" *ngIf="sale.buyerEmail">{{ sale.buyerEmail }}</p>
+            </td>
+            <td class="py-3 pr-3">
+              <span class="inline-flex px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wide"
+                    [ngClass]="(sale.paymentMethod || '').toLowerCase() === 'mercadopago' ? 'bg-blue-100 text-blue-700' : 'bg-violet-100 text-violet-700'">
+                {{ getPaymentMethodLabel(sale.paymentMethod) }}
+              </span>
+            </td>
+            <td class="py-3 pr-3 text-right font-black text-slate-900">${{ sale.totalAmount | number:'1.0-0' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #emptySaleDetails>
+      <p class="text-sm text-slate-500">Aún no hay detalle de compradores para mostrar.</p>
+    </ng-template>
+  </div>
+</div>

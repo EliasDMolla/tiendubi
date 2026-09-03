@@ -1,0 +1,193 @@
+<div class="min-h-screen bg-slate-50 text-slate-900">
+  <div class="max-w-3xl mx-auto px-4 py-10 space-y-6">
+
+    <!-- PASO 1: Elegir publicación -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-6">
+      <h1 class="text-2xl font-black">Subir contenido</h1>
+      <p class="mt-2 text-sm text-slate-500">
+        Asociá archivos a una publicación de tus productos. Hoy el procesamiento automático está optimizado para imágenes; PDFs, ZIPs y otros productos digitales requieren el módulo de entregables.
+      </p>
+
+      <div class="mt-5">
+        <label class="block">
+          <span class="text-xs font-black uppercase text-slate-400">Publicación</span>
+          <select
+            [(ngModel)]="eventId"
+            [disabled]="isUploading"
+            class="w-full mt-1 rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 bg-white disabled:opacity-60"
+          >
+            <option [ngValue]="null">Seleccioná un evento</option>
+            <option *ngFor="let eventItem of events" [ngValue]="eventItem.id">{{ eventItem.name }}</option>
+          </select>
+          <p *ngIf="isLoadingEvents" class="text-xs text-slate-400 mt-1">Cargando eventos...</p>
+        </label>
+      </div>
+
+      <!-- PASO 2: Seleccionar contenido -->
+      <div class="mt-5" *ngIf="eventId">
+        <label
+          class="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-300 hover:border-blue-400 bg-slate-50 p-8 cursor-pointer transition-colors"
+          [class.opacity-50]="!uploadEnabled || isUploading"
+          [class.pointer-events-none]="!uploadEnabled || isUploading"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0l-4 4m4-4l4 4M4 20h16" />
+          </svg>
+          <span class="text-sm font-bold text-slate-600">Seleccionar imágenes</span>
+          <span class="text-xs text-slate-400">JPG, JPEG, PNG o WEBP. Productos digitales no-imagen: siguiente módulo.</span>
+          <input (change)="onFileSelected($event)" type="file" multiple accept="image/*" class="hidden" />
+        </label>
+      </div>
+
+      <p *ngIf="!uploadEnabled" class="mt-3 text-sm font-bold text-amber-700">La subida de fotos está deshabilitada temporalmente.</p>
+    </div>
+
+    <!-- LISTA DE ARCHIVOS SELECCIONADOS -->
+    <div class="bg-white rounded-3xl border border-slate-200 p-6" *ngIf="hasDisplayItems">
+      <div class="flex items-center justify-between mb-4">
+        <p class="text-sm font-black text-slate-700">{{ displayItemCount }} archivo{{ displayItemCount === 1 ? '' : 's' }} seleccionado{{ displayItemCount === 1 ? '' : 's' }}</p>
+        <button (click)="clearAll()" [disabled]="isUploading" class="text-xs font-bold text-slate-400 hover:text-red-500 disabled:opacity-40 transition-colors">
+          Limpiar todo
+        </button>
+      </div>
+
+      <!-- Local items (when upload started from this instance) -->
+      <div class="max-h-[260px] overflow-y-auto space-y-1 pr-1" *ngIf="hasLocalItems">
+        <div *ngFor="let item of items; let i = index"
+          class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm"
+          [ngClass]="{
+            'bg-slate-50': item.status === 'pending',
+            'bg-blue-50': item.status === 'uploading',
+            'bg-emerald-50': item.status === 'uploaded',
+            'bg-red-50': item.status === 'error'
+          }"
+        >
+          <div class="min-w-0 flex-1">
+            <p class="truncate font-medium text-slate-700">{{ item.file.name }}</p>
+            <p class="text-[11px] text-slate-400">{{ formatFileSize(item.file.size) }}</p>
+          </div>
+          <div class="shrink-0">
+            <span *ngIf="item.status === 'pending'" class="text-[11px] font-bold text-slate-400 uppercase">Pendiente</span>
+            <span *ngIf="item.status === 'uploading'" class="text-[11px] font-bold text-blue-600 uppercase">{{ item.progress }}%</span>
+            <span *ngIf="item.status === 'uploaded'" class="text-[11px] font-bold text-emerald-600 uppercase">✓</span>
+            <span *ngIf="item.status === 'error'" class="text-[11px] font-bold text-red-600 uppercase">✗</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shared items (when navigated back during/after upload) -->
+      <div class="max-h-[260px] overflow-y-auto space-y-1 pr-1" *ngIf="!hasLocalItems && sharedItems.length > 0">
+        <div *ngFor="let si of sharedItems"
+          class="flex items-center justify-between gap-3 rounded-lg px-3 py-2 text-sm"
+          [ngClass]="{
+            'bg-slate-50': si.status === 'pending',
+            'bg-blue-50': si.status === 'uploading',
+            'bg-emerald-50': si.status === 'uploaded',
+            'bg-red-50': si.status === 'error'
+          }"
+        >
+          <div class="min-w-0 flex-1">
+            <p class="truncate font-medium text-slate-700">{{ si.fileName }}</p>
+            <p class="text-[11px] text-slate-400">{{ formatFileSize(si.fileSize) }}</p>
+          </div>
+          <div class="shrink-0">
+            <span *ngIf="si.status === 'pending'" class="text-[11px] font-bold text-slate-400 uppercase">Pendiente</span>
+            <span *ngIf="si.status === 'uploading'" class="text-[11px] font-bold text-blue-600 uppercase">{{ si.progress }}%</span>
+            <span *ngIf="si.status === 'uploaded'" class="text-[11px] font-bold text-emerald-600 uppercase">✓</span>
+            <span *ngIf="si.status === 'error'" class="text-[11px] font-bold text-red-600 uppercase">✗</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS BAR -->
+      <div class="mt-5" *ngIf="isUploading || uploadFinished">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-xs font-bold text-slate-500">
+            <span *ngIf="isUploading && !isBatchProcessing">Subiendo contenido...</span>
+            <span *ngIf="isUploading && isBatchProcessing">Procesando contenido...</span>
+            <span *ngIf="uploadFinished">Subida finalizada</span>
+          </p>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-slate-400 font-mono" *ngIf="isUploading || uploadFinished">
+              ⏱ {{ elapsedFormatted }}
+            </span>
+            <p class="text-xs font-black text-slate-700">{{ definitiveProgressPercent }}%</p>
+          </div>
+        </div>
+        <div class="w-full h-2.5 rounded-full bg-slate-100 overflow-hidden">
+          <div
+            class="h-full rounded-full transition-all duration-300"
+            [ngClass]="uploadFinished && definitiveFailedCount > 0 ? 'bg-amber-500' : 'bg-blue-600'"
+            [style.width.%]="definitiveProgressPercent"
+          ></div>
+        </div>
+      </div>
+
+      <!-- RESULTADO FINAL -->
+      <div *ngIf="uploadFinished" class="mt-5 rounded-2xl border p-4"
+        [ngClass]="definitiveFailedCount > 0 ? 'border-amber-200 bg-amber-50' : 'border-emerald-200 bg-emerald-50'"
+      >
+        <div class="flex items-start gap-3">
+          <span class="text-2xl mt-0.5" *ngIf="definitiveFailedCount === 0">✅</span>
+          <span class="text-2xl mt-0.5" *ngIf="definitiveFailedCount > 0">⚠️</span>
+          <div>
+            <p class="text-sm font-black"
+              [ngClass]="definitiveFailedCount > 0 ? 'text-amber-800' : 'text-emerald-800'"
+            >
+              {{ definitiveUploadedCount }} archivo{{ definitiveUploadedCount === 1 ? '' : 's' }} subido{{ definitiveUploadedCount === 1 ? '' : 's' }} correctamente
+            </p>
+            <p *ngIf="definitiveFailedCount > 0" class="text-sm text-red-700 mt-1 font-bold">
+              {{ definitiveFailedCount }} archivo{{ definitiveFailedCount === 1 ? '' : 's' }} fallaron
+            </p>
+            <!-- Lista de fallidas -->
+            <div *ngIf="failedItems.length > 0" class="mt-2 space-y-0.5">
+              <p *ngFor="let failed of failedItems" class="text-xs text-red-600 truncate">• {{ failed.file.name }}</p>
+            </div>
+            <div *ngIf="failedItems.length === 0 && sharedFailedItems.length > 0" class="mt-2 space-y-0.5">
+              <p *ngFor="let failed of sharedFailedItems" class="text-xs text-red-600 truncate">• {{ failed.fileName }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p *ngIf="statusError" class="mt-3 text-xs font-bold text-red-600">{{ statusError }}</p>
+
+      <!-- ACCIONES -->
+      <div class="mt-5 flex flex-wrap gap-3">
+        <button
+          *ngIf="!uploadFinished"
+          (click)="startUpload()"
+          [disabled]="!uploadEnabled || isUploading || !eventId || items.length === 0"
+          class="flex-1 min-w-[180px] px-5 py-3 rounded-xl bg-blue-600 text-white font-black text-sm tracking-wide disabled:opacity-50 transition-colors hover:bg-blue-700"
+        >
+          {{ isUploading ? 'Subiendo...' : 'Iniciar subida' }}
+        </button>
+
+        <button
+          *ngIf="isUploading"
+          (click)="cancelUpload()"
+          class="px-5 py-3 rounded-xl border border-slate-300 text-slate-600 font-bold text-sm hover:bg-slate-100 transition-colors"
+        >
+          Cancelar
+        </button>
+
+        <button
+          *ngIf="uploadFinished && definitiveFailedCount > 0"
+          (click)="retryFailedUploads()"
+          class="flex-1 min-w-[180px] px-5 py-3 rounded-xl bg-red-600 text-white font-black text-sm tracking-wide hover:bg-red-700 transition-colors"
+        >
+          Reintentar fallidas ({{ definitiveFailedCount }})
+        </button>
+
+        <button
+          *ngIf="uploadFinished"
+          (click)="clearAll()"
+          class="flex-1 min-w-[180px] px-5 py-3 rounded-xl border border-slate-300 text-slate-700 font-bold text-sm hover:bg-slate-100 transition-colors"
+        >
+          Nueva subida
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

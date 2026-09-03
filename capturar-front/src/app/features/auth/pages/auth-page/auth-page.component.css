@@ -1,0 +1,245 @@
+:host {
+  display: block;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #080a10;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+  color: #2563eb;
+}
+
+.sidebar-link.active {
+  background-color: #2563eb;
+  color: white;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(241, 245, 249, 1);
+}
+
+.auth-shell {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(135deg, rgba(99, 102, 241, 0.18), transparent 28%),
+    linear-gradient(225deg, rgba(168, 85, 247, 0.16), transparent 32%),
+    linear-gradient(180deg, #080a10 0%, #0b1020 48%, #080a10 100%);
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.auth-shell::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.72), transparent 82%);
+}
+
+.auth-shell > .flex {
+  position: relative;
+  z-index: 1;
+}
+
+/* .auth-shell > .flex::before {
+  content: 'Vendé fotos online con marca de agua y Mercado Pago';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 28rem);
+  margin: 0 auto 1.5rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(168, 85, 247, 0.22);
+  border-radius: 999px;
+  background: rgba(168, 85, 247, 0.1);
+  color: #d8b4fe;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-align: center;
+  text-transform: uppercase;
+} */
+
+.auth-panel {
+  backdrop-filter: blur(18px);
+}
+
+.auth-shell img[alt='CapturAr'] {
+  height: 5.5rem;
+  filter: drop-shadow(0 18px 36px rgba(168, 85, 247, 0.22));
+}
+
+.auth-shell h1 {
+  color: #fff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-style: normal;
+  letter-spacing: 0;
+}
+
+.auth-shell h1::after {
+  content: '';
+  display: block;
+  width: 5rem;
+  height: 3px;
+  margin: 0.9rem auto 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+}
+
+.auth-shell h1 + p {
+  color: #94a3b8;
+}
+
+.auth-shell label {
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+}
+
+.auth-shell input {
+  border: 1px solid #1d243b;
+  background: #080a10;
+  color: #fff;
+  outline: none;
+  box-shadow: none;
+}
+
+.auth-shell input::placeholder {
+  color: #475569;
+}
+
+.auth-shell input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+}
+
+.auth-shell form > p.text-red-600,
+.auth-shell form > p.text-emerald-700 {
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.auth-shell form > p.text-red-600 {
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  background: rgba(239, 68, 68, 0.1);
+  color: #fca5a5;
+}
+
+.auth-shell form > p.text-emerald-700 {
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  background: rgba(16, 185, 129, 0.1);
+  color: #6ee7b7;
+}
+
+.auth-shell form button[type='submit'] {
+  background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+  border: 0;
+  box-shadow: 0 18px 42px rgba(168, 85, 247, 0.18);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.auth-shell form button[type='submit']:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.auth-shell form button[type='submit']:disabled {
+  transform: none;
+  filter: none;
+}
+
+.auth-shell .border-amber-200 {
+  border-color: rgba(168, 85, 247, 0.22);
+}
+
+.auth-shell .bg-amber-50 {
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.auth-shell .text-amber-700 {
+  color: #d8b4fe;
+}
+
+.auth-shell .text-slate-700,
+.auth-shell .text-slate-500,
+.auth-shell .text-slate-400 {
+  color: #94a3b8;
+}
+
+.auth-shell .border-slate-100 {
+  border-color: #1d243b;
+}
+
+.auth-shell button.text-blue-600 {
+  color: #c084fc;
+}
+
+.auth-shell button.text-blue-600:hover {
+  color: #fff;
+}
+
+.auth-shell .border-slate-900.bg-slate-900 {
+  border-color: #1d243b;
+  background: #080a10;
+  color: #e2e8f0;
+  box-shadow: none;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.auth-shell .border-slate-900.bg-slate-900:hover {
+  border-color: rgba(168, 85, 247, 0.46);
+  background: rgba(15, 23, 42, 0.92);
+  color: #fff;
+}
+
+.auth-shell .pt-8.border-t {
+  border-color: rgba(29, 36, 59, 0.9);
+}
+
+.auth-gradient {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 14%, rgba(59, 130, 246, 0.18) 0%, rgba(59, 130, 246, 0) 32%),
+    radial-gradient(circle at 82% 18%, rgba(14, 165, 233, 0.16) 0%, rgba(14, 165, 233, 0) 34%),
+    radial-gradient(circle at 78% 78%, rgba(99, 102, 241, 0.12) 0%, rgba(99, 102, 241, 0) 38%),
+    radial-gradient(circle at 20% 82%, rgba(56, 189, 248, 0.10) 0%, rgba(56, 189, 248, 0) 32%),
+    linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 42%, #f8fafc 72%, #e2e8f0 100%);
+}
+
+.auth-gradient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 18% 28%, rgba(255, 255, 255, 0.30) 0 34px, transparent 36px),
+    radial-gradient(circle at 74% 24%, rgba(255, 255, 255, 0.26) 0 30px, transparent 32px),
+    radial-gradient(circle at 64% 68%, rgba(255, 255, 255, 0.20) 0 26px, transparent 28px),
+    radial-gradient(circle at 28% 74%, rgba(255, 255, 255, 0.18) 0 22px, transparent 24px),
+    repeating-linear-gradient(
+      90deg,
+      rgba(148, 163, 184, 0.09) 0,
+      rgba(148, 163, 184, 0.09) 2px,
+      transparent 2px,
+      transparent 18px
+    );
+  opacity: 0.32;
+}
+
+.auth-gradient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(148, 163, 184, 0) 56%, rgba(148, 163, 184, 0.18) 100%);
+}

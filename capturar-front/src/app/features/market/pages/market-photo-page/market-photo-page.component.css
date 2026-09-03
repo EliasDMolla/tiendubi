@@ -1,0 +1,32 @@
+:host {
+  display: block;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #fbfcfd;
+}
+
+.watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  opacity: 0.2;
+  font-size: 2rem;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  color: white;
+  text-transform: uppercase;
+}
+
+.photo-grid-item:hover .overlay {
+  opacity: 1;
+}
+
+.cart-drawer {
+  transition: transform 0.3s ease-in-out;
+}
+
+.is-cart-open .cart-drawer {
+  transform: translateX(0);
+}

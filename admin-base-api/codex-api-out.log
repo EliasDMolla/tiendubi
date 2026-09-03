@@ -1,0 +1,125 @@
+Usando la configuración de inicio de Admin.WebApi\Properties\launchSettings.json...
+info: Startup[0]
+      Aplicando migraciones de base de datos. Attempt=1/12
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1,081ms) [Parameters=[], CommandType='Text', CommandTimeout='600']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (280ms) [Parameters=[], CommandType='Text', CommandTimeout='600']
+      CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+          "MigrationId" character varying(150) NOT NULL,
+          "ProductVersion" character varying(32) NOT NULL,
+          CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+      );
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (293ms) [Parameters=[], CommandType='Text', CommandTimeout='600']
+      LOCK TABLE "__EFMigrationsHistory" IN ACCESS EXCLUSIVE MODE
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (306ms) [Parameters=[], CommandType='Text', CommandTimeout='600']
+      SELECT "MigrationId", "ProductVersion"
+      FROM "__EFMigrationsHistory"
+      ORDER BY "MigrationId";
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: Startup[0]
+      Migraciones aplicadas correctamente.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (285ms) [Parameters=[], CommandType='Text', CommandTimeout='600']
+      SELECT u."Id", u."CreatedAt", u."Email", u."EmailVerificationToken", u."EmailVerificationTokenExpiry", u."EmailVerified", u."FacebookId", u."FullName", u."GoogleId", u."IsActive", u."LastLogin", u."PasswordHash", u."PasswordResetToken", u."PasswordResetTokenExpiry", u."PhoneNumber", u."PhoneVerified", u."Plan", u."PlanType", u."ProSubscriptionEndDate", u."ProSubscriptionStartDate", u."ProUpgradeDate", u."PublicSlug", u."Role", u."SubscriptionStatus", u."TrialEndDate", u."TrialStartDate", u."TrialUsed", u."UpdatedAt", u."UsageTypeId", u."WithdrawalAliasOrCbu", u."WithdrawalBankName", u."WithdrawalHolderName"
+      FROM "Users" AS u
+      WHERE u."Email" = 'admin'
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (337ms) [Parameters=[@p2='?' (DbType = Int32), @p0='?', @p1='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='600']
+      UPDATE "Users" SET "PasswordHash" = @p0, "UpdatedAt" = @p1
+      WHERE "Id" = @p2;
+info: Startup[0]
+      Usuario de prueba admin/admin actualizado automáticamente.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (317ms) [Parameters=[@__ownerEmail_0='?'], CommandType='Text', CommandTimeout='600']
+      SELECT u."Id", u."CreatedAt", u."Email", u."EmailVerificationToken", u."EmailVerificationTokenExpiry", u."EmailVerified", u."FacebookId", u."FullName", u."GoogleId", u."IsActive", u."LastLogin", u."PasswordHash", u."PasswordResetToken", u."PasswordResetTokenExpiry", u."PhoneNumber", u."PhoneVerified", u."Plan", u."PlanType", u."ProSubscriptionEndDate", u."ProSubscriptionStartDate", u."ProUpgradeDate", u."PublicSlug", u."Role", u."SubscriptionStatus", u."TrialEndDate", u."TrialStartDate", u."TrialUsed", u."UpdatedAt", u."UsageTypeId", u."WithdrawalAliasOrCbu", u."WithdrawalBankName", u."WithdrawalHolderName"
+      FROM "Users" AS u
+      WHERE lower(u."Email") = @__ownerEmail_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1,220ms) [Parameters=[@__demoEmail_0='?', @__demoLegacyEmail_1='?'], CommandType='Text', CommandTimeout='600']
+      SELECT u."Id", u."CreatedAt", u."Email", u."EmailVerificationToken", u."EmailVerificationTokenExpiry", u."EmailVerified", u."FacebookId", u."FullName", u."GoogleId", u."IsActive", u."LastLogin", u."PasswordHash", u."PasswordResetToken", u."PasswordResetTokenExpiry", u."PhoneNumber", u."PhoneVerified", u."Plan", u."PlanType", u."ProSubscriptionEndDate", u."ProSubscriptionStartDate", u."ProUpgradeDate", u."PublicSlug", u."Role", u."SubscriptionStatus", u."TrialEndDate", u."TrialStartDate", u."TrialUsed", u."UpdatedAt", u."UsageTypeId", u."WithdrawalAliasOrCbu", u."WithdrawalBankName", u."WithdrawalHolderName"
+      FROM "Users" AS u
+      WHERE lower(u."Email") = @__demoEmail_0 OR lower(u."Email") = @__demoLegacyEmail_1 OR u."PublicSlug" = 'demo1802'
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (371ms) [Parameters=[@p2='?' (DbType = Int32), @p0='?', @p1='?' (DbType = DateTime)], CommandType='Text', CommandTimeout='600']
+      UPDATE "Users" SET "PasswordHash" = @p0, "UpdatedAt" = @p1
+      WHERE "Id" = @p2;
+info: Admin.WebApi.Services.DemoDataService[0]
+      Usuario demo demo@capturar.app actualizado automáticamente.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (292ms) [Parameters=[@__demoUser_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='600']
+      SELECT count(*)::int
+      FROM "PhotographerEvents" AS p
+      WHERE p."UserId" = @__demoUser_Id_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (295ms) [Parameters=[@__demoUser_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='600']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Orders" AS o
+          WHERE o."PhotographerId" = @__demoUser_Id_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (291ms) [Parameters=[@__demoUser_Id_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='600']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "EventPhotos" AS e
+          INNER JOIN "PhotographerEvents" AS p ON e."PhotographerEventId" = p."Id"
+          WHERE p."UserId" = @__demoUser_Id_0)
+info: Admin.WebApi.Services.DemoDataService[0]
+      Datos demo ya existentes para demo@capturar.app. No se regeneran.
+info: Startup[0]
+      Seed demo startup: Datos demo ya existentes. No se regeneraron.
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:44349
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:44348
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\Robocop\Desktop\Repos\capturar\admin-base-api\Admin.WebApi
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (286ms) [Parameters=[@__p_0='?' (DbType = Int32)], CommandType='Text', CommandTimeout='600']
+      SELECT e."Id"
+      FROM "EventPhotos" AS e
+      WHERE NOT (e."IsProcessed") AND NOT (e."ProcessingFailed")
+      ORDER BY e."CreatedAt"
+      LIMIT @__p_0
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (294ms) [Parameters=[@__request_Email_0='?'], CommandType='Text', CommandTimeout='600']
+      SELECT u."Id", u."CreatedAt", u."Email", u."EmailVerificationToken", u."EmailVerificationTokenExpiry", u."EmailVerified", u."FacebookId", u."FullName", u."GoogleId", u."IsActive", u."LastLogin", u."PasswordHash", u."PasswordResetToken", u."PasswordResetTokenExpiry", u."PhoneNumber", u."PhoneVerified", u."Plan", u."PlanType", u."ProSubscriptionEndDate", u."ProSubscriptionStartDate", u."ProUpgradeDate", u."PublicSlug", u."Role", u."SubscriptionStatus", u."TrialEndDate", u."TrialStartDate", u."TrialUsed", u."UpdatedAt", u."UsageTypeId", u."WithdrawalAliasOrCbu", u."WithdrawalBankName", u."WithdrawalHolderName"
+      FROM "Users" AS u
+      WHERE u."Email" = @__request_Email_0
+      LIMIT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (277ms) [Parameters=[@__candidate_0='?'], CommandType='Text', CommandTimeout='600']
+      SELECT EXISTS (
+          SELECT 1
+          FROM "Users" AS u
+          WHERE u."PublicSlug" = @__candidate_0)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (284ms) [Parameters=[@p0='?' (DbType = DateTime), @p1='?', @p2='?', @p3='?' (DbType = DateTime), @p4='?', @p5='?', @p6='?', @p7='?' (DbType = DateTime), @p8='?', @p9='?', @p10='?' (DbType = DateTime), @p11='?', @p12='?', @p13='?' (DbType = DateTime), @p14='?' (DbType = DateTime), @p15='?' (DbType = DateTime), @p16='?', @p17='?', @p18='?' (DbType = DateTime), @p19='?' (DbType = DateTime), @p20='?' (DbType = DateTime), @p21='?' (DbType = Int32), @p22='?', @p23='?', @p24='?'], CommandType='Text', CommandTimeout='600']
+      INSERT INTO "Users" ("CreatedAt", "Email", "EmailVerificationToken", "EmailVerificationTokenExpiry", "FacebookId", "FullName", "GoogleId", "LastLogin", "PasswordHash", "PasswordResetToken", "PasswordResetTokenExpiry", "PhoneNumber", "Plan", "ProSubscriptionEndDate", "ProSubscriptionStartDate", "ProUpgradeDate", "PublicSlug", "SubscriptionStatus", "TrialEndDate", "TrialStartDate", "UpdatedAt", "UsageTypeId", "WithdrawalAliasOrCbu", "WithdrawalBankName", "WithdrawalHolderName")
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24)
+      RETURNING "Id", "EmailVerified", "IsActive", "PhoneVerified", "PlanType", "Role", "TrialUsed";
+info: Admin.WebApi.Services.AuthService[0]
+      Nuevo usuario registrado (pendiente verificación): codex-test-1780406587@example.com
+fail: Admin.WebApi.Services.EmailService[0]
+      Error enviando email a codex-test-1780406587@example.com
+      System.InvalidOperationException: SMTP no configurado. Completá Email:SmtpHost, Email:SmtpUser, Email:SmtpPassword y Email:FromEmail.
+         at Admin.WebApi.Services.EmailService.SendEmailAsync(String toEmail, String subject, String body) in C:\Users\Robocop\Desktop\Repos\capturar\admin-base-api\Admin.WebApi\Services\EmailService.cs:line 396
+fail: Admin.WebApi.Controllers.AuthController[0]
+      El usuario se registró, pero no se pudo enviar el email de verificación
+      System.InvalidOperationException: SMTP no configurado. Completá Email:SmtpHost, Email:SmtpUser, Email:SmtpPassword y Email:FromEmail.
+         at Admin.WebApi.Services.EmailService.SendEmailAsync(String toEmail, String subject, String body) in C:\Users\Robocop\Desktop\Repos\capturar\admin-base-api\Admin.WebApi\Services\EmailService.cs:line 396
+         at Admin.WebApi.Services.EmailService.SendEmailVerificationAsync(String toEmail, String verificationToken, String userName) in C:\Users\Robocop\Desktop\Repos\capturar\admin-base-api\Admin.WebApi\Services\EmailService.cs:line 213
+         at Admin.WebApi.Controllers.AuthController.Register(RegisterRequest request) in C:\Users\Robocop\Desktop\Repos\capturar\admin-base-api\Admin.WebApi\Controllers\AuthController.cs:line 105

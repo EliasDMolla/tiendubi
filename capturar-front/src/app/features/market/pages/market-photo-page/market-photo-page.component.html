@@ -1,0 +1,490 @@
+﻿<div class="market-page text-slate-900" [class.is-cart-open]="isCartOpen">
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:block">
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Tienda</p>
+          <p class="text-sm font-bold">{{ event.studioName }}</p>
+        </div>
+        <div class="h-8 w-[1px] bg-slate-200 hidden sm:block"></div>
+        <div>
+          <h1 class="text-lg font-black tracking-tight text-indigo-600">{{ event.name }}</h1>
+          <p class="text-xs text-slate-500 font-medium">{{ productTypeLabel }}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a [routerLink]="['/', event.studioSlug]" class="hidden sm:inline-flex px-4 py-3 bg-slate-100 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-slate-200 transition">Ver tienda</a>
+        <button
+          (click)="toggleCart()"
+          class="relative p-3 bg-slate-950 text-white rounded-2xl hover:bg-blue-600 transition-all flex items-center gap-2"
+          [class.scale-110]="cartButtonHighlight"
+          [class.bg-blue-600]="cartButtonHighlight"
+        >
+          <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+          <span class="text-sm font-bold hidden sm:inline">Mi Carrito</span>
+          <span class="absolute -top-1 -right-1 bg-blue-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white">{{ cartCount }}</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main *ngIf="isLoading" class="max-w-7xl mx-auto px-4 py-16 text-center text-slate-500 font-bold">Cargando producto...</main>
+  <main *ngIf="notFoundMessage" class="max-w-7xl mx-auto px-4 py-16 text-center text-slate-500 font-bold">{{ notFoundMessage }}</main>
+
+  <section *ngIf="!isLoading && !notFoundMessage" class="border-b border-slate-200 bg-white">
+    <div class="mx-auto grid max-w-7xl gap-8 px-4 py-10 lg:grid-cols-[420px_minmax(0,1fr)] lg:items-center">
+      <div class="overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-100 shadow-sm">
+        <img [src]="coverImageUrl" (error)="onPhotoError($event)" [alt]="event.name" class="aspect-[4/5] w-full object-cover" />
+      </div>
+
+      <div class="max-w-2xl">
+        <div class="mb-4 flex flex-wrap gap-2">
+          <span class="rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-[11px] font-black uppercase tracking-widest text-indigo-700">{{ productTypeLabel }}</span>
+          <span *ngIf="event.digitalAssetCount" class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-black uppercase tracking-widest text-slate-500">{{ event.digitalAssetCount }} archivo{{ event.digitalAssetCount === 1 ? '' : 's' }}</span>
+          <span *ngIf="event.totalPhotos" class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-[11px] font-black uppercase tracking-widest text-slate-500">{{ event.totalPhotos }} recurso{{ event.totalPhotos === 1 ? '' : 's' }}</span>
+        </div>
+        <h2 class="text-4xl font-black tracking-tight sm:text-5xl">{{ event.name }}</h2>
+        <p class="mt-4 text-base leading-relaxed text-slate-500">{{ event.description || 'Producto publicado en esta tienda.' }}</p>
+
+        <div class="mt-6 flex flex-wrap items-end gap-3">
+          <p class="text-4xl font-black" [class.text-emerald-700]="event.priceType === 'free'">{{ productPriceLabel }}</p>
+          <p *ngIf="event.originalPrice && event.priceType !== 'free'" class="pb-1 text-lg font-bold text-slate-400 line-through">${{ event.originalPrice | number:'1.0-0' }}</p>
+        </div>
+
+        <div class="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <p class="text-[11px] font-black uppercase tracking-widest text-slate-400">Entrega</p>
+          <p class="mt-2 text-sm font-medium text-slate-600">
+            {{ event.productType === 'physical' ? 'Coordiná la entrega física con la tienda luego de comprar.' : event.productType === 'digital_link' ? 'Recibís un enlace privado luego de completar la compra.' : hasPhotoGallery ? 'Seleccioná los recursos digitales y recibí el acceso luego del pago.' : 'Los archivos digitales quedan asociados a este producto.' }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="!isLoading && !notFoundMessage && hasPhotoGallery" class="bg-slate-50 py-8 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 space-y-4">
+      <div class="relative flex-1 w-full">
+        <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+        <input
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearchQueryChanged()"
+          type="text"
+          placeholder="Busca por tag (ej: llegada, podio, meta)..."
+          class="w-full pl-12 pr-4 py-4 rounded-2xl border border-slate-200 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none font-medium"
+        >
+      </div>
+      <div class="flex flex-wrap gap-2 w-full">
+        <button
+          *ngFor="let tag of availableQuickTags"
+          (click)="selectTag(tag)"
+          [ngClass]="isTagSelected(tag)
+            ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-600'
+            : 'bg-white text-slate-900 border-slate-200 hover:bg-slate-100'"
+          class="px-4 py-3 border rounded-2xl text-sm font-bold whitespace-nowrap transition"
+        >
+          {{ tag }}
+        </button>
+      </div>
+      <p class="text-[11px] text-slate-400 font-medium">
+        Los tags te ayudan a filtrar rápido por categoría o tipo de recurso dentro del producto.
+      </p>
+    </div>
+  </section>
+
+  <main *ngIf="!isLoading && !notFoundMessage && hasPhotoGallery" class="max-w-7xl mx-auto px-4 py-12">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+      <div *ngFor="let photo of photos" (click)="openPhotoPreview(photo)" class="photo-grid-item relative group rounded-3xl overflow-hidden bg-slate-200 aspect-[3/4] shadow-sm cursor-zoom-in">
+        <img [src]="photo.url" (error)="onPhotoError($event)" [alt]="photo.alt" class="w-full h-full object-cover grayscale-[0.2] group-hover:grayscale-0 transition-all duration-500">
+        <div class="watermark" [class.tracking-widest]="photo.id === 1204" [class.font-black]="photo.id === 1204">CapturAr{{ photo.id === 1204 ? ' Muestra' : '' }}</div>
+        <div class="overlay absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent opacity-0 transition-opacity flex flex-col justify-end p-6">
+          <div>
+            <p class="text-white text-xs font-bold uppercase tracking-widest opacity-70">Recurso #{{ photo.id }}</p>
+            <p class="text-white font-black text-xl">${{ photo.price }}</p>
+          </div>
+        </div>
+        <button
+          (click)="addToCart(photo.id, photo.price, photo.url, $event)"
+          class="absolute right-3 bottom-3 z-10 w-12 h-12 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-90"
+          aria-label="Agregar recurso al carrito"
+        >
+          <i data-lucide="plus" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+
+    <p *ngIf="!isLoading && photos.length === 0" class="text-center text-sm text-slate-500 mt-10 font-medium">
+      No encontramos recursos con ese criterio. Probá con otro tag.
+    </p>
+
+    <div *ngIf="photos.length > 0" class="mt-10 space-y-3">
+      <div class="flex items-center justify-center gap-3 flex-wrap">
+        <button
+          type="button"
+          (click)="goToPreviousPage()"
+          [disabled]="currentPhotosPage <= 1 || isLoadingMorePhotos"
+          class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-black uppercase tracking-widest disabled:opacity-40"
+        >
+          Anterior
+        </button>
+        <span class="text-xs font-black uppercase tracking-widest text-slate-500">PÃ¡gina {{ currentPhotosPage }} / {{ totalPages }}</span>
+        <button
+          type="button"
+          (click)="goToNextPage()"
+          [disabled]="currentPhotosPage >= totalPages || isLoadingMorePhotos"
+          class="px-4 py-2 rounded-xl border border-slate-300 text-xs font-black uppercase tracking-widest disabled:opacity-40"
+        >
+          Siguiente
+        </button>
+      </div>
+
+      <div class="flex items-center justify-center gap-2 overflow-x-auto pb-1" *ngIf="totalPages > 1">
+        <button
+          type="button"
+          *ngFor="let pageNumber of pageNumbers"
+          (click)="goToPage(pageNumber)"
+          class="min-w-9 h-9 px-3 rounded-lg border text-xs font-black"
+          [ngClass]="pageNumber === currentPhotosPage ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-300 hover:border-slate-500'"
+        >
+          {{ pageNumber }}
+        </button>
+      </div>
+
+      <p *ngIf="isLoadingMorePhotos" class="text-center text-xs font-bold uppercase tracking-widest text-slate-400">Cargando pÃ¡gina...</p>
+    </div>
+  </main>
+
+  <section *ngIf="!isLoading && !notFoundMessage && !hasPhotoGallery" class="mx-auto max-w-7xl px-4 py-10">
+    <div class="rounded-[2rem] border border-slate-200 bg-white p-8 text-center shadow-sm">
+      <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+        <i data-lucide="package-check" class="h-7 w-7"></i>
+      </div>
+      <h3 class="text-xl font-black">Producto publicado</h3>
+      <p class="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-slate-500">
+        Completá tu compra y recibí las instrucciones de entrega en el email indicado.
+      </p>
+      <button (click)="buyProduct()" class="mt-5 inline-flex rounded-xl bg-slate-950 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-indigo-600">
+        {{ event.priceType === 'free' ? 'Obtener gratis' : 'Comprar producto' }}
+      </button>
+    </div>
+  </section>
+
+  <div
+    *ngIf="selectedPhotoPreview"
+    class="fixed inset-0 z-[55] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
+    (click)="closePhotoPreview()"
+  >
+    <div class="relative max-w-5xl w-full" (click)="$event.stopPropagation()">
+      <button
+        type="button"
+        (click)="closePhotoPreview()"
+        class="absolute top-3 right-3 z-10 p-2 rounded-full bg-black/60 text-white hover:bg-black/80"
+        aria-label="Cerrar vista previa"
+      >
+        âœ•
+      </button>
+
+      <img
+        [src]="selectedPhotoPreview.url"
+        [alt]="selectedPhotoPreview.alt"
+        class="w-full max-h-[88vh] object-contain rounded-2xl"
+      />
+    </div>
+  </div>
+
+  <div class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-50 translate-x-full cart-drawer border-l border-slate-200">
+    <div class="flex flex-col h-full">
+      <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+        <h2 class="text-xl font-black">Tu Carrito</h2>
+        <button (click)="toggleCart()" class="p-2 hover:bg-slate-100 rounded-full transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-6 space-y-4">
+        <ng-container *ngIf="cart.length === 0; else cartList">
+          <div class="text-center text-slate-400">
+            <i data-lucide="file" class="w-12 h-12 mx-auto mb-4 opacity-20"></i>
+            <p>No seleccionaste ningún producto aún.</p>
+          </div>
+        </ng-container>
+
+        <ng-template #cartList>
+          <div *ngFor="let item of cart; index as i" class="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+            <img
+              [src]="item.thumbnailUrl"
+              (error)="onPhotoError($event)"
+              [alt]="'Producto #' + item.id"
+              class="w-12 h-12 rounded-lg flex-shrink-0 object-cover bg-slate-200"
+            />
+            <div class="flex-1 text-left">
+              <p class="text-xs font-bold text-slate-900 italic">{{ item.id > 0 ? 'Recurso #' + item.id : event.name }}</p>
+              <p class="text-sm font-black text-indigo-600">${{ item.price }}</p>
+            </div>
+            <button (click)="removeFromCart(i)" class="text-slate-300 hover:text-red-500 transition">
+              <i data-lucide="trash-2" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </ng-template>
+      </div>
+
+      <div class="p-8 bg-slate-50 border-t border-slate-200">
+        <div class="mb-5 space-y-3" *ngIf="cart.length > 0">
+          <label class="block text-[10px] font-black uppercase tracking-widest text-slate-400">CÃ³digo de descuento</label>
+          <div class="flex items-center gap-2">
+            <input
+              [(ngModel)]="discountCodeInput"
+              type="text"
+              placeholder="Ej: CAPTURAR26"
+              class="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold uppercase outline-none focus:border-blue-500"
+            />
+            <button
+              *ngIf="!appliedDiscountCode"
+              type="button"
+              (click)="applyDiscountCode()"
+              class="px-3 py-2 rounded-xl bg-slate-900 text-white text-[11px] font-black uppercase tracking-widest"
+            >
+              Aplicar
+            </button>
+            <button
+              *ngIf="appliedDiscountCode"
+              type="button"
+              (click)="clearDiscount()"
+              class="px-3 py-2 rounded-xl border border-slate-300 text-[11px] font-black uppercase tracking-widest"
+            >
+              Quitar
+            </button>
+          </div>
+          <p *ngIf="discountErrorMessage" class="text-xs text-red-600 font-medium">{{ discountErrorMessage }}</p>
+          <p *ngIf="appliedDiscountCode" class="text-xs text-emerald-700 font-bold">
+            CÃ³digo aplicado: {{ appliedDiscountCode }} (-{{ discountPercent }}%)
+          </p>
+        </div>
+
+        <div class="space-y-2 mb-6">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-slate-500">Subtotal:</span>
+            <span class="text-lg font-black">${{ cartTotal }}</span>
+          </div>
+          <div class="flex justify-between items-center" *ngIf="appliedDiscountCode">
+            <span class="font-bold text-slate-500">Descuento:</span>
+            <span class="text-lg font-black text-emerald-700">-${{ discountAmount }}</span>
+          </div>
+          <div class="flex justify-between items-center pt-2 border-t border-slate-200">
+            <span class="font-bold text-slate-500">Total a pagar:</span>
+            <span class="text-3xl font-black">${{ finalTotal }}</span>
+          </div>
+        </div>
+        <button (click)="showCheckout()" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-500 transition shadow-xl shadow-blue-500/20 uppercase tracking-widest text-sm">
+          Ir a pagar ahora
+        </button>
+        <p class="mt-4 text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest">Descarga inmediata tras el pago</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-md items-center justify-center p-4" [class.hidden]="!isCheckoutOpen" [class.flex]="isCheckoutOpen">
+    <div class="bg-white w-full max-w-md rounded-[2rem] overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+      <div class="p-6 flex-1 overflow-y-auto">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-black italic">Finalizar Compra</h3>
+          <button (click)="hideCheckout()" class="p-2 bg-slate-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <div *ngIf="!transferPurchaseCompleted" class="space-y-4">
+          <div
+            *ngIf="isCreatingCheckout || isSubmittingTransferReceipt"
+            class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-[11px] font-black uppercase tracking-widest text-blue-700"
+          >
+            Procesando mÃ©todo de pago...
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Nombre (opcional)</label>
+            <input [(ngModel)]="buyerName" type="text" placeholder="Tu nombre" class="w-full p-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500 font-bold">
+          </div>
+
+          <div>
+            <label class="block text-[10px] font-black uppercase text-slate-400 mb-2">Email para recibir el producto</label>
+            <input [(ngModel)]="buyerEmail" type="email" placeholder="tu@email.com" class="w-full p-4 rounded-xl border border-slate-200 outline-none focus:border-blue-500 font-bold">
+          </div>
+
+          <div
+            *ngIf="event.priceType !== 'free'"
+            class="p-6 rounded-2xl flex items-center justify-between"
+            (click)="selectPaymentMethod('mercadopago')"
+            [ngClass]="mercadoPagoEnabled
+              ? (selectedPaymentMethod === 'mercadopago' ? 'border-2 border-blue-600 bg-blue-50 cursor-pointer' : 'border border-slate-200 cursor-pointer hover:border-blue-300')
+              : 'border border-slate-200 opacity-50 grayscale cursor-not-allowed'"
+            [class.pointer-events-none]="isCreatingCheckout || isSubmittingTransferReceipt"
+            [class.opacity-70]="isCreatingCheckout || isSubmittingTransferReceipt"
+          >
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                <i data-lucide="credit-card" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <p class="text-sm font-black">Mercado Pago</p>
+                <p class="text-[10px] font-bold uppercase tracking-widest"
+                   [ngClass]="mercadoPagoEnabled ? 'text-indigo-600' : 'text-slate-500'">
+                  {{ mercadoPagoEnabled ? 'AcreditaciÃ³n instantÃ¡nea' : 'Deshabilitado temporalmente' }}
+                </p>
+              </div>
+            </div>
+            <span *ngIf="selectedPaymentMethod === 'mercadopago'" class="text-indigo-600 font-black text-base leading-none">âœ“</span>
+            <span *ngIf="selectedPaymentMethod !== 'mercadopago'" class="text-indigo-600 font-black text-base leading-none">â€º</span>
+          </div>
+
+          <div class="p-6 border rounded-2xl flex items-center justify-between"
+               *ngIf="event.priceType !== 'free'"
+               (click)="selectPaymentMethod('transfer')"
+               [ngClass]="transfersEnabled
+                ? (selectedPaymentMethod === 'transfer' ? 'border-2 border-emerald-500 bg-emerald-50 cursor-pointer' : 'border-emerald-200 bg-emerald-50 cursor-pointer hover:border-emerald-400')
+                : 'border-slate-200 opacity-50 grayscale cursor-not-allowed'"
+               [class.pointer-events-none]="isCreatingCheckout || isSubmittingTransferReceipt"
+               [class.opacity-70]="isCreatingCheckout || isSubmittingTransferReceipt">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center">
+                <i data-lucide="banknote" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <p class="text-sm font-black">Transferencia CBU</p>
+                <p class="text-[10px] font-bold uppercase tracking-widest"
+                   [ngClass]="transfersEnabled ? 'text-emerald-700' : 'text-slate-500'">
+                  {{ transfersEnabled ? 'Habilitado' : 'Deshabilitado' }}
+                </p>
+              </div>
+            </div>
+            <span *ngIf="selectedPaymentMethod === 'transfer'" class="text-emerald-700 font-black text-base leading-none">âœ“</span>
+            <span *ngIf="selectedPaymentMethod !== 'transfer'" class="text-emerald-700 font-black text-base leading-none">â€º</span>
+          </div>
+
+          <div *ngIf="transferResult && !transferPurchaseCompleted" class="p-4 rounded-2xl border border-emerald-200 bg-emerald-50 text-xs space-y-2">
+            <p class="font-black text-emerald-800 text-sm">Datos para transferir</p>
+            <div class="grid grid-cols-[72px_1fr_auto] gap-2 items-center">
+              <p class="font-bold text-emerald-900">Titular</p>
+              <p class="min-w-0 break-words text-emerald-900">{{ transferResult.holderName }}</p>
+              <span></span>
+            </div>
+            <div class="grid grid-cols-[72px_1fr_auto] gap-2 items-center">
+              <p class="font-bold text-emerald-900">Banco</p>
+              <p class="min-w-0 break-words text-emerald-900">{{ transferResult.bankName }}</p>
+              <span></span>
+            </div>
+            <div *ngIf="transferResult.alias" class="grid grid-cols-[72px_1fr_auto] gap-2 items-center">
+              <p class="font-bold text-emerald-900">Alias</p>
+              <p class="min-w-0 break-all text-emerald-900">{{ transferResult.alias }}</p>
+              <button
+                type="button"
+                (click)="copyTransferValue(transferResult.alias, 'Alias')"
+                class="shrink-0 px-2.5 py-1 rounded-lg border border-emerald-400 text-emerald-800 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-100"
+              >
+                Copiar
+              </button>
+            </div>
+            <div *ngIf="transferResult.cbu" class="grid grid-cols-[72px_1fr_auto] gap-2 items-center">
+              <p class="font-bold text-emerald-900">CBU/CVU</p>
+              <p class="min-w-0 break-all text-emerald-900">{{ transferResult.cbu }}</p>
+              <button
+                type="button"
+                (click)="copyTransferValue(transferResult.cbu, 'CBU/CVU')"
+                class="shrink-0 px-2.5 py-1 rounded-lg border border-emerald-400 text-emerald-800 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-100"
+              >
+                Copiar
+              </button>
+            </div>
+            <div *ngIf="transferResult.accountInfo" class="grid grid-cols-[72px_1fr_auto] gap-2 items-center">
+              <p class="font-bold text-emerald-900">Info</p>
+              <p class="min-w-0 break-words text-emerald-900">{{ transferResult.accountInfo }}</p>
+              <span></span>
+            </div>
+            <div class="grid grid-cols-[72px_1fr_auto] gap-2 items-center">
+              <p class="font-bold text-emerald-900">Monto</p>
+              <p class="min-w-0 break-all text-emerald-900">{{ transferResult.currency }} {{ transferResult.amount }}</p>
+              <button
+                type="button"
+                (click)="copyTransferValue(transferResult.currency + ' ' + transferResult.amount, 'Monto')"
+                class="shrink-0 px-2.5 py-1 rounded-lg border border-emerald-400 text-emerald-800 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-100"
+              >
+                Copiar
+              </button>
+            </div>
+            <div class="grid grid-cols-[72px_1fr_auto] gap-2 items-center">
+              <p class="font-bold text-emerald-900">Ref.</p>
+              <p class="min-w-0 break-all text-emerald-900">{{ transferResult.reference }}</p>
+              <button
+                type="button"
+                (click)="copyTransferValue(transferResult.reference, 'Referencia')"
+                class="shrink-0 px-2.5 py-1 rounded-lg border border-emerald-400 text-emerald-800 text-[10px] font-black uppercase tracking-widest hover:bg-emerald-100"
+              >
+                Copiar
+              </button>
+            </div>
+            <p class="text-[11px] text-emerald-800/80">Guardá la referencia y enviá el comprobante a la tienda para acreditar tu compra.</p>
+            <p *ngIf="copyFeedbackMessage" class="text-[11px] font-bold" [ngClass]="copyFeedbackType === 'success' ? 'text-emerald-800' : 'text-red-600'">
+              {{ copyFeedbackMessage }}
+            </p>
+
+            <div class="mt-3 pt-3 border-t border-emerald-200 space-y-2">
+              <label class="block text-[10px] font-black uppercase tracking-widest text-emerald-800">Subir comprobante</label>
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.pdf,image/png,image/jpeg,application/pdf"
+                (change)="onTransferReceiptSelected($event)"
+                class="block w-full text-[11px] text-slate-700 file:mr-3 file:px-3 file:py-2 file:rounded-lg file:border-0 file:bg-emerald-700 file:text-white file:text-[10px] file:font-black file:uppercase file:tracking-widest"
+              />
+              <button
+                type="button"
+                (click)="submitTransferReceipt()"
+                [disabled]="isSubmittingTransferReceipt || !transferReceiptFile"
+                class="w-full mt-1 bg-emerald-700 text-white font-black py-3 rounded-xl hover:bg-emerald-600 transition disabled:opacity-50"
+              >
+                {{ isSubmittingTransferReceipt ? 'Enviando comprobante...' : 'Enviar comprobante' }}
+              </button>
+              <p *ngIf="transferReceiptErrorMessage" class="text-[11px] font-bold text-red-600">{{ transferReceiptErrorMessage }}</p>
+            </div>
+          </div>
+
+        </div>
+
+        <div *ngIf="transferPurchaseCompleted" class="p-5 rounded-2xl border border-blue-200 bg-blue-50 text-sm space-y-2">
+          <p class="font-black text-blue-900 text-base">Compra registrada</p>
+          <p class="text-blue-900">{{ event.priceType === 'free' ? 'Registramos tu solicitud correctamente.' : 'Recibimos tu comprobante de transferencia correctamente.' }}</p>
+          <p class="text-blue-900">{{ event.priceType === 'free' ? 'Te enviaremos las instrucciones al email:' : 'Cuando se confirme la transferencia, te enviaremos la entrega al email:' }}</p>
+          <p class="font-black text-blue-900">{{ buyerEmail || 'tu correo registrado' }}</p>
+          <p class="text-[12px] text-blue-900/80">Referencia de compra: {{ transferResult?.reference }}</p>
+          <button
+            type="button"
+            (click)="downloadPurchaseReceipt()"
+            class="mt-3 w-full bg-blue-700 text-white font-black py-3 rounded-xl hover:bg-blue-600 transition"
+          >
+            Descargar comprobante
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="!transferPurchaseCompleted" class="p-6 pt-4 border-t border-slate-200 bg-white">
+        <p *ngIf="checkoutErrorMessage" class="mb-3 text-sm text-red-600 font-medium">{{ checkoutErrorMessage }}</p>
+
+        <button
+          *ngIf="!(selectedPaymentMethod === 'transfer' && transferResult)"
+          (click)="startCheckout()"
+          [disabled]="isCreatingCheckout || isSubmittingTransferReceipt || cart.length === 0 || (selectedPaymentMethod === 'mercadopago' ? !mercadoPagoEnabled : !transfersEnabled)"
+          class="w-full bg-slate-950 text-white font-black py-4 rounded-2xl hover:bg-blue-600 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+        >
+          {{ isCreatingCheckout ? (event.priceType === 'free' ? 'Registrando...' : selectedPaymentMethod === 'mercadopago' ? 'Redirigiendo...' : 'Procesando...') : (event.priceType === 'free' ? 'Obtener gratis' : selectedPaymentMethod === 'mercadopago' ? 'Pagar con MercadoPago' : 'Pagar con transferencia') }} <span *ngIf="event.priceType !== 'free'">${{ finalTotal }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isCartOpen && !isCheckoutOpen" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 w-[92%] max-w-lg">
+    <div class="bg-white/80 backdrop-blur-lg border border-slate-200 p-4 rounded-2xl shadow-xl flex items-center gap-4">
+      <div class="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center text-indigo-600">
+        <i data-lucide="info" class="w-5 h-5"></i>
+      </div>
+      <p class="text-xs font-medium text-slate-600 leading-relaxed">
+        Los productos digitales se entregan por email o enlace privado inmediatamente después de confirmar el pago.
+      </p>
+    </div>
+  </div>
+</div>
+

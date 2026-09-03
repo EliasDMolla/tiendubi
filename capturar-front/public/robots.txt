@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Bloqueos opcionales de rutas internas
+Disallow: /panel
+Disallow: /auth
+
+Sitemap: https://capturar-front.netlify.app/sitemap.xml

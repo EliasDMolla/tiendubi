@@ -1,0 +1,106 @@
+:host {
+  display: block;
+}
+
+.form-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.form-input {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.9rem;
+  background: #fff;
+  padding: 0.85rem 1rem;
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 600;
+  outline: none;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.form-input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.form-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.cover-drop,
+.file-drop {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 1.25rem;
+  background:
+    linear-gradient(135deg, rgba(99, 102, 241, 0.05), transparent 42%),
+    #f8fafc;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease;
+}
+
+.cover-drop {
+  height: min(72vw, 420px);
+  min-height: 320px;
+}
+
+.file-drop {
+  min-height: 190px;
+}
+
+.cover-drop:hover,
+.file-drop:hover {
+  border-color: #6366f1;
+  background-color: #eef2ff;
+  transform: translateY(-1px);
+}
+
+.choice-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  background: #fff;
+  padding: 1rem;
+  text-align: left;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.choice-card:hover {
+  border-color: #c7d2fe;
+  background: #f8fafc;
+}
+
+.choice-card-active {
+  border-color: #6366f1;
+  background: #eef2ff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}

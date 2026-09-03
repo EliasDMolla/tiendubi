@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Fotógrafo | CapturAr</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .sidebar-link:hover { background-color: rgba(59, 130, 246, 0.05); color: #2563eb; }
+        .sidebar-link.active { background-color: #2563eb; color: white; }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(241, 245, 249, 1); }
+        .auth-gradient { background: radial-gradient(circle at top right, #dbeafe 0%, #f8fafc 40%); }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        .view-flex.active { display: flex; }
+    </style>
+</head>
+<body class="text-slate-900 overflow-x-hidden">
+
+    <!-- Sección de Login -->
+    <section id="login-view" class="view-section active auth-gradient min-h-screen">
+        <div class="flex flex-col items-center justify-center min-h-screen p-4">
+            <div class="mb-8 flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <i data-lucide="aperture" class="w-6 h-6 text-white"></i>
+                </div>
+                <span class="font-black text-2xl tracking-tighter">CapturAr</span>
+            </div>
+
+            <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/50 w-full max-w-md border border-slate-100">
+                <h1 class="text-2xl font-black mb-2 italic text-center">¡Hola de nuevo!</h1>
+                <p class="text-slate-500 text-sm text-center mb-8 font-medium">Ingresa a tu panel de fotógrafo</p>
+
+                <form onsubmit="navigateTo('dashboard-view'); return false;" class="space-y-5">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Email Profesional</label>
+                        <input type="email" required placeholder="nombre@estudio.com" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition font-medium">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2 px-1">
+                            <label class="block text-[10px] font-black uppercase text-slate-400">Contraseña</label>
+                            <a href="#" class="text-[10px] font-black uppercase text-blue-600">¿Olvidaste?</a>
+                        </div>
+                        <input type="password" required placeholder="••••••••" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition font-medium">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-black py-5 rounded-2xl hover:bg-blue-500 transition shadow-xl shadow-blue-500/20 uppercase tracking-widest text-xs mt-4">
+                        Entrar al Panel
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-8 border-t border-slate-100 text-center">
+                    <p class="text-sm text-slate-500 font-medium">
+                        ¿Aún no tienes cuenta? 
+                        <button onclick="navigateTo('register-view')" class="text-blue-600 font-bold hover:underline">Regístrate gratis</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de Registro -->
+    <section id="register-view" class="view-section auth-gradient min-h-screen">
+        <div class="flex flex-col items-center justify-center min-h-screen p-4">
+            <div class="mb-8 flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/30">
+                    <i data-lucide="aperture" class="w-6 h-6 text-white"></i>
+                </div>
+                <span class="font-black text-2xl tracking-tighter">CapturAr</span>
+            </div>
+
+            <div class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/50 w-full max-w-lg border border-slate-100">
+                <h1 class="text-2xl font-black mb-2 italic text-center">Comienza a vender</h1>
+                <p class="text-slate-500 text-sm text-center mb-8 font-medium">Crea tu cuenta profesional en segundos</p>
+
+                <form onsubmit="navigateTo('dashboard-view'); return false;" class="grid md:grid-cols-2 gap-5">
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Nombre de Marca o Estudio</label>
+                        <input type="text" required placeholder="Estudio Lumière" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Nombre</label>
+                        <input type="text" required placeholder="Lucía" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Apellido</label>
+                        <input type="text" required placeholder="Pérez" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Email Profesional</label>
+                        <input type="email" required placeholder="lucia@estudio.com" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Contraseña</label>
+                        <input type="password" required placeholder="Mínimo 8 caracteres" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+                    </div>
+                    <button type="submit" class="md:col-span-2 w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-blue-600 transition shadow-xl uppercase tracking-widest text-xs mt-2">
+                        Crear mi cuenta PRO
+                    </button>
+                </form>
+
+                <div class="mt-8 pt-8 border-t border-slate-100 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+                    Al unirte, aceptas nuestros Términos y Privacidad
+                </div>
+                <button onclick="navigateTo('login-view')" class="w-full mt-4 text-sm text-blue-600 font-bold hover:underline">Ya tengo cuenta, quiero ingresar</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Principal (Original) -->
+    <div id="dashboard-view" class="view-flex min-h-screen view-section">
+        <div class="flex w-full">
+            <!-- Sidebar -->
+            <aside class="w-64 bg-white border-r border-slate-200 hidden lg:flex flex-col sticky top-0 h-screen">
+                <div class="p-8 flex items-center gap-3">
+                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/30">
+                        <i data-lucide="aperture" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="font-black text-xl tracking-tighter">CapturAr</span>
+                </div>
+
+                <nav class="flex-1 px-4 space-y-2">
+                    <a href="#" class="sidebar-link active flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+                    </a>
+                    <a href="#" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
+                        <i data-lucide="calendar" class="w-5 h-5"></i> Mis Eventos
+                    </a>
+                    <a href="#" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
+                        <i data-lucide="dollar-sign" class="w-5 h-5"></i> Ventas
+                    </a>
+                    <a href="#" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
+                        <i data-lucide="image" class="w-5 h-5"></i> Galería Master
+                    </a>
+                    <a href="#" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
+                        <i data-lucide="settings" class="w-5 h-5"></i> Ajustes
+                    </a>
+                </nav>
+
+                <div class="p-4 mt-auto">
+                    <button onclick="navigateTo('login-view')" class="flex items-center gap-3 p-3 w-full text-slate-400 hover:text-red-500 font-bold text-sm transition-colors">
+                        <i data-lucide="log-out" class="w-5 h-5"></i> Cerrar Sesión
+                    </button>
+                    <div class="bg-slate-900 rounded-2xl p-4 text-white mt-4">
+                        <p class="text-[10px] font-black uppercase text-slate-400 mb-1">Plan Pro</p>
+                        <p class="text-xs mb-3">50GB de 100GB usados</p>
+                        <div class="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-blue-500 h-full w-1/2"></div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="flex-1 overflow-y-auto">
+                <!-- Top Bar -->
+                <header class="h-20 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-30">
+                    <h2 class="text-lg font-bold">Panel de Control</h2>
+                    <div class="flex items-center gap-4">
+                        <button class="p-2 text-slate-400 hover:text-slate-900 transition"><i data-lucide="bell" class="w-5 h-5"></i></button>
+                        <div class="flex items-center gap-3 pl-4 border-l border-slate-200">
+                            <div class="text-right">
+                                <p class="text-xs font-black">Estudio Lumière</p>
+                                <p class="text-[10px] text-slate-400 font-bold">ID: 48293</p>
+                            </div>
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">L</div>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="p-8 space-y-8">
+                    <!-- Stats Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="glass-card p-6 rounded-[2rem] shadow-sm">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-green-500/10 text-green-600 rounded-xl"><i data-lucide="trending-up" class="w-5 h-5"></i></div>
+                                <span class="text-[10px] font-bold text-green-600">+12% vs mes pasado</span>
+                            </div>
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Ingresos Totales</p>
+                            <p class="text-3xl font-black mt-1">$142.800</p>
+                        </div>
+                        <div class="glass-card p-6 rounded-[2rem] shadow-sm">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-blue-500/10 text-blue-600 rounded-xl"><i data-lucide="camera" class="w-5 h-5"></i></div>
+                            </div>
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Fotos Vendidas</p>
+                            <p class="text-3xl font-black mt-1">342</p>
+                        </div>
+                        <div class="glass-card p-6 rounded-[2rem] shadow-sm">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-purple-500/10 text-purple-600 rounded-xl"><i data-lucide="eye" class="w-5 h-5"></i></div>
+                            </div>
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Visualizaciones</p>
+                            <p class="text-3xl font-black mt-1">1.2k</p>
+                        </div>
+                        <div class="glass-card p-6 rounded-[2rem] shadow-sm">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-orange-500/10 text-orange-600 rounded-xl"><i data-lucide="calendar" class="w-5 h-5"></i></div>
+                            </div>
+                            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">Eventos Activos</p>
+                            <p class="text-3xl font-black mt-1">4</p>
+                        </div>
+                    </div>
+
+                    <div class="grid lg:grid-cols-3 gap-8">
+                        <!-- Crear Evento & Subida -->
+                        <div class="lg:col-span-2 space-y-8">
+                            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
+                                <div class="flex justify-between items-center mb-8">
+                                    <h3 class="text-xl font-black">Subir Nuevo Evento</h3>
+                                    <button class="text-blue-600 text-sm font-bold">Ver Guía de Carga</button>
+                                </div>
+                                
+                                <div class="grid md:grid-cols-2 gap-6 mb-8">
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black uppercase text-slate-400">Nombre del Evento</label>
+                                        <input type="text" placeholder="Ej: XV Martina García" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label class="text-[10px] font-black uppercase text-slate-400">Precio por Foto ($)</label>
+                                        <input type="number" placeholder="1200" class="w-full p-4 bg-slate-50 rounded-xl border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+                                    </div>
+                                </div>
+
+                                <!-- Dropzone -->
+                                <div class="border-2 border-dashed border-slate-200 rounded-[2rem] p-12 text-center hover:border-blue-500 transition-colors group cursor-pointer bg-slate-50/50">
+                                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mx-auto mb-4 group-hover:scale-110 transition-transform">
+                                        <i data-lucide="upload-cloud" class="w-8 h-8"></i>
+                                    </div>
+                                    <h4 class="font-black text-lg mb-1">Arrastra tus fotos aquí</h4>
+                                    <p class="text-slate-400 text-sm mb-6 font-medium">Soporta JPG, PNG y TIFF hasta 20MB por archivo</p>
+                                    <button class="bg-white border border-slate-200 text-slate-900 font-bold px-8 py-3 rounded-xl hover:bg-slate-900 hover:text-white transition shadow-sm">Seleccionar Archivos</button>
+                                </div>
+                                
+                                <div class="mt-8 flex justify-end">
+                                    <button class="bg-blue-600 text-white font-black px-10 py-4 rounded-2xl hover:bg-blue-500 transition shadow-xl shadow-blue-500/20">
+                                        Publicar Galería
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Lista de Eventos -->
+                            <div class="bg-white p-8 rounded-[2.5rem] border border-slate-200 shadow-sm">
+                                <h3 class="text-xl font-black mb-8">Eventos Recientes</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center text-white"><i data-lucide="star" class="w-6 h-6"></i></div>
+                                            <div>
+                                                <p class="font-bold text-sm">XV - Martina García</p>
+                                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">1.240 Fotos • $1.200 c/u</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <div class="text-right hidden sm:block">
+                                                <p class="text-sm font-black">$48.200</p>
+                                                <p class="text-[10px] text-green-600 font-bold uppercase">En Ventas</p>
+                                            </div>
+                                            <button class="p-2 hover:bg-white rounded-lg transition border border-transparent hover:border-slate-200"><i data-lucide="external-link" class="w-4 h-4 text-slate-400"></i></button>
+                                            <button class="p-2 hover:bg-white rounded-lg transition border border-transparent hover:border-slate-200"><i data-lucide="more-vertical" class="w-4 h-4 text-slate-400"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar Ventas Recientes -->
+                        <div class="space-y-8">
+                            <div class="bg-slate-900 p-8 rounded-[2.5rem] text-white shadow-xl shadow-slate-900/20">
+                                <h3 class="text-lg font-black mb-6">Últimas Ventas</h3>
+                                <div class="space-y-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-blue-400"><i data-lucide="shopping-cart" class="w-5 h-5"></i></div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-bold">Foto #1204 - Martina G.</p>
+                                            <p class="text-[10px] text-slate-400">hace 5 minutos</p>
+                                        </div>
+                                        <p class="text-sm font-black text-green-400">+$1.200</p>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-blue-400"><i data-lucide="shopping-cart" class="w-5 h-5"></i></div>
+                                        <div class="flex-1">
+                                            <p class="text-xs font-bold">Pack x5 - Maratón BA</p>
+                                            <p class="text-[10px] text-slate-400">hace 22 minutos</p>
+                                        </div>
+                                        <p class="text-sm font-black text-green-400">+$4.500</p>
+                                    </div>
+                                </div>
+                                <button class="w-full mt-8 border border-white/10 bg-white/5 py-4 rounded-xl text-xs font-bold hover:bg-white/10 transition">Ver todo el historial</button>
+                            </div>
+
+                            <!-- Tip Pro -->
+                            <div class="bg-blue-600 p-8 rounded-[2.5rem] text-white overflow-hidden relative">
+                                <i data-lucide="lightbulb" class="absolute -right-4 -bottom-4 w-32 h-32 opacity-10 rotate-12"></i>
+                                <h3 class="font-black text-lg mb-2">Tip de venta</h3>
+                                <p class="text-sm text-blue-100 leading-relaxed mb-6">Los eventos con **QR impreso** en las mesas venden un 40% más que los compartidos por link.</p>
+                                <button class="bg-white text-blue-600 font-black px-6 py-3 rounded-xl text-xs uppercase tracking-widest">Descargar Pack QR</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        function navigateTo(viewId) {
+            // Ocultar todas las secciones
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.remove('active', 'view-flex');
+            });
+            
+            // Mostrar la sección seleccionada
+            const target = document.getElementById(viewId);
+            target.classList.add('active');
+            if (viewId === 'dashboard-view') {
+                target.classList.add('view-flex');
+            }
+            
+            // Re-inicializar iconos
+            lucide.createIcons();
+            
+            // Scroll al top
+            window.scrollTo(0,0);
+        }
+
+        // Inicialización de iconos
+        lucide.createIcons();
+    </script>
+</body>
+</html>
