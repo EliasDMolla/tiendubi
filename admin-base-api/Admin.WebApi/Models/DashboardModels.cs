@@ -17,6 +17,7 @@ namespace Admin.WebApi.Models
     {
         public int EventId { get; set; }
         public string EventName { get; set; } = string.Empty;
+        public string ProductType { get; set; } = string.Empty;
         public decimal TotalSales { get; set; }
         public int PhotosSold { get; set; }
         public decimal PendingAmount { get; set; }
@@ -28,6 +29,7 @@ namespace Admin.WebApi.Models
         public int SaleId { get; set; }
         public DateTime SoldAt { get; set; }
         public string EventName { get; set; } = string.Empty;
+        public string ProductType { get; set; } = string.Empty;
         public string BuyerName { get; set; } = string.Empty;
         public string? BuyerEmail { get; set; }
         public string PaymentMethod { get; set; } = string.Empty;

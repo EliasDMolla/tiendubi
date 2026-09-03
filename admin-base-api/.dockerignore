@@ -1,0 +1,17 @@
+.git
+.gitignore
+.vs
+.vscode
+**/bin
+**/obj
+**/*.user
+**/*.suo
+.env*
+!*.example
+appsettings.json
+appsettings.Development.json
+uploads
+logs
+Dockerfile*
+docker-compose*.yml
+GUIA_DEPLOY_API_DOCKER_SSL.md

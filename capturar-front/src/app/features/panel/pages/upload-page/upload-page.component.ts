@@ -414,7 +414,7 @@ export class UploadPageComponent implements OnInit, OnDestroy {
               }
 
               item.status = 'error';
-              item.error = 'No quedó almacenado en Cloudflare R2';
+              item.error = 'No quedó almacenado en la nube';
               item.uploadChannel = undefined;
               item.progress = 0;
             }
@@ -424,7 +424,7 @@ export class UploadPageComponent implements OnInit, OnDestroy {
         for (const item of missingItems) {
           if (item.status === 'uploaded' && item.objectKey && unresolvedMissingKeys.has(item.objectKey)) {
             item.status = 'error';
-            item.error = 'No quedó almacenado en Cloudflare R2';
+            item.error = 'No quedó almacenado en la nube';
             item.uploadChannel = undefined;
             item.progress = 0;
           }

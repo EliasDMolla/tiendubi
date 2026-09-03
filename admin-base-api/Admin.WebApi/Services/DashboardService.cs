@@ -86,11 +86,17 @@ namespace Admin.WebApi.Services
             var eventSales = await _context.PhotoSales
                 .AsNoTracking()
                 .Where(s => s.UserId == photographerId)
-                .GroupBy(s => new { EventId = s.PhotographerEventId, EventName = s.PhotographerEvent.Name })
+                .GroupBy(s => new
+                {
+                    EventId = s.PhotographerEventId,
+                    EventName = s.PhotographerEvent.Name,
+                    ProductType = s.PhotographerEvent.ProductType
+                })
                 .Select(g => new EventSalesDto
                 {
                     EventId = g.Key.EventId,
                     EventName = g.Key.EventName,
+                    ProductType = g.Key.ProductType,
                     TotalSales = g.Sum(s => s.TotalAmount * commissionFactor),
                     PhotosSold = g.Sum(s => s.Quantity),
                     PendingAmount = g.Where(s => s.Status == "pending_confirmation").Sum(s => (decimal?)(s.TotalAmount * commissionFactor)) ?? 0m,
@@ -117,6 +123,7 @@ namespace Admin.WebApi.Services
                     s.Id,
                     s.SoldAt,
                     EventName = s.PhotographerEvent.Name,
+                    ProductType = s.PhotographerEvent.ProductType,
                     s.BuyerName,
                     s.BuyerEmail,
                     s.PaymentMethod,
@@ -136,6 +143,7 @@ namespace Admin.WebApi.Services
                     SaleId = sale.Id,
                     SoldAt = sale.SoldAt,
                     EventName = sale.EventName,
+                    ProductType = sale.ProductType,
                     BuyerName = sale.BuyerName,
                     BuyerEmail = sale.BuyerEmail,
                     PaymentMethod = sale.PaymentMethod,

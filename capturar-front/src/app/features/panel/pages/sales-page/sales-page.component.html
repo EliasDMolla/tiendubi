@@ -51,7 +51,7 @@
     <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
       <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Ventas totales</p>
       <p class="text-3xl font-black mt-2" *ngIf="!isLoading; else loadingMetric">${{ summary.totalSalesAllTime | number:'1.0-0' }}</p>
-      <p class="text-xs text-slate-500 mt-2">{{ summary.totalPhotosSold | number:'1.0-0' }} fotos vendidas</p>
+      <p class="text-xs text-slate-500 mt-2">{{ summary.totalPhotosSold | number:'1.0-0' }} unidades vendidas</p>
     </div>
   </div>
 
@@ -67,7 +67,7 @@
     </div>
 
     <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
-      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Eventos activos</p>
+      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Productos activos</p>
       <p class="text-3xl font-black mt-2" *ngIf="!isLoading; else loadingMonth">{{ summary.activeEventsCount | number:'1.0-0' }}</p>
       <p class="text-xs text-slate-500 mt-2">Con ventas y productos publicados</p>
     </div>
@@ -121,7 +121,7 @@
   </div> -->
 
   <!-- <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
-    <h3 class="text-xl font-black mb-6">Ventas por evento</h3>
+        <h3 class="text-xl font-black mb-6">Ventas por producto</h3>
 
     <div class="space-y-4" *ngIf="hasSalesByEvent; else emptySales">
       <div *ngFor="let event of salesByEvent" class="p-4 rounded-2xl border border-slate-100 bg-slate-50 flex items-center justify-between gap-4">
@@ -160,8 +160,9 @@
         <thead>
           <tr class="text-left text-[10px] uppercase tracking-widest text-slate-400 border-b border-slate-200">
             <th class="py-3 pr-3 font-black">Fecha</th>
-            <th class="py-3 pr-3 font-black">Evento</th>
-            <th class="py-3 pr-3 font-black">Fotos</th>
+            <th class="py-3 pr-3 font-black">Producto</th>
+            <th class="py-3 pr-3 font-black">Tipo</th>
+            <th class="py-3 pr-3 font-black">Detalle</th>
             <th class="py-3 pr-3 font-black">Comprador</th>
             <th class="py-3 pr-3 font-black">Medio de pago</th>
             <th class="py-3 pr-3 font-black text-right">Monto</th>
@@ -172,14 +173,19 @@
             <td class="py-3 pr-3 text-slate-600">{{ sale.soldAt | date:'dd/MM/yyyy HH:mm' }}</td>
             <td class="py-3 pr-3 font-bold text-slate-800">{{ sale.eventName }}</td>
             <td class="py-3 pr-3">
-              <p class="font-bold text-slate-800">{{ sale.quantity }} foto{{ sale.quantity === 1 ? '' : 's' }}</p>
+              <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-black text-slate-600">
+                {{ getProductTypeLabel(sale.productType) }}
+              </span>
+            </td>
+            <td class="py-3 pr-3">
+              <p class="font-bold text-slate-800">{{ sale.quantity }} unidad{{ sale.quantity === 1 ? '' : 'es' }}</p>
               <ul class="mt-1 space-y-1" *ngIf="sale.purchasedPhotos.length > 0; else noPurchasedPhotos">
                 <li class="text-xs text-slate-500" *ngFor="let photo of sale.purchasedPhotos">
                   #{{ photo.photoId }} {{ photo.label }}
                 </li>
               </ul>
               <ng-template #noPurchasedPhotos>
-                <p class="text-xs text-amber-600 font-medium mt-1">Sin detalle de fotos</p>
+                <p class="text-xs text-slate-500 font-medium mt-1">Producto completo</p>
               </ng-template>
             </td>
             <td class="py-3 pr-3">

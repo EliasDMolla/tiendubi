@@ -28,6 +28,7 @@ export class MarketEventsPageComponent implements OnInit, AfterViewInit {
   searchTerm = '';
   isLoading = true;
   notFoundMessage = '';
+  readonly currentYear = new Date().getFullYear();
   readonly fallbackImageUrl = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200';
 
   get filteredEvents() {
@@ -81,6 +82,10 @@ export class MarketEventsPageComponent implements OnInit, AfterViewInit {
 
   onSearchInput(): void {
     this.renderIcons();
+  }
+
+  trackByEventId(_index: number, event: PublicEventCard): number {
+    return event.id;
   }
 
   private renderIcons(): void {

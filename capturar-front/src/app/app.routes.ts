@@ -2,9 +2,9 @@ import { Routes } from '@angular/router';
 import { blockAuthFromLandingGuard } from './core/auth/block-auth-from-landing.guard';
 
 export const routes: Routes = [
-	{ path: '', redirectTo: 'landing', pathMatch: 'full' },
 	{
-		path: 'landing',
+		path: '',
+		pathMatch: 'full',
 		loadComponent: () =>
 			import('./features/landing/pages/landing-page/landing-page.component').then(
 				(module) => module.LandingPageComponent
@@ -17,6 +17,7 @@ export const routes: Routes = [
 				(module) => module.VerifyEmailPageComponent
 			)
 	},
+	{ path: 'landing', redirectTo: '', pathMatch: 'full' },
 	{
 		path: 'reset-password',
 		loadComponent: () =>
@@ -39,8 +40,8 @@ export const routes: Routes = [
 				(module) => module.MercadoPagoCallbackPageComponent
 			)
 	},
-	{ path: 'market-events', redirectTo: 'landing', pathMatch: 'full' },
-	{ path: 'market-photo', redirectTo: 'landing', pathMatch: 'full' },
+	{ path: 'market-events', redirectTo: '', pathMatch: 'full' },
+	{ path: 'market-photo', redirectTo: '', pathMatch: 'full' },
 	{
 		path: 'panel',
 		loadChildren: () => import('./features/panel/panel.routes').then((module) => module.PANEL_ROUTES)
@@ -49,5 +50,5 @@ export const routes: Routes = [
 		path: '',
 		loadChildren: () => import('./features/market/market.routes').then((module) => module.MARKET_ROUTES)
 	},
-	{ path: '**', redirectTo: 'landing' }
+	{ path: '**', redirectTo: '' }
 ];

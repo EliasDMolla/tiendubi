@@ -132,7 +132,7 @@ export class EventCreatePageComponent implements OnInit, AfterViewInit {
           }
 
           this.isUploadingAssets = true;
-          this.uploadProgressMessage = `Subiendo ${uploads.length} archivo${uploads.length === 1 ? '' : 's'} a Cloudflare...`;
+          this.uploadProgressMessage = `Subiendo ${uploads.length} archivo${uploads.length === 1 ? '' : 's'} a la nube...`;
 
           return forkJoin(uploads).pipe(switchMap(() => of(saved)));
         })
@@ -314,6 +314,8 @@ export class EventCreatePageComponent implements OnInit, AfterViewInit {
     } else {
       this.paymentTransfer = !this.paymentTransfer;
     }
+
+    this.renderIcons();
   }
 
   onPricePerPhotoInputChange(value: string): void {

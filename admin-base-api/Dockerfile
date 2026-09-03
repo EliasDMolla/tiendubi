@@ -13,15 +13,20 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 
 RUN apt-get update \
-	&& apt-get install -y --no-install-recommends fonts-dejavu-core fonts-liberation \
-	&& rm -rf /var/lib/apt/lists/*
+	&& apt-get install -y --no-install-recommends curl fonts-dejavu-core fonts-liberation \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& mkdir -p /app/keys /app/uploads \
+	&& chown -R app:app /app
 
 ENV ASPNETCORE_URLS=http://+:8081
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV PORT=8081
+ENV DOTNET_EnableDiagnostics=0
 
 EXPOSE 8081
 
 COPY --from=build /app/publish .
+
+USER app
 
 ENTRYPOINT ["dotnet", "Admin.WebApi.dll"]

@@ -34,13 +34,12 @@
         </a>
       </nav>
 
-      <div class="p-4 mt-auto">
+      <!-- <div class="p-4 mt-auto">
         <button (click)="onLogout()" class="flex items-center gap-3 p-3 w-full text-slate-400 hover:text-red-500 font-bold text-sm transition-colors mb-3">
           <i data-lucide="log-out" class="w-5 h-5"></i> Cerrar Sesión
         </button>
         <div class="bg-slate-900 rounded-2xl p-4 text-white" *ngIf="(uploadState$ | async) as us">
           <ng-container *ngIf="us.active || (us.finished && !us.phase)">
-            <!-- Upload in progress widget -->
             <div class="flex items-center gap-2 mb-2">
               <svg *ngIf="us.active" class="animate-spin h-4 w-4 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -64,7 +63,7 @@
             <p class="text-xs text-slate-400">Sin subidas en curso</p>
           </ng-container>
         </div>
-      </div>
+      </div> -->
     </aside>
 
     <div

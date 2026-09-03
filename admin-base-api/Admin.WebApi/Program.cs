@@ -130,6 +130,12 @@ else
 {
     var allowedOrigins = GetAllowedCorsOrigins(builder.Configuration);
 
+    if (allowedOrigins.Length == 0)
+    {
+        throw new InvalidOperationException(
+            "Configurá Cors:AllowedOrigins o AppSettings:FrontendUrl antes de iniciar en producción.");
+    }
+
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowAll", policy =>
@@ -143,8 +149,15 @@ else
 // ---------------------
 // JWT Authentication
 // ---------------------
-var jwtSecret = builder.Configuration["Jwt:Secret"] ?? "your-super-secret-key-change-this-in-production-min-32-chars";
-var key = Encoding.ASCII.GetBytes(jwtSecret);
+var jwtSecret = builder.Configuration["Jwt:Secret"];
+if (builder.Environment.IsProduction() && !IsValidProductionSecret(jwtSecret))
+{
+    throw new InvalidOperationException(
+        "Jwt:Secret es obligatorio en producción, debe tener al menos 32 caracteres y no puede ser un placeholder.");
+}
+
+jwtSecret ??= "development-only-secret-change-before-production";
+var key = Encoding.UTF8.GetBytes(jwtSecret);
 
 builder.Services.AddAuthentication(options =>
 {
@@ -247,9 +260,22 @@ var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "uploads");
 Directory.CreateDirectory(uploadsPath);
 
 await EnsureDatabaseMigratedAsync(app);
-await EnsureDefaultAdminUserAsync(app);
+if (app.Environment.IsProduction())
+{
+    await DisableLegacyDefaultAdminAsync(app);
+}
+
 await EnsureConfiguredOwnerUserAsync(app);
-await EnsureDemoPhotographerDataAsync(app);
+
+if (app.Environment.IsDevelopment() && app.Configuration.GetValue("Features:SeedDevelopmentAdmin", true))
+{
+    await EnsureDefaultAdminUserAsync(app);
+}
+
+if (app.Configuration.GetValue<bool>("Features:SeedDemoData"))
+{
+    await EnsureDemoPhotographerDataAsync(app);
+}
 
 // ---------------------
 // Configurar pipeline HTTP
@@ -293,38 +319,51 @@ app.Run();
 
 static string[] GetAllowedCorsOrigins(IConfiguration configuration)
 {
-    var defaultOrigins = new[]
-    {
-        "https://capturar.netlify.app",
-        "https://capturar.ordenapp.ar",
-        "http://localhost:4200",
-        "https://localhost:4200"
-    };
-
     var rawOrigins = configuration["Cors:AllowedOrigins"];
 
     var parsedOrigins = (rawOrigins ?? string.Empty)
         .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-        .Where(origin => !string.IsNullOrWhiteSpace(origin))
+        .Select(NormalizeOrigin)
+        .Where(origin => origin is not null)
+        .Select(origin => origin!)
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .ToList();
 
-    foreach (var defaultOrigin in defaultOrigins)
-    {
-        if (!parsedOrigins.Contains(defaultOrigin, StringComparer.OrdinalIgnoreCase))
-        {
-            parsedOrigins.Add(defaultOrigin);
-        }
-    }
-
-    var frontendUrl = configuration["AppSettings:FrontendUrl"];
-    if (!string.IsNullOrWhiteSpace(frontendUrl) &&
+    var frontendUrl = NormalizeOrigin(configuration["AppSettings:FrontendUrl"]);
+    if (frontendUrl is not null &&
         !parsedOrigins.Contains(frontendUrl, StringComparer.OrdinalIgnoreCase))
     {
         parsedOrigins.Add(frontendUrl);
     }
 
     return parsedOrigins.ToArray();
+}
+
+static string? NormalizeOrigin(string? value)
+{
+    var candidate = value?.Trim().TrimEnd('/');
+    if (string.IsNullOrWhiteSpace(candidate)
+        || !Uri.TryCreate(candidate, UriKind.Absolute, out var uri)
+        || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+        || !string.IsNullOrEmpty(uri.PathAndQuery.Trim('/'))
+        || !string.IsNullOrEmpty(uri.Fragment))
+    {
+        return null;
+    }
+
+    return candidate;
+}
+
+static bool IsValidProductionSecret(string? secret)
+{
+    if (string.IsNullOrWhiteSpace(secret) || secret.Length < 32)
+    {
+        return false;
+    }
+
+    var placeholders = new[] { "CHANGE_ME", "REPLACE", "YOUR_", "development-only", "super-secret-key" };
+    return !placeholders.Any(placeholder =>
+        secret.Contains(placeholder, StringComparison.OrdinalIgnoreCase));
 }
 
 static async Task EnsureDatabaseMigratedAsync(WebApplication app)
@@ -422,6 +461,28 @@ static async Task EnsureDefaultAdminUserAsync(WebApplication app)
     {
         logger.LogWarning(ex, "No se pudo crear/actualizar usuario admin/admin en startup.");
     }
+}
+
+static async Task DisableLegacyDefaultAdminAsync(WebApplication app)
+{
+    const string legacyPasswordHash = "$2a$11$7XjvvgZqKwH5xJiGLJFLseMZ7YMNhJCqh0Sxkx6KHQxH8xP9xGgGa";
+
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<Context>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Startup");
+
+    var legacyAdmin = await context.Users.FirstOrDefaultAsync(user =>
+        user.Email == "admin" && user.PasswordHash == legacyPasswordHash);
+
+    if (legacyAdmin is null || !legacyAdmin.IsActive)
+    {
+        return;
+    }
+
+    legacyAdmin.IsActive = false;
+    legacyAdmin.UpdatedAt = DateTime.UtcNow;
+    await context.SaveChangesAsync();
+    logger.LogWarning("Se desactivo la cuenta heredada admin/admin en produccion.");
 }
 
 static async Task EnsureConfiguredOwnerUserAsync(WebApplication app)

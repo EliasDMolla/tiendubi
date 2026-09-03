@@ -1,13 +1,13 @@
 services:
   tiendubi-webapi:
-    container_name: tiendubi-webapi
+    container_name: ${DEPLOY_APP_NAME:-tiendubi-webapi}
     build:
       context: .
       dockerfile: Dockerfile
-    image: tiendubi-webapi:latest
+    image: ${DEPLOY_IMAGE_NAME:-tiendubi-webapi:latest}
     restart: unless-stopped
     ports:
-      - "127.0.0.1:5002:8081"
+      - "127.0.0.1:${DEPLOY_HOST_PORT:-5002}:8081"
     env_file:
       - .env.production
     environment:
@@ -15,6 +15,21 @@ services:
       DATA_PROTECTION_KEYS_PATH: /app/keys
     volumes:
       - tiendubi_webapi_keys:/app/keys
+      - tiendubi_webapi_uploads:/app/uploads
+    networks:
+      - tiendubi-net
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8081/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
 volumes:
   tiendubi_webapi_keys:
+  tiendubi_webapi_uploads:
+
+networks:
+  tiendubi-net:
+    name: ${DEPLOY_NETWORK_NAME:-tiendubi-net}
+    external: true

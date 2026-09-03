@@ -72,7 +72,7 @@
           </div>
         </div>
         <ng-template #emptyPanelEvents>
-          <p class="text-sm text-slate-500">Aún no tienes eventos con ventas. Crea tu primer evento para comenzar.</p>
+          <p class="text-sm text-slate-500">Aún no tenés productos con ventas. Creá tu primer producto para comenzar.</p>
         </ng-template>
 
         <div class="mt-8 flex justify-end">
@@ -151,15 +151,15 @@
       <div class="bg-blue-600 p-8 rounded-[2.5rem] text-white overflow-hidden relative">
         <i data-lucide="lightbulb" class="absolute -right-4 -bottom-4 w-32 h-32 opacity-10 rotate-12"></i>
         <h3 class="font-black text-lg mb-2">Link directo para compra</h3>
-        <p class="text-sm text-blue-100 leading-relaxed mb-4">Elige el evento y comparte su link público para que compren al instante.</p>
+        <p class="text-sm text-blue-100 leading-relaxed mb-4">Elegí el producto y compartí su link público para que puedan comprarlo al instante.</p>
 
-        <label class="block text-[10px] font-black uppercase tracking-widest text-blue-100 mb-2">Evento</label>
+        <label class="block text-[10px] font-black uppercase tracking-widest text-blue-100 mb-2">Producto</label>
         <select
           [value]="selectedShareEventId ?? ''"
           (change)="onShareEventChange(($any($event.target)).value)"
           class="w-full rounded-xl bg-white text-slate-900 border border-white/50 px-4 py-3 text-sm font-bold outline-none"
         >
-          <option value="">Selecciona un evento</option>
+          <option value="">Seleccioná un producto</option>
           <option *ngFor="let event of myEvents" [value]="event.id">
             {{ event.name }}{{ event.isPublished ? '' : ' (no publicado)' }}
           </option>
@@ -169,7 +169,7 @@
           {{ selectedPublicEventLink }}
         </div>
         <ng-template #noShareLink>
-          <p class="mt-4 text-[11px] text-blue-100 font-bold">Selecciona un evento para generar su link.</p>
+          <p class="mt-4 text-[11px] text-blue-100 font-bold">Seleccioná un producto para generar su link.</p>
         </ng-template>
 
         <div class="mt-4 flex flex-wrap gap-2">
@@ -190,7 +190,7 @@
         <div class="mt-4 p-3 rounded-xl bg-white/10 border border-white/20" *ngIf="selectedEventQrUrl">
           <p class="text-[10px] text-blue-100 font-black uppercase tracking-widest mb-2">QR listo para imprimir</p>
           <div class="bg-white rounded-lg p-2 w-40 h-40 mx-auto">
-            <img [src]="selectedEventQrUrl" alt="QR del evento" class="w-full h-full object-contain" />
+            <img [src]="selectedEventQrUrl" alt="QR del producto" class="w-full h-full object-contain" />
           </div>
           <div class="mt-3 flex flex-wrap justify-center gap-2">
             <button

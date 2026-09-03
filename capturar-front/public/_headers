@@ -1,0 +1,8 @@
+/panel/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+/auth*
+  X-Robots-Tag: noindex, nofollow, noarchive
+/reset-password*
+  X-Robots-Tag: noindex, nofollow, noarchive
+/mercadopago/callback*
+  X-Robots-Tag: noindex, nofollow, noarchive

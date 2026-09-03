@@ -1,8 +1,8 @@
 User-agent: *
 Allow: /
-
-# Bloqueos opcionales de rutas internas
 Disallow: /panel
 Disallow: /auth
+Disallow: /reset-password
+Disallow: /mercadopago/callback
 
-Sitemap: https://capturar-front.netlify.app/sitemap.xml
+Sitemap: https://tiendubi.com/sitemap.xml

@@ -69,7 +69,7 @@ export class DashboardPageComponent implements OnInit {
       return '';
     }
 
-    return `${window.location.origin}/${encodeURIComponent(this.publicSlug)}/evento/${this.selectedShareEventId}`;
+    return `${window.location.origin}/${encodeURIComponent(this.publicSlug)}/item/${this.selectedShareEventId}`;
   }
 
   get selectedShareEventName(): string {
@@ -135,7 +135,7 @@ export class DashboardPageComponent implements OnInit {
   copyPublicEventLink(): void {
     const link = this.selectedPublicEventLink;
     if (!link) {
-      this.shareLinkMessage = 'Selecciona un evento para generar link';
+      this.shareLinkMessage = 'Seleccioná un producto para generar el link';
       return;
     }
 
@@ -157,7 +157,7 @@ export class DashboardPageComponent implements OnInit {
   openPublicEventLink(): void {
     const link = this.selectedPublicEventLink;
     if (!link) {
-      this.shareLinkMessage = 'Selecciona un evento para abrir su link';
+      this.shareLinkMessage = 'Seleccioná un producto para abrir su link';
       return;
     }
 
@@ -167,7 +167,7 @@ export class DashboardPageComponent implements OnInit {
   downloadPublicEventQr(): void {
     const qrUrl = this.selectedEventQrUrl;
     if (!qrUrl) {
-      this.shareLinkMessage = 'Selecciona un evento para generar el QR';
+      this.shareLinkMessage = 'Seleccioná un producto para generar el QR';
       return;
     }
 
@@ -187,11 +187,11 @@ export class DashboardPageComponent implements OnInit {
     const qrUrl = this.selectedEventQrUrl;
     const link = this.selectedPublicEventLink;
     if (!qrUrl || !link) {
-      this.shareLinkMessage = 'Selecciona un evento para imprimir su QR';
+      this.shareLinkMessage = 'Seleccioná un producto para imprimir su QR';
       return;
     }
 
-    const eventName = this.selectedShareEventName || 'Evento';
+    const eventName = this.selectedShareEventName || 'Producto';
     const studioName = this.studioDisplayName || 'Mi Estudio';
     const printWindow = window.open('about:blank', '_blank', 'width=900,height=1100');
     if (!printWindow) {
@@ -344,14 +344,14 @@ export class DashboardPageComponent implements OnInit {
   }
 
   private getQrFileName(): string {
-    const safeName = (this.selectedShareEventName || 'evento')
+    const safeName = (this.selectedShareEventName || 'producto')
       .toLowerCase()
       .normalize('NFD')
       .replace(/\p{Diacritic}/gu, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
 
-    return `qr-${safeName || 'evento'}.png`;
+    return `qr-${safeName || 'producto'}.png`;
   }
 
   private escapeHtml(value: string): string {

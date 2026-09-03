@@ -4,6 +4,8 @@ namespace Admin.WebApi.Services
     {
         public bool RegistrationEnabled { get; set; } = true;
         public bool PhotoUploadEnabled { get; set; } = true;
+        public bool SeedDevelopmentAdmin { get; set; } = true;
+        public bool SeedDemoData { get; set; } = false;
     }
 
     public class PaymentSettings

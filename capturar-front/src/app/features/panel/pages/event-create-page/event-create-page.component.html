@@ -162,15 +162,59 @@
             </div>
 
             <div *ngIf="priceType === 'paid'" class="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <p class="form-label mb-3">Medios de pago para este producto</p>
-              <div class="grid gap-3 sm:grid-cols-2">
-                <button type="button" (click)="togglePaymentMethod('mercadopago')" class="choice-card bg-white" [class.choice-card-active]="paymentMercadoPago">
+              <div class="mb-3 flex flex-wrap items-end justify-between gap-2">
+                <p class="form-label">Medios de pago para este producto</p>
+                <p class="text-xs font-semibold text-slate-500">Podés seleccionar más de uno.</p>
+              </div>
+              <div class="grid gap-3 sm:grid-cols-3">
+                <button
+                  type="button"
+                  (click)="togglePaymentMethod('mercadopago')"
+                  class="choice-card payment-method-card bg-white"
+                  [class.choice-card-active]="paymentMercadoPago"
+                  [attr.aria-pressed]="paymentMercadoPago"
+                >
+                  <span class="flex w-full items-center justify-between gap-3">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-100 text-sky-600">
+                      <i data-lucide="wallet-cards" class="h-5 w-5"></i>
+                    </span>
+                    <span class="payment-check" [class.payment-check-active]="paymentMercadoPago">
+                      <i *ngIf="paymentMercadoPago" data-lucide="check" class="h-3.5 w-3.5"></i>
+                    </span>
+                  </span>
                   <span class="font-black">Mercado Pago</span>
                   <span class="text-sm text-slate-500">Requiere conectar tu cuenta en Ajustes.</span>
                 </button>
-                <button type="button" (click)="togglePaymentMethod('transfer')" class="choice-card bg-white" [class.choice-card-active]="paymentTransfer">
+                <button
+                  type="button"
+                  (click)="togglePaymentMethod('transfer')"
+                  class="choice-card payment-method-card bg-white"
+                  [class.choice-card-active]="paymentTransfer"
+                  [attr.aria-pressed]="paymentTransfer"
+                >
+                  <span class="flex w-full items-center justify-between gap-3">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                      <i data-lucide="landmark" class="h-5 w-5"></i>
+                    </span>
+                    <span class="payment-check" [class.payment-check-active]="paymentTransfer">
+                      <i *ngIf="paymentTransfer" data-lucide="check" class="h-3.5 w-3.5"></i>
+                    </span>
+                  </span>
                   <span class="font-black">Alias / CBU / CVU</span>
-                  <span class="text-sm text-slate-500">Usa tus datos de transferencia de Ajustes.</span>
+                  <span class="text-sm text-slate-500">Usá tus datos de transferencia de Ajustes.</span>
+                </button>
+                <button
+                  type="button"
+                  disabled
+                  class="choice-card payment-method-card payment-method-disabled bg-white"
+                  aria-label="PayPal, próximamente"
+                >
+                  <span class="flex w-full items-center justify-between gap-3">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-lg font-black italic text-[#003087]">P</span>
+                    <span class="rounded-full bg-blue-50 px-2 py-1 text-[9px] font-black uppercase tracking-wider text-[#0070e0]">Próximamente</span>
+                  </span>
+                  <span class="font-black text-slate-500">PayPal</span>
+                  <span class="text-sm text-slate-400">Cobros internacionales.</span>
                 </button>
               </div>
             </div>
@@ -182,7 +226,7 @@
               <label class="choice-card cursor-pointer" [class.choice-card-active]="productType === 'digital_file'">
                 <input [(ngModel)]="productType" name="productType" type="radio" value="digital_file" class="sr-only" />
                 <span class="font-black">Producto digital (archivo)</span>
-                <span class="text-sm text-slate-500">Subí archivos para entregar automáticamente desde Cloudflare.</span>
+                <span class="text-sm text-slate-500">Subí archivos para entregarlos automáticamente desde la nube.</span>
               </label>
 
               <label class="choice-card cursor-pointer" [class.choice-card-active]="productType === 'digital_link'">
@@ -290,7 +334,7 @@
           <div class="rounded-2xl border border-slate-200 bg-white p-4">
             <p class="form-label mb-3">Entrega</p>
             <p class="text-sm text-slate-600">
-              {{ productType === 'digital_file' ? 'Los archivos se guardan en Cloudflare R2 y quedan asociados al producto.' : productType === 'digital_link' ? 'El comprador recibe el link y las instrucciones luego de comprar.' : 'La entrega física queda registrada para coordinar manualmente.' }}
+              {{ productType === 'digital_file' ? 'Los archivos se guardan de forma segura en la nube y quedan asociados al producto.' : productType === 'digital_link' ? 'El comprador recibe el link y las instrucciones luego de comprar.' : 'La entrega física queda registrada para coordinar manualmente.' }}
             </p>
           </div>
         </aside> -->

@@ -4,6 +4,6 @@ const isLocalHost =
 
 export const API_BASE_URL = isLocalHost
 	? 'https://localhost:44349'
-	: 'https://api.capturar.ordenapp.ar';
+	: 'https://api.tiendubi.com';
 
 export const API_AUTH_URL = `${API_BASE_URL}/api/auth`;

@@ -1,6 +1,6 @@
-import { CommonModule, DOCUMENT } from '@angular/common';
+import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { PublicSettingsService } from '../../../../core/config/public-settings.service';
@@ -26,6 +26,7 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly publicSettingsService = inject(PublicSettingsService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly platformId = inject(PLATFORM_ID);
 
   private canonicalLinkEl: HTMLLinkElement | null = null;
   private structuredDataScriptEls: HTMLScriptElement[] = [];
@@ -43,7 +44,7 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   simSuccessDesc = 'El archivo se ha enviado a tu mail.';
   billingInterval: 'mensual' | 'anual' = 'mensual';
   priceValue = '$24.999';
-  priceIntervalLabel = 'Facturado de forma mensual';
+  priceIntervalLabel = 'Facturación mes a mes.';
   authModalOpen = false;
   authMode: 'login' | 'signup' = 'signup';
   modalTitle = 'Comenzá Gratis';
@@ -63,16 +64,43 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   get displayUsername(): string {
-    return this.heroUsername || 'sofia.nutri';
+    return this.heroUsername || 'tu-marca';
+  }
+
+  get proBreakEvenLabel(): string {
+    if (this.baseCommissionPercent <= 0) {
+      return '$0';
+    }
+
+    const proPrice = this.billingInterval === 'mensual' ? 24_999 : 239_990;
+    const breakEvenSales = Math.ceil(proPrice / (this.baseCommissionPercent / 100));
+    return `$${new Intl.NumberFormat('es-AR').format(breakEvenSales)}`;
+  }
+
+  get proBreakEvenPeriodLabel(): string {
+    return this.billingInterval === 'mensual' ? 'por mes' : 'por año';
   }
 
   ngOnInit(): void {
     this.applySeoTags();
-    this.loadCommissionSettings();
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadCommissionSettings();
+    }
   }
 
   ngAfterViewInit(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     this.renderIcons();
+
+    const sectionId = this.document.defaultView?.location.hash.slice(1);
+    if (sectionId) {
+      this.document.defaultView?.requestAnimationFrame(() => {
+        this.document.getElementById(sectionId)?.scrollIntoView({ block: 'start' });
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -86,13 +114,33 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.structuredDataScriptEls = [];
 
-    if (this.toastTimeoutId !== null) {
-      window.clearTimeout(this.toastTimeoutId);
+    if (this.toastTimeoutId !== null && isPlatformBrowser(this.platformId)) {
+      this.document.defaultView?.clearTimeout(this.toastTimeoutId);
     }
   }
 
   toggleMobileMenu(): void {
     this.mobileDrawerOpen = !this.mobileDrawerOpen;
+    this.renderIcons();
+  }
+
+  scrollToSection(event: Event, sectionId: string): void {
+    event.preventDefault();
+    this.mobileDrawerOpen = false;
+
+    const section = this.document.getElementById(sectionId);
+    if (!section) {
+      return;
+    }
+
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    const windowRef = this.document.defaultView;
+    windowRef?.history.replaceState(
+      null,
+      '',
+      `${windowRef.location.pathname}${windowRef.location.search}#${sectionId}`
+    );
     this.renderIcons();
   }
 
@@ -201,8 +249,8 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.priceValue = interval === 'mensual' ? '$24.999' : '$239.990';
     this.priceIntervalLabel =
       interval === 'mensual'
-        ? 'Facturado de forma mensual'
-        : 'Facturado de forma anual ($239.990 / año)';
+        ? 'Facturación mes a mes.'
+        : 'Equivale a $19.999 por mes. Se factura una vez al año.';
 
     const mensualButton = this.document.getElementById('billing-btn-mensual');
     const anualButton = this.document.getElementById('billing-btn-anual');
@@ -248,15 +296,18 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
         if (otherIcon) {
           otherIcon.style.transform = 'rotate(0deg)';
         }
+        otherItem.querySelector('button')?.setAttribute('aria-expanded', 'false');
       }
     });
 
     if (answer.style.maxHeight) {
       answer.style.maxHeight = '';
       icon.style.transform = 'rotate(0deg)';
+      button.setAttribute('aria-expanded', 'false');
     } else {
       answer.style.maxHeight = `${answer.scrollHeight}px`;
       icon.style.transform = 'rotate(180deg)';
+      button.setAttribute('aria-expanded', 'true');
     }
   }
 
@@ -371,7 +422,11 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private renderIcons(): void {
-    setTimeout(() => window.lucide?.createIcons());
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    this.document.defaultView?.setTimeout(() => this.document.defaultView?.lucide?.createIcons());
   }
 
   private showToast(title: string, msg: string, type: 'success' | 'error' = 'success'): void {
@@ -382,13 +437,13 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.renderIcons();
 
     if (this.toastTimeoutId !== null) {
-      window.clearTimeout(this.toastTimeoutId);
+      this.document.defaultView?.clearTimeout(this.toastTimeoutId);
     }
 
-    this.toastTimeoutId = window.setTimeout(() => {
+    this.toastTimeoutId = this.document.defaultView?.setTimeout(() => {
       this.toastVisible = false;
       this.toastTimeoutId = null;
-    }, 4000);
+    }, 4000) ?? null;
   }
 
   private getSignupValidationError(): string | null {
@@ -426,26 +481,17 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private applySeoTags(): void {
-    const canonicalUrl = this.buildCanonicalUrl();
-    const title = 'Tiendubi — Cobrá, agendá y entregá desde un solo link';
+    const canonicalUrl = 'https://tiendubi.com/';
+    const title = 'Tiendubi | Vendé por Instagram y WhatsApp desde un link';
     const description =
-      'Creá tu perfil público, cobrá con Mercado Pago y automatizá reservas, entregas y descargas desde un solo link.';
-    const imageUrl = this.buildAbsoluteUrl('/capturar-logo-sinfondo.PNG');
-    const keywords = [
-      'vender desde un link',
-      'cobrar con mercadopago',
-      'reservas online',
-      'productos digitales',
-      'tienda para instagram',
-      'tienda para whatsapp',
-      'tiendubi'
-    ].join(', ');
+      'Vendé servicios y productos digitales desde un link. Cobrá con Mercado Pago, recibí reservas y automatizá entregas por Instagram o WhatsApp.';
+    const imageUrl = 'https://tiendubi.com/tiendubi-og.png';
 
     this.title.setTitle(title);
 
     this.meta.updateTag({ name: 'description', content: description });
-    this.meta.updateTag({ name: 'keywords', content: keywords });
-    this.meta.updateTag({ name: 'robots', content: 'index, follow, max-image-preview:large' });
+    this.meta.removeTag("name='keywords'");
+    this.meta.updateTag({ name: 'robots', content: 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1' });
     this.meta.updateTag({ name: 'author', content: 'Tiendubi' });
     this.meta.updateTag({ name: 'application-name', content: 'Tiendubi' });
 
@@ -456,11 +502,16 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.meta.updateTag({ property: 'og:description', content: description });
     this.meta.updateTag({ property: 'og:url', content: canonicalUrl });
     this.meta.updateTag({ property: 'og:image', content: imageUrl });
+    this.meta.updateTag({ property: 'og:image:type', content: 'image/png' });
+    this.meta.updateTag({ property: 'og:image:width', content: '1200' });
+    this.meta.updateTag({ property: 'og:image:height', content: '630' });
+    this.meta.updateTag({ property: 'og:image:alt', content: 'Tiendubi, tu link de venta para Instagram y WhatsApp' });
 
     this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
     this.meta.updateTag({ name: 'twitter:title', content: title });
     this.meta.updateTag({ name: 'twitter:description', content: description });
     this.meta.updateTag({ name: 'twitter:image', content: imageUrl });
+    this.meta.updateTag({ name: 'twitter:image:alt', content: 'Tiendubi, tu link de venta para Instagram y WhatsApp' });
 
     this.setCanonicalTag(canonicalUrl);
     this.setStructuredData(canonicalUrl, imageUrl, description);
@@ -472,68 +523,137 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.structuredDataScriptEls = [];
 
-    const organizationSchema = {
+    const structuredData = {
       '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: 'Tiendubi',
-      url: canonicalUrl,
-      logo: imageUrl,
-      contactPoint: [
+      '@graph': [
         {
-          '@type': 'ContactPoint',
-          contactType: 'customer support',
-          email: 'ordenapp.arg@gmail.com',
-          telephone: '+54-3573-404190',
-          areaServed: 'AR',
-          availableLanguage: ['es']
+          '@type': 'Organization',
+          '@id': `${canonicalUrl}#organization`,
+          name: 'Tiendubi',
+          url: canonicalUrl,
+          logo: {
+            '@type': 'ImageObject',
+            url: 'https://tiendubi.com/tiendubi-icon.svg'
+          }
+        },
+        {
+          '@type': 'WebSite',
+          '@id': `${canonicalUrl}#website`,
+          name: 'Tiendubi',
+          url: canonicalUrl,
+          inLanguage: 'es-AR',
+          publisher: { '@id': `${canonicalUrl}#organization` },
+          description
+        },
+        {
+          '@type': 'WebApplication',
+          '@id': `${canonicalUrl}#application`,
+          name: 'Tiendubi',
+          url: canonicalUrl,
+          image: imageUrl,
+          applicationCategory: 'BusinessApplication',
+          operatingSystem: 'Web',
+          inLanguage: 'es-AR',
+          audience: {
+            '@type': 'Audience',
+            audienceType: 'Profesionales, emprendedores y creadores de Argentina y Latinoamérica'
+          },
+          description,
+          offers: [
+            {
+              '@type': 'Offer',
+              name: 'Plan Inicial',
+              url: `${canonicalUrl}#planes`,
+              price: '0',
+              priceCurrency: 'ARS',
+              description: 'Sin abono mensual; aplica comisión por venta.'
+            },
+            {
+              '@type': 'Offer',
+              name: 'Plan Pro mensual',
+              url: `${canonicalUrl}#planes`,
+              price: '24999',
+              priceCurrency: 'ARS',
+              description: 'Plan mensual sin comisión de Tiendubi.'
+            }
+          ],
+          provider: { '@id': `${canonicalUrl}#organization` }
+        },
+        {
+          '@type': 'FAQPage',
+          '@id': `${canonicalUrl}#faq`,
+          inLanguage: 'es-AR',
+          mainEntity: [
+            {
+              '@type': 'Question',
+              name: '¿Qué puedo vender exactamente con Tiendubi?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Podés vender ebooks, PDFs, plantillas, cursos, archivos descargables y accesos privados. También podés cobrar consultas, asesorías, mentorías, clases, sesiones, talleres y otros servicios reservables.'
+              }
+            },
+            {
+              '@type': 'Question',
+              name: '¿Necesito una página web o saber programación?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'No. Tiendubi genera tu perfil y tu link de venta sin WordPress, plugins ni diseño web. Completás tus datos, cargás lo que vendés y obtenés una página adaptada a celulares.'
+              }
+            },
+            {
+              '@type': 'Question',
+              name: '¿Cómo cobro con Mercado Pago desde mi link?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Vinculás tu cuenta de Mercado Pago y tus clientes pagan con los medios disponibles en esa plataforma. El dinero va directamente a tu cuenta. Mercado Pago aplica sus costos habituales de procesamiento según el medio y el plazo de cobro elegidos.'
+              }
+            },
+            {
+              '@type': 'Question',
+              name: '¿Cómo funcionan los turnos y las reservas online?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Publicás un servicio con sus horarios disponibles. El cliente elige una opción desde tu link, completa sus datos, paga cuando corresponde y recibe la confirmación de la reserva.'
+              }
+            },
+            {
+              '@type': 'Question',
+              name: '¿Puedo vender servicios y archivos a la vez?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Sí. En el mismo perfil podés ofrecer una consulta o mentoría con reserva y, al mismo tiempo, vender un ebook, una plantilla, un curso o un archivo descargable.'
+              }
+            },
+            {
+              '@type': 'Question',
+              name: '¿Mis clientes necesitan tener una cuenta?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'No. Tu cliente entra al link, selecciona lo que quiere, completa sus datos, paga y recibe la descarga o la confirmación. No necesita crear una cuenta en Tiendubi.'
+              }
+            },
+            {
+              '@type': 'Question',
+              name: '¿Cómo vendo por Instagram con Tiendubi?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Colocás tiendubi.com/tu-marca en la bio de Instagram. Desde ahí, tus seguidores pueden ver qué ofrecés, pagar con Mercado Pago y reservar o recibir su compra.'
+              }
+            },
+            {
+              '@type': 'Question',
+              name: '¿Puedo usar el mismo link para vender por WhatsApp?',
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: 'Sí. Compartís el mismo link en conversaciones, estados o respuestas automáticas de WhatsApp para que cada cliente consulte opciones y compre sin coordinar todo por mensaje.'
+              }
+            }
+          ]
         }
       ]
     };
 
-    const websiteSchema = {
-      '@context': 'https://schema.org',
-      '@type': 'WebSite',
-      name: 'Tiendubi',
-      url: canonicalUrl,
-      description
-    };
-
-    const softwareSchema = {
-      '@context': 'https://schema.org',
-      '@type': 'SoftwareApplication',
-      name: 'Tiendubi',
-      applicationCategory: 'BusinessApplication',
-      operatingSystem: 'Web',
-      offers: {
-        '@type': 'Offer',
-        price: '0',
-        priceCurrency: 'ARS',
-        description: 'Sin costo mensual. Comisión por venta.'
-      },
-      description,
-      url: canonicalUrl
-    };
-
-    const serviceSchema = {
-      '@context': 'https://schema.org',
-      '@type': 'Service',
-      serviceType: 'Venta de servicios, turnos y productos digitales desde un link',
-      provider: {
-        '@type': 'Organization',
-        name: 'Tiendubi'
-      },
-      areaServed: {
-        '@type': 'Country',
-        name: 'Argentina'
-      },
-      description: 'Permite vender servicios, turnos y productos digitales con cobro por Mercado Pago.',
-      url: canonicalUrl
-    };
-
-    this.structuredDataScriptEls.push(this.appendStructuredDataScript(organizationSchema));
-    this.structuredDataScriptEls.push(this.appendStructuredDataScript(websiteSchema));
-    this.structuredDataScriptEls.push(this.appendStructuredDataScript(softwareSchema));
-    this.structuredDataScriptEls.push(this.appendStructuredDataScript(serviceSchema));
+    this.structuredDataScriptEls.push(this.appendStructuredDataScript(structuredData));
   }
 
   private appendStructuredDataScript(payload: object): HTMLScriptElement {
@@ -559,16 +679,6 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
     link.setAttribute('href', url);
     head.appendChild(link);
     this.canonicalLinkEl = link;
-  }
-
-  private buildCanonicalUrl(): string {
-    const origin = this.document.location?.origin ?? '';
-    return `${origin}/landing`;
-  }
-
-  private buildAbsoluteUrl(path: string): string {
-    const origin = this.document.location?.origin ?? '';
-    return `${origin}${path}`;
   }
 
   private loadCommissionSettings(): void {

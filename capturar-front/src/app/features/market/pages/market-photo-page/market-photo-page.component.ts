@@ -1,7 +1,7 @@
 ﻿import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PublicEventDetail } from '../../data-access/public-site.models';
 import { PublicSiteService } from '../../data-access/public-site.service';
 import { PublicSettingsService } from '../../../../core/config/public-settings.service';
@@ -35,12 +35,13 @@ declare global {
 })
 export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly publicSiteService = inject(PublicSiteService);
   private readonly publicSettingsService = inject(PublicSettingsService);
 
   event: PublicEventDetail = {
     id: 0,
-    studioName: 'Sitio pÃºblico',
+    studioName: 'Sitio público',
     studioSlug: '',
     name: 'Producto',
     description: null,
@@ -60,7 +61,7 @@ export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestro
   readonly fallbackImageUrl = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=900';
 
   photos: PhotoItem[] = [
-    { id: 1204, price: 1200, url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=900', alt: 'Boda Evento', tags: ['RecepciÃ³n'] },
+    { id: 1204, price: 1200, url: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=900', alt: 'Boda Evento', tags: ['Recepción'] },
     { id: 1205, price: 1200, url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=600', alt: 'Fiesta', tags: ['Baile'] },
     { id: 1206, price: 1200, url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=600', alt: 'Invitados', tags: ['Torta'] },
     { id: 1207, price: 1200, url: 'https://images.unsplash.com/photo-1519225495810-7517c31230d6?auto=format&fit=crop&q=80&w=600', alt: 'Baile', tags: ['Baile'] }
@@ -188,12 +189,18 @@ export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestro
 
     this.route.paramMap.subscribe((params) => {
       const slug = params.get('slug')?.trim() ?? '';
-      const eventIdText = params.get('eventId')?.trim() ?? '';
+      const legacyEventId = params.get('eventId')?.trim() ?? '';
+      const eventIdText = (params.get('itemId') ?? legacyEventId).trim();
       const eventId = Number(eventIdText);
 
       if (!slug || !Number.isInteger(eventId) || eventId <= 0) {
-        this.notFoundMessage = 'Evento pÃºblico no encontrado.';
+        this.notFoundMessage = 'Producto público no encontrado.';
         this.isLoading = false;
+        return;
+      }
+
+      if (legacyEventId) {
+        void this.router.navigate(['/', slug, 'item', eventId], { replaceUrl: true });
         return;
       }
 
@@ -310,6 +317,7 @@ export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestro
     this.transferReceiptFile = null;
     this.transferReceiptErrorMessage = '';
     this.transferPurchaseCompleted = false;
+    this.renderIcons();
   }
 
   onTransferReceiptSelected(event: Event): void {
@@ -321,7 +329,7 @@ export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestro
 
   submitTransferReceipt(): void {
     if (!this.transferResult?.reference) {
-      this.transferReceiptErrorMessage = 'No hay una referencia vÃ¡lida para enviar el comprobante';
+      this.transferReceiptErrorMessage = 'No hay una referencia válida para enviar el comprobante';
       return;
     }
 
@@ -368,7 +376,7 @@ export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestro
     const lines = [
       'CAPTURAR - COMPROBANTE DE COMPRA',
       '--------------------------------',
-      `Fecha de emisiÃ³n: ${now.toLocaleString('es-AR')}`,
+      `Fecha de emisión: ${now.toLocaleString('es-AR')}`,
       `Referencia: ${this.transferResult.reference}`,
       `Tienda: ${studioName}`,
       `Producto: ${eventName}`,
@@ -403,7 +411,7 @@ export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestro
 
     if (!navigator?.clipboard?.writeText) {
       this.copyFeedbackType = 'error';
-      this.copyFeedbackMessage = 'Tu navegador no permite copiar automÃ¡ticamente';
+      this.copyFeedbackMessage = 'Tu navegador no permite copiar automáticamente';
       return;
     }
 
@@ -488,7 +496,7 @@ export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     if (!this.mercadoPagoEnabled) {
-      this.checkoutErrorMessage = 'MercadoPago estÃ¡ deshabilitado temporalmente';
+      this.checkoutErrorMessage = 'Mercado Pago está deshabilitado temporalmente';
       return;
     }
 
@@ -540,7 +548,7 @@ export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     if (!this.transfersEnabled) {
-      this.checkoutErrorMessage = 'Las transferencias estÃ¡n deshabilitadas temporalmente';
+      this.checkoutErrorMessage = 'Las transferencias están deshabilitadas temporalmente';
       return;
     }
 
@@ -596,7 +604,7 @@ export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestro
     const entered = this.discountCodeInput.trim().toUpperCase();
 
     if (!entered) {
-      this.discountErrorMessage = 'Ingresa un cÃ³digo de descuento';
+      this.discountErrorMessage = 'Ingresá un código de descuento';
       return;
     }
 
@@ -606,7 +614,7 @@ export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestro
     }
 
     if (entered !== this.configuredDiscountCode) {
-      this.discountErrorMessage = 'CÃ³digo invÃ¡lido';
+      this.discountErrorMessage = 'Código inválido';
       return;
     }
 
@@ -747,7 +755,7 @@ export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestro
           this.renderIcons();
         },
         error: () => {
-          this.notFoundMessage = 'Evento pÃºblico no encontrado.';
+          this.notFoundMessage = 'Producto público no encontrado.';
           this.isLoading = false;
           this.isLoadingMorePhotos = false;
         }

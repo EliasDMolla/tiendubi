@@ -13,6 +13,7 @@ export interface DashboardSummaryDto {
 export interface EventSalesDto {
   eventId: number;
   eventName: string;
+  productType: string;
   totalSales: number;
   photosSold: number;
   pendingAmount: number;
@@ -23,6 +24,7 @@ export interface SaleDetailDto {
   saleId: number;
   soldAt: string;
   eventName: string;
+  productType: string;
   buyerName: string;
   buyerEmail?: string | null;
   paymentMethod: string;

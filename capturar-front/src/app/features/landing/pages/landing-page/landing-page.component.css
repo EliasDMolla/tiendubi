@@ -49,3 +49,28 @@
   background: #080a10;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
 }
+
+#como-funciona,
+#usos,
+#diferenciales,
+#planes,
+#faq {
+  scroll-margin-top: 5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host {
+    scroll-behavior: auto;
+  }
+
+  .animate-float,
+  .animate-pulse,
+  .animate-pulse-slow {
+    animation: none !important;
+  }
+
+  * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

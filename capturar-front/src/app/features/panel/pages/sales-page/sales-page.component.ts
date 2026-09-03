@@ -81,6 +81,19 @@ export class SalesPageComponent implements OnInit {
     return value?.trim() || 'No informado';
   }
 
+  getProductTypeLabel(value: string): string {
+    switch ((value ?? '').trim().toLowerCase()) {
+      case 'digital_link':
+        return 'Producto digital (link)';
+      case 'physical':
+        return 'Producto físico';
+      case 'digital_file':
+        return 'Producto digital (archivo)';
+      default:
+        return 'Producto';
+    }
+  }
+
   formatPurchasedPhotos(photos: SalePurchasedPhotoDto[], take = 3): string {
     if (!Array.isArray(photos) || photos.length === 0) {
       return '';
