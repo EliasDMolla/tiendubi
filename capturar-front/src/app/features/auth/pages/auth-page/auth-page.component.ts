@@ -38,11 +38,7 @@ export class AuthPageComponent implements OnInit, AfterViewInit {
   loginPassword = '';
   forgotEmail = '';
 
-  registerBrand = '';
-  registerFirstName = '';
-  registerLastName = '';
   registerEmail = '';
-  registerPhone = '';
   registerPublicSlug = '';
   registerPassword = '';
 
@@ -226,23 +222,14 @@ export class AuthPageComponent implements OnInit, AfterViewInit {
     this.successMessage = '';
     this.isLoading = true;
 
-    const brand = this.registerBrand.trim();
-    const firstName = this.registerFirstName.trim();
-    const lastName = this.registerLastName.trim();
     const email = this.registerEmail.trim().toLowerCase();
-    const phone = this.registerPhone.trim();
     const publicSlug = this.registerPublicSlug.trim().toLowerCase();
-
-    const fullName = [firstName, lastName]
-      .filter((value) => value.length > 0)
-      .join(' ');
 
     this.authService
       .register({
         email,
         password: this.registerPassword,
-        phoneNumber: phone || undefined,
-        fullName: fullName || brand || undefined,
+        fullName: publicSlug,
         publicSlug
       })
       .subscribe({
@@ -263,25 +250,9 @@ export class AuthPageComponent implements OnInit, AfterViewInit {
   }
 
   private getRegisterValidationError(): string | null {
-    const brand = this.registerBrand.trim();
-    const firstName = this.registerFirstName.trim();
-    const lastName = this.registerLastName.trim();
     const email = this.registerEmail.trim();
-    const phone = this.registerPhone.trim();
     const publicSlug = this.registerPublicSlug.trim();
     const password = this.registerPassword;
-
-    if (brand.length < 2 || brand.length > 80) {
-      return 'El nombre de marca debe tener entre 2 y 80 caracteres';
-    }
-
-    if (firstName.length < 2 || firstName.length > 60) {
-      return 'El nombre debe tener entre 2 y 60 caracteres';
-    }
-
-    if (lastName.length < 2 || lastName.length > 60) {
-      return 'El apellido debe tener entre 2 y 60 caracteres';
-    }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return 'Ingresa un email válido';
@@ -289,10 +260,6 @@ export class AuthPageComponent implements OnInit, AfterViewInit {
 
     if (!/^[a-z0-9][a-z0-9-_]{1,39}$/.test(publicSlug)) {
       return 'El nombre público debe tener entre 2 y 40 caracteres, usando letras, números, guiones o guion bajo';
-    }
-
-    if (phone && !/^\+?[0-9()\-\s]{8,20}$/.test(phone)) {
-      return 'Ingresa un celular válido (8 a 20 caracteres)';
     }
 
     if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(password)) {

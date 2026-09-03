@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { AfterViewInit, Component, OnDestroy, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
+import emailjs from '@emailjs/browser';
 import { PublicSettingsService } from '../../../../core/config/public-settings.service';
 import { AuthService } from '../../../../core/auth/auth.service';
 
@@ -20,6 +21,10 @@ declare global {
   styleUrl: './landing-page.component.css'
 })
 export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
+  private static readonly emailJsPublicKey = 'WNf2zDIEsZ_C_xOSR';
+  private static readonly emailJsServiceId = 'service_4ej0e8d';
+  private static readonly emailJsTemplateId = 'template_cw0x8ti';
+
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly document = inject(DOCUMENT);
@@ -58,6 +63,9 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   toastTitle = 'Notificación';
   toastMsg = 'Mensaje del sistema';
   toastType: 'success' | 'error' = 'success';
+  contactSubmitting = false;
+  contactSubmitted = false;
+  contactErrorMessage = '';
 
   get baseCommissionLabel(): string {
     return `${this.baseCommissionPercent}%`;
@@ -84,6 +92,7 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.applySeoTags();
     if (isPlatformBrowser(this.platformId)) {
+      emailjs.init({ publicKey: LandingPageComponent.emailJsPublicKey });
       this.loadCommissionSettings();
     }
   }
@@ -141,6 +150,71 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
       '',
       `${windowRef.location.pathname}${windowRef.location.search}#${sectionId}`
     );
+    this.renderIcons();
+  }
+
+  async handleContactSubmit(event: Event): Promise<void> {
+    event.preventDefault();
+
+    if (this.contactSubmitting || !isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const form = event.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+    const website = String(formData.get('website') ?? '').trim();
+
+    if (website) {
+      return;
+    }
+
+    const payload = {
+      nombre: String(formData.get('nombre') ?? '').trim(),
+      marca: String(formData.get('marca') ?? '').trim(),
+      whatsapp: String(formData.get('whatsapp') ?? '').trim(),
+      email: String(formData.get('email') ?? '').trim(),
+      mensaje: String(formData.get('mensaje') ?? '').trim()
+    };
+
+    this.contactSubmitting = true;
+    this.contactErrorMessage = '';
+
+    try {
+      await emailjs.send(
+        LandingPageComponent.emailJsServiceId,
+        LandingPageComponent.emailJsTemplateId,
+        {
+          to_name: 'Tiendubi',
+          from_name: payload.nombre,
+          message:
+            `Origen: Landing Tiendubi\n` +
+            `Nombre: ${payload.nombre}\n` +
+            `Marca o proyecto: ${payload.marca}\n` +
+            `WhatsApp: ${payload.whatsapp}\n` +
+            `Email: ${payload.email}\n` +
+            `Consulta: ${payload.mensaje}`,
+          user_name: payload.nombre,
+          user_company: payload.marca,
+          user_phone: payload.whatsapp,
+          user_email: payload.email,
+          user_message: payload.mensaje,
+          reply_to: payload.email || undefined
+        }
+      );
+
+      this.contactSubmitted = true;
+      form.reset();
+    } catch {
+      this.contactErrorMessage = 'No pudimos enviar tu consulta. Intentá nuevamente en unos minutos.';
+    } finally {
+      this.contactSubmitting = false;
+      this.renderIcons();
+    }
+  }
+
+  resetContactForm(): void {
+    this.contactSubmitted = false;
+    this.contactErrorMessage = '';
     this.renderIcons();
   }
 

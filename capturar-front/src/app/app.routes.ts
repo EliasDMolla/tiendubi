@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { blockAuthFromLandingGuard } from './core/auth/block-auth-from-landing.guard';
 
 export const routes: Routes = [
 	{
@@ -27,7 +26,6 @@ export const routes: Routes = [
 	},
 	{
 		path: 'auth',
-		canActivate: [blockAuthFromLandingGuard],
 		loadComponent: () =>
 			import('./features/auth/pages/auth-page/auth-page.component').then(
 				(module) => module.AuthPageComponent

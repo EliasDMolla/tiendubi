@@ -27,10 +27,10 @@
 
                 <!-- Action Buttons -->
                 <div class="hidden md:flex items-center gap-4">
-                    <button (click)="openModal('login')" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors px-4 py-2">
+                    <button type="button" (click)="openModal('login')" class="text-sm font-semibold text-slate-400 hover:text-white transition-colors px-4 py-2">
                         Ingresar
                     </button>
-                    <button (click)="openModal('signup')" class="text-sm font-semibold bg-gradient-to-r from-accentViolet to-accentPurple text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-purple-500/20 active:scale-[0.98] transition-all">
+                    <button type="button" (click)="openModal('signup')" class="text-sm font-semibold bg-gradient-to-r from-accentViolet to-accentPurple text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-purple-500/20 active:scale-[0.98] transition-all">
                         Crear cuenta gratis
                     </button>
                 </div>
@@ -52,10 +52,10 @@
             <a href="#planes" (click)="scrollToSection($event, 'planes')" class="text-left text-lg font-medium text-slate-300 hover:text-white">Planes</a>
             <a href="#faq" (click)="scrollToSection($event, 'faq')" class="text-left text-lg font-medium text-slate-300 hover:text-white">Preguntas frecuentes</a>
             <div class="h-[1px] bg-darkBorder my-2"></div>
-            <button (click)="openModal('login'); toggleMobileMenu()" class="text-center font-semibold text-slate-400 hover:text-white py-3">
+            <button type="button" (click)="openModal('login'); toggleMobileMenu()" class="text-center font-semibold text-slate-400 hover:text-white py-3">
                 Ingresar
             </button>
-            <button (click)="openModal('signup'); toggleMobileMenu()" class="w-full text-center font-semibold bg-gradient-to-r from-accentViolet to-accentPurple text-white py-3.5 rounded-xl">
+            <button type="button" (click)="openModal('signup'); toggleMobileMenu()" class="w-full text-center font-semibold bg-gradient-to-r from-accentViolet to-accentPurple text-white py-3.5 rounded-xl">
                 Crear cuenta gratis
             </button>
         </div>
@@ -93,7 +93,7 @@
                             <label for="hero-username" class="sr-only">Elegí el nombre de tu link de venta</label>
                             <input id="hero-username" type="text" [value]="heroUsername" (input)="updateHeroUsername($event)" placeholder="tu-marca" autocomplete="off" maxlength="40" class="bg-transparent text-white border-none outline-none focus:ring-0 ml-1 w-28 placeholder:text-slate-600 font-semibold">
                         </div>
-                        <button (click)="claimUsername()" class="w-full sm:w-auto bg-gradient-to-r from-accentViolet to-accentPurple hover:from-indigo-500 hover:to-purple-600 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-md shadow-indigo-500/10 flex items-center justify-center gap-2 whitespace-nowrap active:scale-95">
+                        <button type="button" (click)="claimUsername()" class="w-full sm:w-auto bg-gradient-to-r from-accentViolet to-accentPurple hover:from-indigo-500 hover:to-purple-600 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-md shadow-indigo-500/10 flex items-center justify-center gap-2 whitespace-nowrap active:scale-95">
                             Crear mi link gratis
                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </button>
@@ -1004,11 +1004,11 @@
     </main>
 
     <!-- FINAL CALL TO ACTION & FOOTER -->
-    <footer class="py-24 border-t border-darkBorder bg-slate-950 relative overflow-hidden">
+    <footer id="contacto" class="py-24 border-t border-darkBorder bg-slate-950 relative overflow-hidden">
         <!-- Visual details bg -->
         <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-full max-w-5xl h-60 bg-gradient-to-t from-accentPurple/5 to-transparent blur-3xl pointer-events-none"></div>
 
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 flex flex-col gap-6">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 flex flex-col gap-6">
             <h2 class="font-display font-extrabold text-3xl sm:text-5xl text-white tracking-tight leading-tight">
                 Tu link vende por vos.
             </h2>
@@ -1016,18 +1016,120 @@
                 Cobrá, agendá y entregá desde un solo link. Empezá gratis, sin tarjeta, y compartilo hoy mismo desde Instagram o WhatsApp.
             </p>
 
-            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-4">
-                <button (click)="openModal('signup')" class="w-full sm:w-auto bg-gradient-to-r from-accentViolet via-accentPurple to-accentPink text-white font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-purple-500/15 transition-all hover:-translate-y-0.5 active:scale-95">
+            <div class="flex items-center justify-center mt-4">
+                <button type="button" (click)="openModal('signup')" class="w-full sm:w-auto bg-gradient-to-r from-accentViolet via-accentPurple to-accentPink text-white font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-purple-500/15 transition-all hover:-translate-y-0.5 active:scale-95">
                     Crear mi cuenta gratis
                 </button>
-                <!-- NOTA: Reemplaza este enlace (5493518112233) por tu número real de WhatsApp de soporte técnico/comercial -->
-                <a href="https://wa.me/5493518112233?text=Hola,%20quiero%20conocer%20mas%20de%20Tiendubi" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto bg-slate-900 border border-darkBorder hover:border-slate-700 text-slate-300 font-semibold px-8 py-4 rounded-2xl transition-all hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2">
-                    <i data-lucide="message-circle" class="w-5 h-5 text-emerald-400"></i>
-                    Escribinos por WhatsApp
-                </a>
             </div>
 
-            <!-- Quick footer details -->
+            <div class="mt-14 overflow-hidden rounded-[32px] border border-darkBorder bg-darkCard text-left shadow-2xl shadow-black/30 lg:grid lg:grid-cols-[0.8fr_1.2fr]">
+                <aside class="relative overflow-hidden border-b border-darkBorder bg-gradient-to-br from-violet-950 via-slate-950 to-slate-950 p-7 sm:p-10 lg:border-b-0 lg:border-r lg:p-12">
+                    <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-purple-500/20 blur-3xl pointer-events-none"></div>
+                    <div class="relative">
+                        <div class="mb-7 inline-flex items-center gap-2 rounded-full border border-purple-300/15 bg-purple-400/10 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-purple-200">
+                            <i data-lucide="message-circle" class="h-4 w-4" aria-hidden="true"></i>
+                            Contacto
+                        </div>
+                        <h2 class="mb-5 font-display text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                            Hablemos de lo que querés vender
+                        </h2>
+                        <p class="leading-relaxed text-slate-300">
+                            Contanos sobre tu marca, servicio o producto digital. Te ayudamos a evaluar cómo Tiendubi puede simplificar tus cobros, reservas y entregas.
+                        </p>
+
+                        <ul class="mt-9 space-y-5 border-t border-white/10 pt-8 text-sm text-slate-300">
+                            <li class="flex items-start gap-3">
+                                <i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-purple-300" aria-hidden="true"></i>
+                                <span>Una respuesta pensada para tu caso.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-purple-300" aria-hidden="true"></i>
+                                <span>Sin compromiso ni datos de tarjeta.</span>
+                            </li>
+                            <li class="flex items-start gap-3">
+                                <i data-lucide="check" class="mt-0.5 h-4 w-4 shrink-0 text-purple-300" aria-hidden="true"></i>
+                                <span>Tus datos se usan únicamente para responderte.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </aside>
+
+                <div class="p-6 sm:p-10 lg:p-12">
+                    <form [class.hidden]="contactSubmitted" (submit)="handleContactSubmit($event)" class="space-y-5">
+                        <input type="text" name="website" tabindex="-1" autocomplete="off" class="hidden" aria-hidden="true">
+
+                        <div class="mb-7">
+                            <h3 class="text-xl font-bold text-white">Dejanos tu consulta</h3>
+                            <p class="mt-1 text-sm text-slate-400">Los campos marcados con * son obligatorios.</p>
+                        </div>
+
+                        <div class="grid gap-5 sm:grid-cols-2">
+                            <div>
+                                <label for="contact-nombre" class="mb-2 block text-sm font-semibold text-slate-200">Nombre completo <span class="text-purple-400">*</span></label>
+                                <div class="relative">
+                                    <i data-lucide="user" class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true"></i>
+                                    <input id="contact-nombre" name="nombre" type="text" required autocomplete="name" maxlength="100" placeholder="Tu nombre" class="contact-field w-full rounded-xl border border-darkBorder bg-slate-950/70 py-3.5 pl-11 pr-4 text-white outline-none transition-colors placeholder:text-slate-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/15">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="contact-marca" class="mb-2 block text-sm font-semibold text-slate-200">Marca o proyecto <span class="text-purple-400">*</span></label>
+                                <div class="relative">
+                                    <i data-lucide="building-2" class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true"></i>
+                                    <input id="contact-marca" name="marca" type="text" required autocomplete="organization" maxlength="100" placeholder="Nombre de tu marca" class="contact-field w-full rounded-xl border border-darkBorder bg-slate-950/70 py-3.5 pl-11 pr-4 text-white outline-none transition-colors placeholder:text-slate-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/15">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="contact-whatsapp" class="mb-2 block text-sm font-semibold text-slate-200">WhatsApp <span class="text-purple-400">*</span></label>
+                                <div class="relative">
+                                    <i data-lucide="message-circle" class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true"></i>
+                                    <input id="contact-whatsapp" name="whatsapp" type="tel" required autocomplete="tel" inputmode="tel" maxlength="30" placeholder="+54 9 11 1234-5678" class="contact-field w-full rounded-xl border border-darkBorder bg-slate-950/70 py-3.5 pl-11 pr-4 text-white outline-none transition-colors placeholder:text-slate-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/15">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="contact-email" class="mb-2 block text-sm font-semibold text-slate-200">Email <span class="font-normal text-slate-500">(opcional)</span></label>
+                                <div class="relative">
+                                    <i data-lucide="mail" class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" aria-hidden="true"></i>
+                                    <input id="contact-email" name="email" type="email" autocomplete="email" maxlength="150" placeholder="tu@email.com" class="contact-field w-full rounded-xl border border-darkBorder bg-slate-950/70 py-3.5 pl-11 pr-4 text-white outline-none transition-colors placeholder:text-slate-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/15">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="contact-mensaje" class="mb-2 block text-sm font-semibold text-slate-200">¿En qué podemos ayudarte? <span class="font-normal text-slate-500">(opcional)</span></label>
+                            <textarea id="contact-mensaje" name="mensaje" rows="4" maxlength="1500" placeholder="Contanos qué vendés o qué necesitás resolver..." class="contact-field w-full resize-none rounded-xl border border-darkBorder bg-slate-950/70 px-4 py-3.5 text-white outline-none transition-colors placeholder:text-slate-600 focus:border-purple-500 focus:ring-2 focus:ring-purple-500/15"></textarea>
+                        </div>
+
+                        <button type="submit" [disabled]="contactSubmitting" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-accentViolet via-accentPurple to-accentPink px-6 py-4 text-base font-semibold text-white shadow-lg shadow-purple-500/15 transition-all hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60">
+                            <span *ngIf="contactSubmitting" class="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true"></span>
+                            <i *ngIf="!contactSubmitting" data-lucide="send" class="h-4 w-4" aria-hidden="true"></i>
+                            <span>{{ contactSubmitting ? 'Enviando...' : 'Enviar consulta' }}</span>
+                        </button>
+
+                        <p *ngIf="contactErrorMessage" role="alert" class="rounded-xl border border-rose-500/20 bg-rose-500/10 p-3 text-sm font-semibold text-rose-300">
+                            {{ contactErrorMessage }}
+                        </p>
+                        <p class="flex items-center justify-center gap-2 text-center text-xs text-slate-500">
+                            <i data-lucide="lock" class="h-3.5 w-3.5" aria-hidden="true"></i>
+                            Usamos tus datos únicamente para responder tu consulta.
+                        </p>
+                    </form>
+
+                    <div [class.hidden]="!contactSubmitted" aria-live="polite" class="py-12 text-center">
+                        <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 text-emerald-400">
+                            <i data-lucide="check-circle" class="h-8 w-8" aria-hidden="true"></i>
+                        </div>
+                        <h3 class="mb-2 text-2xl font-bold text-white">¡Consulta enviada!</h3>
+                        <p class="mx-auto mb-7 max-w-md text-slate-400">Recibimos tus datos. Nos vamos a comunicar con vos a la brevedad.</p>
+                        <button type="button" (click)="resetContactForm()" class="rounded-xl border border-purple-400/20 bg-purple-400/10 px-6 py-2.5 text-sm font-semibold text-purple-300 transition-colors hover:bg-purple-400/15">
+                            Enviar otra consulta
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="mt-20 pt-8 border-t border-darkBorder/40 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-slate-500">
                 <div class="flex items-center gap-2">
                     <div class="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center text-purple-400">
@@ -1035,7 +1137,7 @@
                     </div>
                     <span>© 2026 Tiendubi. Todos los derechos reservados.</span>
                 </div>
-                <a href="https://wa.me/5493518112233?text=Hola,%20necesito%20ayuda%20con%20Tiendubi" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">Contactar a Tiendubi</a>
+                <span>Tu información no se comparte con terceros.</span>
             </div>
         </div>
     </footer>

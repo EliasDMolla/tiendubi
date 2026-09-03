@@ -71,60 +71,43 @@
   </div>
 </section>
 <section *ngIf="currentView === 'register' && registrationEnabled" class="auth-shell min-h-screen overflow-x-hidden text-slate-200">
-  <div class="flex flex-col items-center justify-center min-h-screen p-4">
+  <div class="flex min-h-[100dvh] flex-col items-center justify-start px-3 py-6 sm:justify-center sm:p-6">
     <!-- <div class="mb-8 flex items-center justify-center">
       <img src="capturar-logo-sinfondo.PNG" alt="CapturAr" class="h-32 w-auto" />
     </div> -->
 
-    <div class="auth-panel bg-darkCard/95 p-8 md:p-10 rounded-[2rem] shadow-2xl shadow-black/40 w-full max-w-lg border border-darkBorder">
-      <h1 class="text-2xl font-black mb-2 italic text-center">Comienza a vender</h1>
-      <p class="text-slate-500 text-sm text-center mb-8 font-medium">Crea tu cuenta profesional en segundos</p>
+    <div class="auth-panel w-full max-w-md rounded-3xl border border-darkBorder bg-darkCard/95 p-5 shadow-2xl shadow-black/40 sm:p-8 md:p-10">
+      <h1 class="mb-2 text-center text-2xl font-black italic">Comenzá a vender</h1>
+      <p class="mb-7 text-center text-sm font-medium text-slate-500 sm:mb-8">Creá tu cuenta en segundos</p>
 
-      <form (submit)="onRegisterSubmit($event)" class="grid md:grid-cols-2 gap-5">
-        <div class="md:col-span-2">
-          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Nombre de Marca o Estudio</label>
-          <input [(ngModel)]="registerBrand" name="registerBrand" type="text" required minlength="2" maxlength="80" autocomplete="organization" placeholder="Estudio" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Nombre público</label>
-          <div class="flex items-center rounded-2xl border border-slate-100 bg-slate-50 transition focus-within:border-blue-500">
-            <span class="pl-4 text-sm font-bold text-slate-500">tiendubi.com/</span>
-            <input [(ngModel)]="registerPublicSlug" (input)="updateRegisterPublicSlug($event)" name="registerPublicSlug" type="text" required minlength="2" maxlength="40" autocomplete="off" placeholder="tu-nombre-de-negocio" class="min-w-0 flex-1 border-0 bg-transparent p-4 pl-1 font-medium outline-none focus:ring-0">
+      <form (submit)="onRegisterSubmit($event)" class="space-y-5">
+        <div>
+          <label for="register-public-slug" class="mb-2 block px-1 text-[10px] font-black uppercase text-slate-400">Nombre público</label>
+          <div class="flex min-w-0 items-center overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 transition focus-within:border-blue-500">
+            <span class="shrink-0 pl-3 text-xs font-bold text-slate-500 sm:pl-4 sm:text-sm">tiendubi.com/</span>
+            <input id="register-public-slug" [(ngModel)]="registerPublicSlug" (input)="updateRegisterPublicSlug($event)" name="registerPublicSlug" type="text" required minlength="2" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="tu-marca" class="min-w-0 flex-1 border-0 bg-transparent px-1 py-3.5 text-sm font-medium outline-none focus:ring-0 sm:py-4 sm:text-base">
           </div>
-          <p class="text-[11px] text-slate-500 mt-2 px-1">Usá letras, números o guiones. Este nombre no puede repetirse.</p>
+          <p class="mt-2 px-1 text-[11px] leading-relaxed text-slate-500">Usá letras, números o guiones. Este nombre no puede repetirse.</p>
         </div>
         <div>
-          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Nombre</label>
-          <input [(ngModel)]="registerFirstName" name="registerFirstName" type="text" required minlength="2" maxlength="60" autocomplete="given-name" placeholder="Lucía" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+          <label for="register-email" class="mb-2 block px-1 text-[10px] font-black uppercase text-slate-400">Email</label>
+          <input id="register-email" [(ngModel)]="registerEmail" name="registerEmail" type="email" required maxlength="120" autocomplete="email" inputmode="email" placeholder="tu@email.com" class="w-full rounded-2xl border border-slate-100 bg-slate-50 p-3.5 text-sm font-medium outline-none transition focus:border-blue-500 sm:p-4 sm:text-base">
         </div>
         <div>
-          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Apellido</label>
-          <input [(ngModel)]="registerLastName" name="registerLastName" type="text" required minlength="2" maxlength="60" autocomplete="family-name" placeholder="Pérez" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
+          <label for="register-password" class="mb-2 block px-1 text-[10px] font-black uppercase text-slate-400">Contraseña</label>
+          <input id="register-password" [(ngModel)]="registerPassword" name="registerPassword" type="password" required minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres" class="w-full rounded-2xl border border-slate-100 bg-slate-50 p-3.5 text-sm font-medium outline-none transition focus:border-blue-500 sm:p-4 sm:text-base">
+          <p class="mt-2 px-1 text-[11px] leading-relaxed text-slate-500">Debe tener al menos 8 caracteres, una letra y un número.</p>
         </div>
-        <div class="md:col-span-2">
-          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Email Profesional</label>
-          <input [(ngModel)]="registerEmail" name="registerEmail" type="email" required maxlength="120" autocomplete="email" placeholder="lucia@estudio.com" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Celular</label>
-          <input [(ngModel)]="registerPhone" name="registerPhone" type="tel" maxlength="20" autocomplete="tel" pattern="^\+?[0-9()\-\s]{8,20}$" placeholder="+54 9 11 1234-5678" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
-          <p class="text-[11px] text-slate-500 mt-2 px-1">Opcional. Ejemplo válido: +54 9 11 1234-5678</p>
-        </div>
-        <div class="md:col-span-2">
-          <label class="block text-[10px] font-black uppercase text-slate-400 mb-2 px-1">Contraseña</label>
-          <input [(ngModel)]="registerPassword" name="registerPassword" type="password" required minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres" class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-100 outline-none focus:border-blue-500 transition font-medium">
-          <p class="text-[11px] text-slate-500 mt-2 px-1">Debe tener al menos 8 caracteres, una letra y un número.</p>
-        </div>
-        <p *ngIf="errorMessage" class="md:col-span-2 text-sm text-red-600 font-medium">{{ errorMessage }}</p>
-        <button [disabled]="isLoading || !isRegisterFormValid" type="submit" class="md:col-span-2 w-full bg-slate-900 text-white font-black py-5 rounded-2xl hover:bg-blue-600 transition shadow-xl uppercase tracking-widest text-xs mt-2 disabled:opacity-60 disabled:cursor-not-allowed">
-          {{ isLoading ? 'Creando cuenta...' : 'Crear mi cuenta PRO' }}
+        <p *ngIf="errorMessage" role="alert" class="text-sm font-medium text-red-600">{{ errorMessage }}</p>
+        <button [disabled]="isLoading || !isRegisterFormValid" type="submit" class="mt-2 w-full rounded-2xl bg-slate-900 py-4 text-xs font-black uppercase tracking-widest text-white shadow-xl transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60 sm:py-5">
+          {{ isLoading ? 'Creando cuenta...' : 'Crear mi cuenta gratis' }}
         </button>
       </form>
 
-      <div class="mt-8 pt-8 border-t border-slate-100 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+      <div class="mt-7 border-t border-slate-100 pt-6 text-center text-[9px] font-bold uppercase leading-relaxed tracking-wider text-slate-400 sm:mt-8 sm:pt-8 sm:text-[10px] sm:tracking-widest">
         Al unirte, aceptas nuestros Términos y Privacidad
       </div>
-      <button (click)="navigateTo('login')" class="w-full mt-4 text-sm text-blue-600 font-bold hover:underline">Ya tengo cuenta, quiero ingresar</button>
+      <button type="button" (click)="navigateTo('login')" class="mt-4 w-full text-sm font-bold text-blue-600 hover:underline">Ya tengo cuenta, quiero ingresar</button>
     </div>
   </div>
 </section>
