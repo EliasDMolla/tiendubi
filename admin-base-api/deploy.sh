@@ -261,6 +261,48 @@ SELECT format('CREATE DATABASE %I OWNER %I', :'app_db', :'app_user')
 WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = :'app_db')
 \gexec
 SQL
+
+    # Asegura permisos del usuario de la app sobre la base (por si la base y/o el
+    # rol ya existian de un deploy anterior con otro propietario). Sin esto, la
+    # API falla con "permission denied for table __EFMigrationsHistory".
+    docker exec -i \
+      -e "APP_DB_NAME=$POSTGRES_DB" -e "APP_DB_USER=$POSTGRES_USER" \
+      -e "PG_ADMIN_USER=$POSTGRES_ADMIN_USER" "$POSTGRES_NAME" sh -ceu '
+        exec psql --set ON_ERROR_STOP=1 --username "$PG_ADMIN_USER" --dbname "$APP_DB_NAME" \
+          --set app_db="$APP_DB_NAME" --set app_user="$APP_DB_USER"
+      ' <<'SQL'
+ALTER DATABASE :"app_db" OWNER TO :"app_user";
+ALTER SCHEMA public OWNER TO :"app_user";
+
+-- Entity Framework necesita ser propietario para ejecutar ALTER/DROP en las
+-- migraciones, no alcanza solamente con otorgar permisos sobre los datos.
+SELECT format(
+  'ALTER %s %I.%I OWNER TO %I',
+  CASE c.relkind
+    WHEN 'S' THEN 'SEQUENCE'
+    WHEN 'v' THEN 'VIEW'
+    WHEN 'm' THEN 'MATERIALIZED VIEW'
+    WHEN 'f' THEN 'FOREIGN TABLE'
+    ELSE 'TABLE'
+  END,
+  n.nspname,
+  c.relname,
+  :'app_user'
+)
+FROM pg_class c
+JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE n.nspname = 'public'
+  AND c.relkind IN ('r', 'p', 'S', 'v', 'm', 'f')
+  AND pg_get_userbyid(c.relowner) <> :'app_user'
+ORDER BY CASE WHEN c.relkind = 'S' THEN 2 ELSE 1 END, c.relname;
+\gexec
+
+GRANT ALL ON SCHEMA public TO :"app_user";
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO :"app_user";
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO :"app_user";
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO :"app_user";
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO :"app_user";
+SQL
   fi
   set_env_value "ConnectionStrings__PostgresConnection" "Host=${POSTGRES_NAME};Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
 else
@@ -336,8 +378,7 @@ if [ "$CONFIGURE_NGINX" = "true" ]; then
     if sudo grep -Eq 'client_max_body_size[[:space:]]+[^;]+;' "$NGINX_SITE_PATH"; then
       sudo sed -i -E 's/client_max_body_size[[:space:]]+[^;]+;/client_max_body_size 1100m;/' "$NGINX_SITE_PATH"
     else
-      echo "ERROR: $NGINX_SITE_PATH no contiene client_max_body_size. Agregá client_max_body_size 1100m; y volvé a ejecutar el deploy."
-      exit 1
+      sudo sed -i "/server_name ${API_DOMAIN};/a\\    client_max_body_size 1100m;" "$NGINX_SITE_PATH"
     fi
   else
     sed -e "s/api\.tiendubi\.com/${API_DOMAIN}/g" \
