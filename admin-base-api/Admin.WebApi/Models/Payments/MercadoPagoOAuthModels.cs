@@ -58,7 +58,7 @@ namespace Admin.WebApi.Models.Payments
         [JsonPropertyName("scope")]
         public string Scope { get; set; } = string.Empty;
         [JsonPropertyName("user_id")]
-        public string UserId { get; set; } = string.Empty;
+        public long UserId { get; set; }
         [JsonPropertyName("refresh_token")]
         public string RefreshToken { get; set; } = string.Empty;
         [JsonPropertyName("public_key")]

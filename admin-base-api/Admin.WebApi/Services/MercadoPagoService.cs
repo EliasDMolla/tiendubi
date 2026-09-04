@@ -215,7 +215,7 @@ namespace Admin.WebApi.Services
                 AccessToken = _secretProtector.Protect(tokenResponse.AccessToken),
                 RefreshToken = _secretProtector.Protect(tokenResponse.RefreshToken),
                 PublicKey = tokenResponse.PublicKey ?? string.Empty,
-                MercadoPagoUserId = tokenResponse.UserId,
+                MercadoPagoUserId = tokenResponse.UserId.ToString(CultureInfo.InvariantCulture),
                 TokenExpiration = expiration,
                 IsActive = true,
                 UpdatedAt = DateTime.UtcNow
