@@ -42,6 +42,13 @@ public sealed class ReadOnlyDemoMiddleware
     private static bool IsBlockedWriteAttempt(HttpContext context)
     {
         var path = context.Request.Path.Value ?? string.Empty;
+        var readOnlyClaim = context.User.FindFirst(DemoAccountDefaults.ReadOnlyClaimType)?.Value;
+        var isReadOnlyUser = string.Equals(readOnlyClaim, bool.TrueString, StringComparison.OrdinalIgnoreCase);
+
+        if (!isReadOnlyUser)
+        {
+            return false;
+        }
 
         if (BlockedReadOnlyPaths.Contains(path))
         {
@@ -60,7 +67,6 @@ public sealed class ReadOnlyDemoMiddleware
             return false;
         }
 
-        var readOnlyClaim = context.User.FindFirst(DemoAccountDefaults.ReadOnlyClaimType)?.Value;
-        return string.Equals(readOnlyClaim, bool.TrueString, StringComparison.OrdinalIgnoreCase);
+        return true;
     }
 }
