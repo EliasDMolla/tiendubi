@@ -5,8 +5,8 @@ namespace Admin.WebApi.Infrastructure.MercadoPago
 {
     public interface IMercadoPagoOAuthStateService
     {
-        string CreateState(int photographerId);
-        bool TryReadState(string state, out int photographerId);
+        string CreateState(int photographerId, string codeVerifier);
+        bool TryReadState(string state, out int photographerId, out string codeVerifier);
     }
 
     public class MercadoPagoOAuthStateService : IMercadoPagoOAuthStateService
@@ -15,19 +15,20 @@ namespace Admin.WebApi.Infrastructure.MercadoPago
 
         public MercadoPagoOAuthStateService(IDataProtectionProvider dataProtectionProvider)
         {
-            _protector = dataProtectionProvider.CreateProtector("capturar.mercadopago.oauth.state.v1");
+            _protector = dataProtectionProvider.CreateProtector("tiendubi.mercadopago.oauth.state.v2");
         }
 
-        public string CreateState(int photographerId)
+        public string CreateState(int photographerId, string codeVerifier)
         {
-            var payload = $"{photographerId}|{Guid.NewGuid():N}|{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+            var payload = $"{photographerId}|{Guid.NewGuid():N}|{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}|{codeVerifier}";
             var protectedPayload = _protector.Protect(payload);
             return Convert.ToBase64String(Encoding.UTF8.GetBytes(protectedPayload));
         }
 
-        public bool TryReadState(string state, out int photographerId)
+        public bool TryReadState(string state, out int photographerId, out string codeVerifier)
         {
             photographerId = 0;
+            codeVerifier = string.Empty;
 
             if (string.IsNullOrWhiteSpace(state))
                 return false;
@@ -38,7 +39,7 @@ namespace Admin.WebApi.Infrastructure.MercadoPago
                 var payload = _protector.Unprotect(protectedPayload);
                 var pieces = payload.Split('|', StringSplitOptions.TrimEntries);
 
-                if (pieces.Length < 3)
+                if (pieces.Length < 4)
                     return false;
 
                 if (!int.TryParse(pieces[0], out photographerId) || photographerId <= 0)
@@ -49,6 +50,10 @@ namespace Admin.WebApi.Infrastructure.MercadoPago
 
                 var issuedAt = DateTimeOffset.FromUnixTimeSeconds(issuedAtUnix);
                 if (issuedAt < DateTimeOffset.UtcNow.AddMinutes(-15))
+                    return false;
+
+                codeVerifier = pieces[3];
+                if (codeVerifier.Length is < 43 or > 128)
                     return false;
 
                 return true;

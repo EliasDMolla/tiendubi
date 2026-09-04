@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 using Admin.Entities;
 using Admin.Entities.Entities;
 using Admin.WebApi.Infrastructure.MercadoPago;
@@ -14,7 +16,7 @@ namespace Admin.WebApi.Services
         Task<MercadoPagoConnectResponse> BuildConnectUrlAsync(int photographerId, CancellationToken cancellationToken = default);
         Task<MercadoPagoConnectionStatusResponse> GetConnectionStatusAsync(int photographerId, CancellationToken cancellationToken = default);
         Task<MercadoPagoCallbackResult> HandleOAuthCallbackAsync(string code, string state, CancellationToken cancellationToken = default);
-        Task<MercadoPagoOAuthTokenResponse> ExchangeAuthorizationCodeAsync(string code, CancellationToken cancellationToken = default);
+        Task<MercadoPagoOAuthTokenResponse> ExchangeAuthorizationCodeAsync(string code, string codeVerifier, CancellationToken cancellationToken = default);
         Task<MercadoPagoOAuthTokenResponse> RefreshTokenAsync(int photographerId, CancellationToken cancellationToken = default);
         Task<MercadoPagoCreatePaymentResponse> CreatePaymentAsync(MercadoPagoCreatePaymentRequest request, CancellationToken cancellationToken = default);
     }
@@ -50,10 +52,10 @@ namespace Admin.WebApi.Services
             _logger = logger;
         }
 
-        public Task<MercadoPagoOAuthTokenResponse> ExchangeAuthorizationCodeAsync(string code, CancellationToken cancellationToken = default)
+        public Task<MercadoPagoOAuthTokenResponse> ExchangeAuthorizationCodeAsync(string code, string codeVerifier, CancellationToken cancellationToken = default)
         {
             ValidateOAuthConfiguration();
-            return _mercadoPagoClient.ExchangeAuthorizationCodeAsync(code, _settings, cancellationToken);
+            return _mercadoPagoClient.ExchangeAuthorizationCodeAsync(code, codeVerifier, _settings, cancellationToken);
         }
 
         public async Task<MercadoPagoOAuthTokenResponse> RefreshTokenAsync(int photographerId, CancellationToken cancellationToken = default)
@@ -78,13 +80,17 @@ namespace Admin.WebApi.Services
         {
             ValidateOAuthConfiguration();
 
-            var state = _oauthStateService.CreateState(photographerId);
+            var codeVerifier = Base64UrlEncode(RandomNumberGenerator.GetBytes(64));
+            var codeChallenge = Base64UrlEncode(SHA256.HashData(Encoding.ASCII.GetBytes(codeVerifier)));
+            var state = _oauthStateService.CreateState(photographerId, codeVerifier);
             var url =
-                $"https://auth.mercadopago.com.ar/authorization" +
+                $"https://auth.mercadopago.com/authorization" +
                 $"?client_id={Uri.EscapeDataString(_settings.ClientId)}" +
                 "&response_type=code" +
                 "&platform_id=mp" +
                 $"&redirect_uri={Uri.EscapeDataString(_settings.RedirectUri)}" +
+                $"&code_challenge={Uri.EscapeDataString(codeChallenge)}" +
+                "&code_challenge_method=S256" +
                 $"&state={Uri.EscapeDataString(state)}";
 
             return Task.FromResult(new MercadoPagoConnectResponse { AuthorizationUrl = url });
@@ -117,7 +123,7 @@ namespace Admin.WebApi.Services
             if (string.IsNullOrWhiteSpace(code))
                 return new MercadoPagoCallbackResult { Success = false, Message = "Código OAuth inválido." };
 
-            if (!_oauthStateService.TryReadState(state, out var photographerId))
+            if (!_oauthStateService.TryReadState(state, out var photographerId, out var codeVerifier))
                 return new MercadoPagoCallbackResult { Success = false, Message = "Estado OAuth inválido o expirado." };
 
             var userExists = await _context.Users.AnyAsync(u => u.Id == photographerId && u.IsActive, cancellationToken);
@@ -126,7 +132,7 @@ namespace Admin.WebApi.Services
 
             try
             {
-                var tokenResponse = await ExchangeAuthorizationCodeAsync(code, cancellationToken);
+                var tokenResponse = await ExchangeAuthorizationCodeAsync(code, codeVerifier, cancellationToken);
                 await SaveOAuthTokensAsync(photographerId, tokenResponse, cancellationToken);
 
                 return new MercadoPagoCallbackResult { Success = true, Message = "Cuenta conectada correctamente." };
@@ -231,6 +237,14 @@ namespace Admin.WebApi.Services
             {
                 throw new InvalidOperationException("MercadoPago OAuth no está configurado. Revisá ClientId, ClientSecret y RedirectUri.");
             }
+        }
+
+        private static string Base64UrlEncode(byte[] value)
+        {
+            return Convert.ToBase64String(value)
+                .TrimEnd('=')
+                .Replace('+', '-')
+                .Replace('/', '_');
         }
     }
 }

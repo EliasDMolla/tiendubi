@@ -20,6 +20,9 @@ export class SettingsPageComponent implements OnInit {
   accountEmail = '';
   currentPassword = '';
   newPassword = '';
+  confirmPassword = '';
+  passwordFeedback = '';
+  passwordFeedbackType: 'success' | 'error' = 'success';
   withdrawalName = '';
   withdrawalBank = '';
   withdrawalInfo = '';
@@ -147,20 +150,32 @@ export class SettingsPageComponent implements OnInit {
   }
 
   savePassword(): void {
+    this.passwordFeedback = '';
+
     if (this.isReadOnlyUser) {
-      this.showToast('La cuenta demo esta en modo solo lectura', 'error');
+      this.showPasswordFeedback('La cuenta demo está en modo solo lectura', 'error');
       return;
     }
 
     if (this.isSavingPassword) return;
 
-    if (!this.currentPassword || !this.newPassword) {
-      this.showToast('Completa ambos campos de contraseña', 'error');
+    if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
+      this.showPasswordFeedback('Completá los tres campos de contraseña', 'error');
       return;
     }
 
     if (this.newPassword.length < 8) {
-      this.showToast('La nueva contraseña debe tener al menos 8 caracteres', 'error');
+      this.showPasswordFeedback('La nueva contraseña debe tener al menos 8 caracteres', 'error');
+      return;
+    }
+
+    if (this.newPassword !== this.confirmPassword) {
+      this.showPasswordFeedback('La nueva contraseña y su confirmación no coinciden', 'error');
+      return;
+    }
+
+    if (this.currentPassword === this.newPassword) {
+      this.showPasswordFeedback('La nueva contraseña debe ser diferente de la actual', 'error');
       return;
     }
 
@@ -171,13 +186,24 @@ export class SettingsPageComponent implements OnInit {
         this.isSavingPassword = false;
         this.currentPassword = '';
         this.newPassword = '';
-        this.showToast(res.message || 'Contraseña actualizada', 'success');
+        this.confirmPassword = '';
+        this.showPasswordFeedback(res.message || 'Contraseña actualizada', 'success');
       },
-      error: (err: { error?: { message?: string } }) => {
+      error: (err: { status?: number; error?: { message?: string } | string }) => {
         this.isSavingPassword = false;
-        this.showToast(err.error?.message || 'No se pudo cambiar la contraseña', 'error');
+        const apiMessage = typeof err.error === 'object' ? err.error?.message : undefined;
+        const fallback = err.status === 401
+          ? 'Tu sesión venció. Volvé a ingresar e intentá nuevamente.'
+          : 'No se pudo cambiar la contraseña';
+        this.showPasswordFeedback(apiMessage || fallback, 'error');
       }
     });
+  }
+
+  private showPasswordFeedback(message: string, type: 'success' | 'error'): void {
+    this.passwordFeedback = message;
+    this.passwordFeedbackType = type;
+    this.showToast(message, type);
   }
 
   saveWithdrawalData(): void {

@@ -299,6 +299,15 @@ namespace Admin.WebApi.Controllers
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(request.CurrentPassword) || string.IsNullOrWhiteSpace(request.NewPassword))
+                    return BadRequest(new { message = "Completá la contraseña actual y la nueva contraseña" });
+
+                if (request.NewPassword.Length < 8)
+                    return BadRequest(new { message = "La nueva contraseña debe tener al menos 8 caracteres" });
+
+                if (request.CurrentPassword == request.NewPassword)
+                    return BadRequest(new { message = "La nueva contraseña debe ser diferente de la actual" });
+
                 var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
                 if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out var userId))

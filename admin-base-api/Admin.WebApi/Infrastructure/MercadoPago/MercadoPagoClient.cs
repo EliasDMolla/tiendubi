@@ -10,7 +10,7 @@ namespace Admin.WebApi.Infrastructure.MercadoPago
 {
     public interface IMercadoPagoClient
     {
-        Task<MercadoPagoOAuthTokenResponse> ExchangeAuthorizationCodeAsync(string code, MercadoPagoSettings settings, CancellationToken cancellationToken = default);
+        Task<MercadoPagoOAuthTokenResponse> ExchangeAuthorizationCodeAsync(string code, string codeVerifier, MercadoPagoSettings settings, CancellationToken cancellationToken = default);
         Task<MercadoPagoOAuthTokenResponse> RefreshTokenAsync(string refreshToken, MercadoPagoSettings settings, CancellationToken cancellationToken = default);
         Task<MercadoPagoRawPaymentResponse> CreatePaymentAsync(string sellerAccessToken, MercadoPagoCreatePaymentRequest request, decimal applicationFee, CancellationToken cancellationToken = default);
     }
@@ -31,7 +31,7 @@ namespace Admin.WebApi.Infrastructure.MercadoPago
             _httpClient.Timeout = TimeSpan.FromSeconds(30);
         }
 
-        public Task<MercadoPagoOAuthTokenResponse> ExchangeAuthorizationCodeAsync(string code, MercadoPagoSettings settings, CancellationToken cancellationToken = default)
+        public Task<MercadoPagoOAuthTokenResponse> ExchangeAuthorizationCodeAsync(string code, string codeVerifier, MercadoPagoSettings settings, CancellationToken cancellationToken = default)
         {
             var payload = new Dictionary<string, string>
             {
@@ -39,7 +39,8 @@ namespace Admin.WebApi.Infrastructure.MercadoPago
                 ["client_id"] = settings.ClientId,
                 ["client_secret"] = settings.ClientSecret,
                 ["code"] = code,
-                ["redirect_uri"] = settings.RedirectUri
+                ["redirect_uri"] = settings.RedirectUri,
+                ["code_verifier"] = codeVerifier
             };
 
             return SendOAuthTokenRequestAsync(payload, cancellationToken);
