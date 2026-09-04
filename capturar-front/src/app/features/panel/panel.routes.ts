@@ -20,13 +20,13 @@ export const PANEL_ROUTES: Routes = [
           )
       },
       {
-        path: 'events',
+        path: 'items',
         loadComponent: () =>
           import('./pages/event-create-page/event-create-page.component').then(
             (module) => module.EventCreatePageComponent
           )
       },
-      { path: 'events/new', redirectTo: '/panel/events', pathMatch: 'full' },
+      { path: 'items/new', redirectTo: '/panel/items', pathMatch: 'full' },
       {
         path: 'upload',
         canDeactivate: [pendingUploadGuard],
@@ -47,6 +47,13 @@ export const PANEL_ROUTES: Routes = [
         loadComponent: () =>
           import('./pages/sales-page/sales-page.component').then(
             (module) => module.SalesPageComponent
+          )
+      },
+      {
+        path: 'plans',
+        loadComponent: () =>
+          import('./pages/plans-page/plans-page.component').then(
+            (module) => module.PlansPageComponent
           )
       },
       {

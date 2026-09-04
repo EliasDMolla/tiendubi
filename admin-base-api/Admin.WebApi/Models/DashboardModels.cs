@@ -36,6 +36,7 @@ namespace Admin.WebApi.Models
         public decimal TotalAmount { get; set; }
         public int Quantity { get; set; }
         public string Status { get; set; } = string.Empty;
+        public string? ExternalReference { get; set; }
         public List<SalePurchasedPhotoDto> PurchasedPhotos { get; set; } = new();
     }
 

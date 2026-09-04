@@ -1,7 +1,11 @@
+using System.Security.Claims;
+using Admin.Entities;
+using Admin.Entities.Entities;
 using Admin.WebApi.Models;
 using Admin.WebApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Admin.WebApi.Controllers
@@ -10,11 +14,16 @@ namespace Admin.WebApi.Controllers
     [Route("api/settings")]
     public class SettingsController : ControllerBase
     {
+        private readonly Context _context;
         private readonly PaymentSettings _paymentSettings;
         private readonly FeatureSettings _featureSettings;
 
-        public SettingsController(IOptions<PaymentSettings> paymentSettings, IOptions<FeatureSettings> featureSettings)
+        public SettingsController(
+            Context context,
+            IOptions<PaymentSettings> paymentSettings,
+            IOptions<FeatureSettings> featureSettings)
         {
+            _context = context;
             _paymentSettings = paymentSettings.Value;
             _featureSettings = featureSettings.Value;
         }
@@ -62,6 +71,57 @@ namespace Admin.WebApi.Controllers
                     PhotoUploadEnabled = _featureSettings.PhotoUploadEnabled
                 }
             });
+        }
+
+        [Authorize]
+        [HttpGet("site-theme")]
+        public async Task<IActionResult> GetSiteTheme(CancellationToken cancellationToken)
+        {
+            var userId = GetCurrentUserId();
+            if (userId <= 0)
+                return Unauthorized(new { message = "Usuario no autenticado" });
+
+            var themeJson = await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Id == userId)
+                .Select(u => u.PublicSiteThemeJson)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            return Ok(SiteThemeStore.Normalize(SiteThemeStore.Parse(themeJson)));
+        }
+
+        [Authorize]
+        [HttpPut("site-theme")]
+        public async Task<IActionResult> SaveSiteTheme([FromBody] SiteThemeDto request, CancellationToken cancellationToken)
+        {
+            var userId = GetCurrentUserId();
+            if (userId <= 0)
+                return Unauthorized(new { message = "Usuario no autenticado" });
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+            if (user == null)
+                return NotFound(new { message = "Usuario no encontrado" });
+
+            var isAdmin = user.Role == UserRole.Admin || user.Role == UserRole.SuperAdmin;
+            if (!isAdmin && !user.IsProActive)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    message = "Personalizar los colores del sitio es exclusivo del plan Pro."
+                });
+            }
+
+            var theme = SiteThemeStore.Normalize(request);
+            user.PublicSiteThemeJson = SiteThemeStore.Serialize(theme);
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return Ok(theme);
+        }
+
+        private int GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return int.TryParse(userIdClaim, out var userId) ? userId : 0;
         }
     }
 }

@@ -5,7 +5,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using System.Security.Claims;
 
 namespace Admin.WebApi.Controllers
@@ -69,11 +71,28 @@ namespace Admin.WebApi.Controllers
 
                 return Ok(response);
             }
+            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex, "IX_Users_PublicSlug"))
+            {
+                _logger.LogWarning(ex, "Intento de registro con nombre público duplicado");
+                return Conflict(new { message = "Ese nombre público ya está en uso. Probá con otro." });
+            }
+            catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex, "IX_Users_Email"))
+            {
+                _logger.LogWarning(ex, "Intento de registro con email duplicado");
+                return Conflict(new { message = "El email ya está registrado." });
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error en login");
                 return StatusCode(500, new { message = "Error interno del servidor", error = ex.Message, stackTrace = ex.StackTrace });
             }
+        }
+
+        private static bool IsUniqueConstraintViolation(DbUpdateException exception, string constraintName)
+        {
+            return exception.InnerException is PostgresException postgresException
+                && postgresException.SqlState == PostgresErrorCodes.UniqueViolation
+                && string.Equals(postgresException.ConstraintName, constraintName, StringComparison.OrdinalIgnoreCase);
         }
 
         [EnableRateLimiting("auth")]

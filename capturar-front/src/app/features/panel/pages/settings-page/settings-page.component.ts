@@ -17,6 +17,7 @@ export class SettingsPageComponent implements OnInit {
   private readonly publicSettingsService = inject(PublicSettingsService);
 
   studioName = '';
+  accountEmail = '';
   currentPassword = '';
   newPassword = '';
   withdrawalName = '';
@@ -45,6 +46,7 @@ export class SettingsPageComponent implements OnInit {
     this.authService.loadCurrentUser().subscribe((user) => {
       this.isReadOnlyUser = user?.isReadOnly ?? false;
       this.studioName = user?.fullName?.trim() || '';
+      this.accountEmail = user?.email?.trim() || '';
       this.withdrawalName = user?.withdrawalHolderName?.trim() || '';
       this.withdrawalBank = user?.withdrawalBankName?.trim() || '';
       this.withdrawalInfo = user?.withdrawalAliasOrCbu?.trim() || '';

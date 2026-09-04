@@ -4,7 +4,7 @@ server {
 
     server_name api.tiendubi.com;
 
-    client_max_body_size 550m;
+    client_max_body_size 1100m;
 
     location / {
         proxy_pass http://127.0.0.1:5002;

@@ -30,6 +30,12 @@ namespace Admin.WebApi.Controllers
             ".pdf", ".zip", ".rar", ".7z", ".mp4", ".mov", ".mp3", ".wav", ".jpg", ".jpeg", ".png", ".webp", ".txt", ".csv", ".xlsx", ".doc", ".docx"
         };
 
+        private const int FreePlanMaxItems = 3;
+        private const int ProPlanMaxItems = 50;
+        private const long FreePlanMaxDigitalFileBytes = 500L * 1024 * 1024;
+        private const long ProPlanMaxDigitalFileBytes = 1L * 1024 * 1024 * 1024;
+        private const long MaxUploadRequestBytes = 1100L * 1024 * 1024;
+
         public EventsController(Context context, ILogger<EventsController> logger, IWebHostEnvironment environment, IR2StorageService storageService)
         {
             _context = context;
@@ -64,6 +70,18 @@ namespace Admin.WebApi.Controllers
             var userId = GetUserId();
             if (userId == null)
                 return Unauthorized();
+
+            var planAccess = await ResolvePlanAccessAsync(userId.Value);
+            var itemCount = await _context.PhotographerEvents.CountAsync(e => e.UserId == userId.Value);
+            if (itemCount >= planAccess.MaxItems)
+            {
+                return BadRequest(new
+                {
+                    message = planAccess.IsPro
+                        ? $"Alcanzaste el límite de {ProPlanMaxItems} productos del plan Pro."
+                        : $"El plan gratuito permite hasta {FreePlanMaxItems} productos. Actualizá a Pro para crear más."
+                });
+            }
 
             var validationError = ValidateProductRequest(request.Name, request.Description, request.PriceType, request.ProductType, request.PricePerPhoto, request.OriginalPrice, request.DeliveryLink);
             if (validationError is not null)
@@ -103,6 +121,15 @@ namespace Admin.WebApi.Controllers
             var userId = GetUserId();
             if (userId == null)
                 return Unauthorized();
+
+            var planAccess = await ResolvePlanAccessAsync(userId.Value);
+            if (!planAccess.IsPro)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    message = "El plan gratuito no permite editar productos. Actualizá a Pro para modificarlos."
+                });
+            }
 
             var dbEvent = await _context.PhotographerEvents
                 .Include(e => e.Photos)
@@ -144,6 +171,15 @@ namespace Admin.WebApi.Controllers
             var userId = GetUserId();
             if (userId == null)
                 return Unauthorized();
+
+            var planAccess = await ResolvePlanAccessAsync(userId.Value);
+            if (!planAccess.IsPro)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new
+                {
+                    message = "El plan gratuito no permite eliminar productos. Actualizá a Pro."
+                });
+            }
 
             var dbEvent = await _context.PhotographerEvents
                 .Include(e => e.Photos)
@@ -188,7 +224,8 @@ namespace Admin.WebApi.Controllers
         }
 
         [HttpPost("{eventId:int}/assets")]
-        [RequestSizeLimit(600_000_000)]
+        [RequestSizeLimit(MaxUploadRequestBytes)]
+        [RequestFormLimits(MultipartBodyLengthLimit = MaxUploadRequestBytes)]
         public async Task<IActionResult> UploadProductAsset(int eventId, [FromForm] ProductAssetUploadRequest request, CancellationToken cancellationToken)
         {
             var userId = GetUserId();
@@ -223,8 +260,19 @@ namespace Admin.WebApi.Controllers
                 if (!AllowedDigitalExtensions.Contains(extension))
                     return BadRequest(new { message = $"Formato no soportado: {request.File.FileName}" });
 
-                if (request.File.Length > 500L * 1024 * 1024)
-                    return BadRequest(new { message = $"{request.File.FileName} supera 500MB" });
+                var planAccess = await ResolvePlanAccessAsync(userId.Value);
+                var maxFileBytes = planAccess.IsPro
+                    ? ProPlanMaxDigitalFileBytes
+                    : FreePlanMaxDigitalFileBytes;
+                var maxFileLabel = planAccess.IsPro ? "1 GB" : "500 MB";
+
+                if (request.File.Length > maxFileBytes)
+                {
+                    return BadRequest(new
+                    {
+                        message = $"{request.File.FileName} supera el límite de {maxFileLabel} de tu plan."
+                    });
+                }
 
                 var digitalAssetCount = dbEvent.ProductAssets.Count(a => a.Kind == "digital_file");
                 if (digitalAssetCount >= 3)
@@ -415,6 +463,19 @@ namespace Admin.WebApi.Controllers
             if (int.TryParse(claim, out var id))
                 return id;
             return null;
+        }
+
+        private async Task<(bool IsPro, int MaxItems)> ResolvePlanAccessAsync(int userId)
+        {
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+                return (false, 0);
+
+            var isAdmin = user.Role == UserRole.Admin || user.Role == UserRole.SuperAdmin;
+            var isPro = isAdmin || user.IsProActive;
+            var maxItems = isAdmin ? int.MaxValue : (isPro ? ProPlanMaxItems : FreePlanMaxItems);
+
+            return (isPro, maxItems);
         }
 
         private PhotographerEventDto MapEvent(PhotographerEvent dbEvent)

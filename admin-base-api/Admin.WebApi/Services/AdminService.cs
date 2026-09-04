@@ -206,7 +206,10 @@ namespace Admin.WebApi.Services
                     IsActive = u.IsActive,
                     Role = u.Role.ToString(),
                     PlanType = u.PlanType.ToString(),
-                    IsProActive = (u.PlanType == PlanType.PRO && u.ProSubscriptionEndDate > DateTime.UtcNow) ||
+                    IsProActive = u.Role == UserRole.Admin ||
+                                  u.Role == UserRole.SuperAdmin ||
+                                  (u.PlanType == PlanType.PRO &&
+                                   (!u.ProSubscriptionEndDate.HasValue || u.ProSubscriptionEndDate > DateTime.UtcNow)) ||
                                   (u.PlanType == PlanType.PRO_TRIAL && u.TrialEndDate > DateTime.UtcNow),
                     StorageUsedBytes = _context.EventPhotos
                         .Where(p => p.PhotographerEvent.UserId == u.Id)
@@ -263,7 +266,9 @@ namespace Admin.WebApi.Services
                 EmailVerified = user.EmailVerified,
                 Role = user.Role.ToString(),
                 PlanType = user.PlanType.ToString(),
-                IsProActive = user.IsProActive,
+                IsProActive = user.IsProActive ||
+                              user.Role == UserRole.Admin ||
+                              user.Role == UserRole.SuperAdmin,
                 TrialUsed = user.TrialUsed,
                 TrialStartDate = user.TrialStartDate,
                 TrialEndDate = user.TrialEndDate,
@@ -680,7 +685,7 @@ namespace Admin.WebApi.Services
                     }
                 }
 
-                var (deliverySuccess, deliveryMessage) = await _photoDeliveryService.SendPurchasedPhotosAsync(session.Id, cancellationToken);
+                var (deliverySuccess, deliveryMessage) = await _photoDeliveryService.DeliverAsync(session.Id, cancellationToken);
                 if (!deliverySuccess)
                 {
                     _logger.LogWarning("Transferencia aprobada pero falló email de entrega. ExternalReference={ExternalReference}, Message={Message}", normalizedReference, deliveryMessage);
@@ -750,7 +755,7 @@ namespace Admin.WebApi.Services
             if (!string.Equals(session.Status, "Paid", StringComparison.OrdinalIgnoreCase))
                 return (false, "La compra aún no está pagada");
 
-            var (success, message) = await _photoDeliveryService.SendPurchasedPhotosAsync(session.Id, cancellationToken);
+            var (success, message) = await _photoDeliveryService.DeliverAsync(session.Id, cancellationToken);
             return (success, message);
         }
 

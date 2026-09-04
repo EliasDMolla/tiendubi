@@ -4,9 +4,18 @@
   background-color: #f8fafc;
 }
 
+:host-context(html.dark) {
+  background-color: #080a10;
+}
+
 .sidebar-link:hover {
   background-color: rgba(59, 130, 246, 0.05);
   color: #2563eb;
+}
+
+:host-context(html.dark) .sidebar-link:hover {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
 }
 
 .sidebar-link.active {

@@ -1,39 +1,206 @@
 <div class="p-8">
-  <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm max-w-2xl">
-    <h3 class="text-xl font-black mb-2">Sitio Público</h3>
-    <p class="text-sm text-slate-500 mb-2">Este es el sitio que ven tus compradores. Muestra todos tus eventos con fotos a la venta para que puedan buscar, elegir y comprar directamente desde su celular.</p>
-    <p class="text-sm text-slate-500 mb-6">Compartí el link o el QR con los asistentes de tus eventos para que encuentren sus fotos al instante.</p>
+  <div class="mb-8">
+    <h3 class="text-2xl font-black text-slate-900">Sitio Público</h3>
+    <p class="text-sm text-slate-500 mt-1">Este es el sitio que ven tus compradores. Compartilo y personalizá sus colores.</p>
+  </div>
 
-    <div class="flex flex-col sm:flex-row gap-3 mb-6">
-      <button (click)="openPublicSite()" class="bg-blue-600 text-white font-black px-6 py-3 rounded-xl hover:bg-blue-500 transition">
-        Ver sitio público
-      </button>
-      <button (click)="generatePublicSiteQr()" class="bg-slate-900 text-white font-black px-6 py-3 rounded-xl hover:bg-slate-700 transition">
-        Generar QR de su sitio
-      </button>
-    </div>
+  <div class="grid grid-cols-1 gap-8 items-start xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <!-- ===== Columna izquierda: acciones y personalización ===== -->
+    <div class="space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <p class="text-sm font-bold text-blue-700 mb-4">Compartí tu sitio</p>
+        <div class="border border-slate-200 rounded-xl p-4 mb-4 bg-slate-50">
+          <p class="text-xs font-black text-slate-500 uppercase tracking-wide mb-2">Link público</p>
+          <p class="text-sm text-slate-700 break-all mb-4">{{ publicSiteUrl }}</p>
+          <div class="flex flex-wrap items-center gap-2">
+            <button (click)="copyPublicSiteLink()" class="bg-white border border-slate-300 text-slate-700 font-bold px-4 py-2 rounded-xl hover:bg-slate-100 transition">
+              Copiar link
+            </button>
+            <button (click)="sharePublicSiteOnWhatsApp()" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-xl hover:bg-emerald-500 transition">
+              WhatsApp
+            </button>
+            <button (click)="openPublicSite()" class="bg-blue-600 text-white font-bold px-4 py-2 rounded-xl hover:bg-blue-500 transition">
+              Ver sitio
+            </button>
+            <button (click)="generatePublicSiteQr()" class="bg-slate-900 text-white font-bold px-4 py-2 rounded-xl hover:bg-slate-700 transition">
+              QR
+            </button>
+          </div>
+          <p *ngIf="copyLinkMessage" class="text-xs font-bold text-slate-500 mt-2">{{ copyLinkMessage }}</p>
+        </div>
 
-    <div class="border border-slate-200 rounded-2xl p-5 mb-6 bg-slate-50">
-      <p class="text-xs font-black text-slate-500 uppercase tracking-wide mb-2">Link público</p>
-      <p class="text-sm text-slate-700 break-all mb-4">{{ publicSiteUrl }}</p>
-      <div class="flex items-center gap-3">
-        <button (click)="copyPublicSiteLink()" class="bg-white border border-slate-300 text-slate-700 font-bold px-4 py-2 rounded-xl hover:bg-slate-100 transition">
-          Copiar link
-        </button>
-        <button (click)="sharePublicSiteOnWhatsApp()" class="bg-emerald-600 text-white font-bold px-4 py-2 rounded-xl hover:bg-emerald-500 transition">
-          Compartir por WhatsApp
-        </button>
-        <p *ngIf="copyLinkMessage" class="text-xs font-bold text-slate-500">{{ copyLinkMessage }}</p>
+        <div *ngIf="publicSiteQrUrl" class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+          <img [src]="publicSiteQrUrl" alt="QR del sitio público" class="w-40 h-40 rounded-lg border border-slate-200 bg-white" />
+          <button (click)="downloadPublicSiteQr()" class="mt-3 block bg-white border border-slate-300 text-slate-700 font-bold px-4 py-2 rounded-xl hover:bg-slate-100 transition">
+            Descargar QR
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <p class="text-sm font-bold text-blue-700 flex items-center gap-2 mb-4">
+          <span>🎨</span> Colores del sitio
+        </p>
+
+        <div *ngIf="!isProUser" class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          Personalizar los colores del sitio es exclusivo del plan Pro. Podés ver la vista previa con el tema actual.
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <p class="text-xs font-semibold text-slate-700 mb-2">Color de acento</p>
+            <div class="flex items-center gap-3">
+              <input
+                [(ngModel)]="draftTheme.accent"
+                type="color"
+                [disabled]="!isProUser"
+                class="h-10 w-14 rounded-lg border border-slate-200 cursor-pointer bg-white disabled:cursor-not-allowed disabled:opacity-50"
+              />
+              <span class="text-sm font-mono text-slate-500">{{ draftTheme.accent }}</span>
+            </div>
+            <div class="mt-2 flex flex-wrap gap-2">
+              <button
+                *ngFor="let color of accentPresets"
+                type="button"
+                (click)="applyAccentPreset(color)"
+                [disabled]="!isProUser"
+                class="h-7 w-7 rounded-full border-2 transition disabled:cursor-not-allowed disabled:opacity-40"
+                [ngStyle]="{ 'background-color': color }"
+                [ngClass]="draftTheme.accent.toLowerCase() === color ? 'border-slate-900' : 'border-transparent hover:border-slate-300'"
+              ></button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <p class="text-xs font-semibold text-slate-700 mb-2">Fondo</p>
+              <input [(ngModel)]="draftTheme.background" type="color" [disabled]="!isProUser" class="h-10 w-full rounded-lg border border-slate-200 cursor-pointer bg-white disabled:cursor-not-allowed disabled:opacity-50" />
+              <span class="block mt-1 text-[11px] font-mono text-slate-400">{{ draftTheme.background }}</span>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-slate-700 mb-2">Tarjetas</p>
+              <input [(ngModel)]="draftTheme.surface" type="color" [disabled]="!isProUser" class="h-10 w-full rounded-lg border border-slate-200 cursor-pointer bg-white disabled:cursor-not-allowed disabled:opacity-50" />
+              <span class="block mt-1 text-[11px] font-mono text-slate-400">{{ draftTheme.surface }}</span>
+            </div>
+            <div>
+              <p class="text-xs font-semibold text-slate-700 mb-2">Texto</p>
+              <input [(ngModel)]="draftTheme.text" type="color" [disabled]="!isProUser" class="h-10 w-full rounded-lg border border-slate-200 cursor-pointer bg-white disabled:cursor-not-allowed disabled:opacity-50" />
+              <span class="block mt-1 text-[11px] font-mono text-slate-400">{{ draftTheme.text }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-5 flex flex-wrap gap-2">
+          <button
+            (click)="saveTheme()"
+            [disabled]="!isProUser || isSavingTheme"
+            class="bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl hover:bg-blue-600 transition disabled:opacity-50"
+          >
+            {{ isSavingTheme ? 'Guardando...' : 'Guardar colores' }}
+          </button>
+          <button
+            (click)="resetTheme()"
+            [disabled]="!isProUser || isSavingTheme"
+            class="border border-slate-300 text-slate-700 font-semibold px-5 py-2.5 rounded-xl hover:bg-slate-100 transition disabled:opacity-50"
+          >
+            Restablecer
+          </button>
+        </div>
+
+        <p *ngIf="themeMessage" class="mt-3 text-sm font-bold text-emerald-700">{{ themeMessage }}</p>
+        <p *ngIf="themeError" class="mt-3 text-sm font-bold text-red-600">{{ themeError }}</p>
       </div>
     </div>
 
-    <div *ngIf="publicSiteQrUrl" class="border border-slate-200 rounded-2xl p-5 bg-slate-50">
-      <p class="text-sm font-bold text-slate-700 mb-4">QR de tu sitio público</p>
-      <img [src]="publicSiteQrUrl" alt="QR del sitio público" class="w-48 h-48 rounded-xl border border-slate-200 bg-white" />
-      <div class="mt-4">
-        <button (click)="downloadPublicSiteQr()" class="bg-white border border-slate-300 text-slate-700 font-bold px-4 py-2 rounded-xl hover:bg-slate-100 transition">
-          Descargar QR
-        </button>
+    <!-- ===== Columna derecha: vista previa ===== -->
+    <div class="xl:sticky xl:top-24">
+      <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Vista previa</p>
+      <div class="rounded-[24px] overflow-hidden border border-slate-300 shadow-xl">
+        <div [ngStyle]="previewVars">
+
+          <!-- Header -->
+          <div class="border-b" style="border-color: var(--store-border);">
+            <div class="flex items-center justify-between gap-3 px-4 h-14">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="w-9 h-9 shrink-0 rounded-xl flex items-center justify-center text-white text-sm font-extrabold" style="background: linear-gradient(135deg, var(--store-accent), #34d399);">
+                  {{ (studioDisplayName || 'T') | slice:0:1 }}
+                </div>
+                <div class="min-w-0">
+                  <p class="text-[9px] font-black uppercase tracking-widest" style="color: var(--store-muted);">Tienda pública</p>
+                  <p class="text-sm font-extrabold truncate">{{ studioDisplayName }}</p>
+                </div>
+              </div>
+              <span class="shrink-0 rounded-lg border px-2 py-1 text-[9px] font-black uppercase tracking-widest" style="border-color: var(--store-border); color: var(--store-muted);">
+                Tiendubi
+              </span>
+            </div>
+          </div>
+
+          <!-- Hero -->
+          <div class="px-5 py-7">
+            <p class="text-[9px] font-black uppercase tracking-widest mb-2" style="color: var(--store-accent);">Digitales · Físicos · Recursos privados</p>
+            <h3 class="text-xl font-extrabold leading-tight sm:text-2xl">
+              Comprá directo a
+              <span style="background: linear-gradient(90deg, var(--store-accent), #34d399); -webkit-background-clip: text; background-clip: text; color: transparent;">{{ studioDisplayName }}</span>
+            </h3>
+            <p class="mt-2 text-xs leading-relaxed" style="color: var(--store-muted);">Explorá los productos publicados por esta tienda.</p>
+
+            <div class="mt-5 flex gap-8">
+              <div>
+                <p class="text-sm font-extrabold">3</p>
+                <p class="text-[8px] font-black uppercase tracking-widest" style="color: var(--store-muted);">Productos</p>
+              </div>
+              <div>
+                <p class="text-sm font-extrabold">Inmediata</p>
+                <p class="text-[8px] font-black uppercase tracking-widest" style="color: var(--store-muted);">Entrega</p>
+              </div>
+              <div>
+                <p class="text-sm font-extrabold">Seguro</p>
+                <p class="text-[8px] font-black uppercase tracking-widest" style="color: var(--store-muted);">Pago</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Catálogo -->
+          <div class="px-5 pb-8">
+            <div class="flex items-center gap-2 rounded-xl border px-3 py-2.5 mb-5" style="border-color: var(--store-border); background-color: var(--store-surface);">
+              <span class="text-xs" style="color: var(--store-muted);">🔍</span>
+              <span class="text-xs" style="color: var(--store-muted);">Buscar productos...</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-2xl border overflow-hidden" style="border-color: var(--store-border); background-color: var(--store-surface);">
+                <div class="aspect-[4/5] flex items-center justify-center text-3xl" style="background-color: var(--store-surface-2);">📦</div>
+                <div class="p-3">
+                  <p class="text-xs font-extrabold truncate">Producto digital</p>
+                  <p class="mt-1 text-[10px]" style="color: var(--store-muted);">Archivo descargable</p>
+                  <div class="mt-2 flex items-center justify-between gap-2">
+                    <p class="text-sm font-extrabold">$4.990</p>
+                    <span class="rounded-lg px-2 py-1 text-[8px] font-black uppercase" style="background-color: var(--store-text); color: var(--store-bg);">Ver</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-2xl border overflow-hidden" style="border-color: var(--store-border); background-color: var(--store-surface);">
+                <div class="aspect-[4/5] flex items-center justify-center text-3xl" style="background-color: var(--store-surface-2);">🔗</div>
+                <div class="p-3">
+                  <p class="text-xs font-extrabold truncate">Clase en vivo</p>
+                  <p class="mt-1 text-[10px]" style="color: var(--store-muted);">Link privado</p>
+                  <div class="mt-2 flex items-center justify-between gap-2">
+                    <p class="text-sm font-extrabold">$9.900</p>
+                    <span class="rounded-lg px-2 py-1 text-[8px] font-black uppercase" style="background-color: var(--store-text); color: var(--store-bg);">Ver</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="border-t px-5 py-3 flex items-center justify-between text-[9px]" style="border-color: var(--store-border); color: var(--store-muted);">
+            <span>© 2026 {{ studioDisplayName }}</span>
+            <span>Creado con <b>Tiendubi</b></span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

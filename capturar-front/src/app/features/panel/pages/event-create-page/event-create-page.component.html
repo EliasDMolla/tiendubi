@@ -3,16 +3,32 @@
     <header class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <p class="text-[11px] font-black uppercase tracking-widest text-slate-400">Panel</p>
-        <h1 class="text-2xl font-black tracking-tight">Productos</h1>
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl font-black tracking-tight">Productos</h1>
+          <span
+            class="rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-widest"
+            [ngClass]="isProUser ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'"
+          >
+            {{ isProUser ? 'Plan Pro' : 'Plan Gratuito' }}
+          </span>
+        </div>
       </div>
-      <button
-        (click)="toggleCreateForm()"
-        [disabled]="isReadOnlyUser"
-        class="rounded-xl bg-slate-950 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        Nuevo producto
-      </button>
+      <div class="flex items-center gap-3">
+        <span class="text-xs font-bold text-slate-500">{{ events.length }} / {{ planMaxItems }} productos</span>
+        <button
+          (click)="toggleCreateForm()"
+          [disabled]="isReadOnlyUser || hasReachedItemLimit"
+          class="rounded-xl bg-slate-950 px-4 py-3 text-xs font-black uppercase tracking-widest text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Nuevo producto
+        </button>
+      </div>
     </header>
+
+    <div *ngIf="!isProUser" class="mb-5 flex flex-col gap-1 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 sm:flex-row sm:items-center sm:justify-between">
+      <p class="font-bold">Plan gratuito: hasta {{ freePlanMaxItems }} productos, sin editar ni eliminar.</p>
+      <span class="text-xs font-semibold text-amber-800">Actualizá a Pro para tener {{ proPlanMaxItems }} productos con edición y eliminación.</span>
+    </div>
 
     <div *ngIf="isReadOnlyUser" class="mb-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
       Estas viendo la cuenta demo. Puedes inspeccionar productos, pero no crear, editar ni subir archivos.
@@ -21,7 +37,6 @@
     <section
       *ngIf="showCreateForm"
       class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/60 p-4 backdrop-blur-sm sm:p-6"
-      (click)="cancelEdit()"
     >
       <div class="mx-auto max-w-3xl rounded-[28px] border border-slate-200 bg-white p-5 shadow-2xl shadow-slate-950/20 sm:p-7" (click)="$event.stopPropagation()">
       <div class="mb-6 flex items-start justify-between gap-4">
@@ -92,27 +107,17 @@
             ></textarea>
           </label>
 
-          <div class="rounded-2xl border border-violet-200 bg-violet-50 p-4">
-            <div class="flex items-center justify-between gap-3">
-              <div>
-                <div class="flex items-center gap-2">
-                  <span class="form-label text-violet-700">Instrucciones para el comprador</span>
-                  <span class="rounded-full bg-violet-600 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-white">Pro</span>
-                </div>
-                <p class="mt-1 text-sm text-violet-800/80">
-                  Agregá instrucciones que el comprador recibe tras la compra: cómo usar el producto, datos de acceso o próximos pasos.
-                </p>
-              </div>
-              <button type="button" class="hidden rounded-xl bg-violet-600 px-4 py-2 text-xs font-black uppercase tracking-widest text-white sm:block">
-                Actualizar a Pro
-              </button>
-            </div>
+          <div class="rounded-2xl border border-slate-200 p-4">
+            <span class="form-label">Instrucciones para el comprador</span>
+            <p class="mt-1 text-sm text-slate-500">
+              Agregá instrucciones que el comprador recibe tras la compra: cómo usar el producto, datos de acceso o próximos pasos.
+            </p>
             <textarea
               [(ngModel)]="buyerInstructions"
               name="buyerInstructions"
               rows="4"
               maxlength="3000"
-              class="form-input mt-4 border-violet-200 bg-white"
+              class="form-input mt-4"
               placeholder="Ej: Después de comprar, descargá el archivo y abrilo con..."
             ></textarea>
           </div>
@@ -167,42 +172,48 @@
                 <p class="text-xs font-semibold text-slate-500">Podés seleccionar más de uno.</p>
               </div>
               <div class="grid gap-3 sm:grid-cols-3">
-                <button
-                  type="button"
-                  (click)="togglePaymentMethod('mercadopago')"
+                <label
                   class="choice-card payment-method-card bg-white"
                   [class.choice-card-active]="paymentMercadoPago"
-                  [attr.aria-pressed]="paymentMercadoPago"
                 >
+                  <input
+                    [(ngModel)]="paymentMercadoPago"
+                    name="paymentMercadoPago"
+                    type="checkbox"
+                    class="sr-only"
+                  />
                   <span class="flex w-full items-center justify-between gap-3">
                     <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-100 text-sky-600">
                       <i data-lucide="wallet-cards" class="h-5 w-5"></i>
                     </span>
-                    <span class="payment-check" [class.payment-check-active]="paymentMercadoPago">
-                      <i *ngIf="paymentMercadoPago" data-lucide="check" class="h-3.5 w-3.5"></i>
+                    <span class="payment-check" [class.payment-check-active]="paymentMercadoPago" aria-hidden="true">
+                      <span *ngIf="paymentMercadoPago" class="text-sm font-black leading-none">✓</span>
                     </span>
                   </span>
                   <span class="font-black">Mercado Pago</span>
                   <span class="text-sm text-slate-500">Requiere conectar tu cuenta en Ajustes.</span>
-                </button>
-                <button
-                  type="button"
-                  (click)="togglePaymentMethod('transfer')"
+                </label>
+                <label
                   class="choice-card payment-method-card bg-white"
                   [class.choice-card-active]="paymentTransfer"
-                  [attr.aria-pressed]="paymentTransfer"
                 >
+                  <input
+                    [(ngModel)]="paymentTransfer"
+                    name="paymentTransfer"
+                    type="checkbox"
+                    class="sr-only"
+                  />
                   <span class="flex w-full items-center justify-between gap-3">
                     <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
                       <i data-lucide="landmark" class="h-5 w-5"></i>
                     </span>
-                    <span class="payment-check" [class.payment-check-active]="paymentTransfer">
-                      <i *ngIf="paymentTransfer" data-lucide="check" class="h-3.5 w-3.5"></i>
+                    <span class="payment-check" [class.payment-check-active]="paymentTransfer" aria-hidden="true">
+                      <span *ngIf="paymentTransfer" class="text-sm font-black leading-none">✓</span>
                     </span>
                   </span>
                   <span class="font-black">Alias / CBU / CVU</span>
                   <span class="text-sm text-slate-500">Usá tus datos de transferencia de Ajustes.</span>
-                </button>
+                </label>
                 <button
                   type="button"
                   disabled
@@ -265,7 +276,7 @@
                   <i data-lucide="upload-cloud" class="h-6 w-6"></i>
                 </div>
                 <p class="font-black">Subí tu archivo</p>
-                <p class="mt-1 text-sm text-slate-500">PDF, ZIP, MP4, MP3, JPG, PNG y más · Hasta 500MB</p>
+                <p class="mt-1 text-sm text-slate-500">PDF, ZIP, MP4, MP3, JPG, PNG y más · Hasta {{ maxDigitalFileLabel }} por archivo</p>
               </div>
             </div>
 
@@ -372,11 +383,14 @@
             <p class="line-clamp-2 text-sm text-slate-500">{{ event.description || 'Sin descripción' }}</p>
             <p class="mt-2 text-sm font-black">{{ event.priceType === 'free' ? 'Gratis' : ('$' + (event.pricePerPhoto | number:'1.0-0')) }}</p>
           </div>
-          <div class="flex flex-wrap gap-2 sm:justify-end">
-            <button type="button" (click)="confirmDeleteEvent(event)" [disabled]="isReadOnlyUser || deletingEventId === event.id" class="rounded-lg border border-red-200 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50">
+          <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+            <span *ngIf="!isProUser" class="mr-1 inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-slate-500">
+              <i data-lucide="lock" class="h-3 w-3"></i> Pro
+            </span>
+            <button type="button" (click)="confirmDeleteEvent(event)" [disabled]="isReadOnlyUser || !isProUser || deletingEventId === event.id" class="rounded-lg border border-red-200 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50">
               {{ deletingEventId === event.id ? 'Eliminando...' : 'Eliminar' }}
             </button>
-            <button type="button" (click)="startEditEvent(event)" [disabled]="isReadOnlyUser" class="rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-black uppercase tracking-widest disabled:cursor-not-allowed disabled:opacity-50">Editar</button>
+            <button type="button" (click)="startEditEvent(event)" [disabled]="isReadOnlyUser || !isProUser" class="rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-black uppercase tracking-widest disabled:cursor-not-allowed disabled:opacity-50">Editar</button>
             <!-- <button type="button" (click)="goToPhotographerGallery(event)" class="rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-black uppercase tracking-widest">Galería</button> -->
             <!-- <button type="button" (click)="goToUpload(event)" [disabled]="isReadOnlyUser" class="rounded-lg bg-slate-950 px-3 py-2 text-[11px] font-black uppercase tracking-widest text-white disabled:cursor-not-allowed disabled:opacity-50">Contenido</button> -->
           </div>

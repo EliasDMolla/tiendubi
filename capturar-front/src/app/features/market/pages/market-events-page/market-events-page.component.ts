@@ -2,8 +2,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { PublicEventCard } from '../../data-access/public-site.models';
+import { PublicEventCard, SiteTheme } from '../../data-access/public-site.models';
 import { PublicSiteService } from '../../data-access/public-site.service';
+import { LucideIconDirective } from '../../../../core/icons/lucide-icon.directive';
 
 declare global {
   interface Window {
@@ -14,7 +15,7 @@ declare global {
 @Component({
   selector: 'app-market-events-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LucideIconDirective],
   templateUrl: './market-events-page.component.html',
   styleUrl: './market-events-page.component.css'
 })
@@ -28,8 +29,23 @@ export class MarketEventsPageComponent implements OnInit, AfterViewInit {
   searchTerm = '';
   isLoading = true;
   notFoundMessage = '';
+  theme: SiteTheme | null = null;
   readonly currentYear = new Date().getFullYear();
   readonly fallbackImageUrl = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1200';
+
+  get themeVars(): Record<string, string> {
+    if (!this.theme) {
+      return {};
+    }
+
+    return {
+      '--store-accent': this.theme.accent,
+      '--store-bg': this.theme.background,
+      '--store-surface': this.theme.surface,
+      '--store-text': this.theme.text
+    };
+  }
+
 
   get filteredEvents() {
     const term = this.searchTerm.trim().toLowerCase();
@@ -64,6 +80,7 @@ export class MarketEventsPageComponent implements OnInit, AfterViewInit {
           this.studioName = studio.studioName;
           this.studioSlug = studio.slug;
           this.events = studio.events;
+          this.theme = studio.theme ?? null;
           this.isLoading = false;
           this.renderIcons();
         },

@@ -92,7 +92,7 @@ public class PhotoDeliveryRetryWorker : BackgroundService
             if (now < lastAttempt.AddMinutes(delayMinutes))
                 continue;
 
-            var (success, message) = await photoDeliveryService.SendPurchasedPhotosAsync(candidate.Id, cancellationToken);
+            var (success, message) = await photoDeliveryService.DeliverAsync(candidate.Id, cancellationToken);
             reattempted += 1;
 
             if (success)

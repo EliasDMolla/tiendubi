@@ -22,6 +22,7 @@ namespace Admin.WebApi.Services
         Task<PublicTransferReceiptResponse> SubmitTransferReceiptAsync(string externalReference, IFormFile receiptFile, CancellationToken cancellationToken = default);
         Task<PublicCheckoutStatusResponse> GetCheckoutStatusAsync(string externalReference, string buyerEmail, CancellationToken cancellationToken = default);
         Task ProcessMercadoPagoNotificationAsync(string topic, long id, CancellationToken cancellationToken = default);
+        Task<PublicTransferReceiptResponse> ApproveTransferAsync(int photographerId, string externalReference, CancellationToken cancellationToken = default);
     }
 
     public class PhotoCheckoutService : IPhotoCheckoutService
@@ -330,10 +331,7 @@ namespace Admin.WebApi.Services
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            if (prepared.AvailablePhotoIds.Count > 0)
-            {
-                await _photoDeliveryService.SendPurchasedPhotosAsync(session.Id, cancellationToken);
-            }
+            await _photoDeliveryService.DeliverAsync(session.Id, cancellationToken);
 
             return new PublicPhotoCheckoutResponse
             {
@@ -497,6 +495,9 @@ namespace Admin.WebApi.Services
             });
 
             await _context.SaveChangesAsync(cancellationToken);
+
+            await NotifySellerOfTransferSaleAsync(session, cancellationToken);
+            await NotifyBuyerTransferPendingAsync(session, cancellationToken);
 
             return new PublicTransferReceiptResponse
             {
@@ -782,9 +783,10 @@ namespace Admin.WebApi.Services
 
             if (string.Equals(session.Status, "Paid", StringComparison.OrdinalIgnoreCase))
             {
-                if (!string.Equals(session.DeliveryEmailStatus, "Sent", StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(session.DeliveryEmailStatus, "Sent", StringComparison.OrdinalIgnoreCase)
+                    && !string.Equals(session.DeliveryEmailStatus, "NotRequired", StringComparison.OrdinalIgnoreCase))
                 {
-                    var (retrySuccess, retryMessage) = await _photoDeliveryService.SendPurchasedPhotosAsync(session.Id, cancellationToken);
+                    var (retrySuccess, retryMessage) = await _photoDeliveryService.DeliverAsync(session.Id, cancellationToken);
                     if (!retrySuccess)
                     {
                         await NotifyBuyerProcessingIssueAsync(session, retryMessage, cancellationToken);
@@ -890,15 +892,16 @@ namespace Admin.WebApi.Services
 
                 await _context.SaveChangesAsync(cancellationToken);
 
-                await NotifyBuyerPaymentReceivedAsync(session);
+                if (photoIds.Count > 0)
+                {
+                    await NotifyBuyerPaymentReceivedAsync(session);
+                }
 
-                var (deliverySuccess, deliveryMessage) = photoIds.Count > 0
-                    ? await _photoDeliveryService.SendPurchasedPhotosAsync(session.Id, cancellationToken)
-                    : (true, "Compra de producto registrada");
+                var (deliverySuccess, deliveryMessage) = await _photoDeliveryService.DeliverAsync(session.Id, cancellationToken);
                 if (!deliverySuccess)
                 {
                     await NotifyBuyerProcessingIssueAsync(session, deliveryMessage, cancellationToken);
-                    _logger.LogWarning("Pago confirmado pero falló email de entrega. SessionId={SessionId}, ExternalReference={ExternalReference}, Message={Message}",
+                    _logger.LogWarning("Pago confirmado pero falló la entrega. SessionId={SessionId}, ExternalReference={ExternalReference}, Message={Message}",
                         session.Id,
                         session.ExternalReference,
                         deliveryMessage);
@@ -914,6 +917,200 @@ namespace Admin.WebApi.Services
                     session.Id,
                     session.ExternalReference,
                     merchantOrderId.Value);
+            }
+        }
+
+        public async Task<PublicTransferReceiptResponse> ApproveTransferAsync(int photographerId, string externalReference, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(externalReference))
+                return new PublicTransferReceiptResponse { Success = false, Message = "Referencia de transferencia inválida" };
+
+            var session = await _context.PhotoCheckoutSessions
+                .FirstOrDefaultAsync(s => s.ExternalReference == externalReference, cancellationToken);
+
+            if (session == null || session.PhotographerId != photographerId)
+                return new PublicTransferReceiptResponse { Success = false, Message = "No se encontró la compra para esa referencia" };
+
+            if (!string.Equals(session.Status, "TransferReceiptSent", StringComparison.OrdinalIgnoreCase))
+            {
+                return new PublicTransferReceiptResponse
+                {
+                    Success = false,
+                    Message = string.Equals(session.Status, "Paid", StringComparison.OrdinalIgnoreCase)
+                        ? "La compra ya fue aprobada"
+                        : "La compra todavía no está lista para aprobar",
+                    ExternalReference = externalReference,
+                    Status = session.Status
+                };
+            }
+
+            var now = DateTime.UtcNow;
+            var photoIds = session.PhotoIdsCsv
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(value => int.TryParse(value, out var idValue) ? idValue : 0)
+                .Where(idValue => idValue > 0)
+                .Distinct()
+                .ToList();
+
+            var itemCount = Math.Max(1, photoIds.Count);
+            var unitTotals = SplitAmount(session.TotalAmount, itemCount);
+            var commissionPercent = Math.Clamp(_paymentSettings.CommissionPercent, 0m, 100m);
+
+            try
+            {
+                for (var index = 0; index < itemCount; index++)
+                {
+                    var totalAmount = unitTotals[index];
+                    var platformCommission = Math.Round(totalAmount * (commissionPercent / 100m), 2, MidpointRounding.AwayFromZero);
+                    var photographerNet = Math.Max(0m, totalAmount - platformCommission);
+
+                    _context.Orders.Add(new Order
+                    {
+                        PhotographerId = session.PhotographerId,
+                        EventId = session.EventId,
+                        PhotoId = photoIds.Count > index ? photoIds[index] : null,
+                        TotalAmount = totalAmount,
+                        PlatformCommission = platformCommission,
+                        MercadoPagoFee = 0m,
+                        PhotographerNet = photographerNet,
+                        Status = PaidOrderStatus,
+                        CreatedAt = now,
+                        ClearedAt = now.AddHours(72)
+                    });
+                }
+
+                var sale = await _context.PhotoSales
+                    .Where(s =>
+                        s.UserId == session.PhotographerId &&
+                        s.PhotographerEventId == session.EventId &&
+                        s.PaymentMethod == "transfer" &&
+                        s.Status == "pending_confirmation" &&
+                        s.TotalAmount == session.TotalAmount &&
+                        (s.BuyerEmail == null || s.BuyerEmail == session.BuyerEmail))
+                    .OrderByDescending(s => s.SoldAt)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (sale != null)
+                {
+                    sale.Status = "paid";
+                    sale.UpdatedAt = now;
+                }
+
+                var totalNet = unitTotals
+                    .Select(total =>
+                    {
+                        var platformCommission = Math.Round(total * (commissionPercent / 100m), 2, MidpointRounding.AwayFromZero);
+                        return Math.Max(0m, total - platformCommission);
+                    })
+                    .Sum();
+
+                var balance = await _context.PhotographerBalances
+                    .FirstOrDefaultAsync(b => b.PhotographerId == session.PhotographerId, cancellationToken);
+
+                if (balance == null)
+                {
+                    balance = new PhotographerBalance
+                    {
+                        PhotographerId = session.PhotographerId,
+                        PendingAmount = totalNet,
+                        AvailableAmount = 0m,
+                        TotalWithdrawn = 0m
+                    };
+                    _context.PhotographerBalances.Add(balance);
+                }
+                else
+                {
+                    balance.PendingAmount += totalNet;
+                }
+
+                session.Status = "Paid";
+                session.PaidAt = now;
+                session.DeliveryEmailError = null;
+
+                await _context.SaveChangesAsync(cancellationToken);
+
+                var (deliverySuccess, deliveryMessage) = await _photoDeliveryService.DeliverAsync(session.Id, cancellationToken);
+                if (!deliverySuccess)
+                {
+                    _logger.LogWarning("Transferencia aprobada pero falló la entrega. SessionId={SessionId}, ExternalReference={ExternalReference}, Message={Message}",
+                        session.Id, session.ExternalReference, deliveryMessage);
+                }
+
+                return new PublicTransferReceiptResponse
+                {
+                    Success = true,
+                    Message = "Compra aprobada y entregada al comprador",
+                    ExternalReference = externalReference,
+                    Status = session.Status
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error aprobando transferencia. ExternalReference={ExternalReference}", externalReference);
+                return new PublicTransferReceiptResponse { Success = false, Message = "No se pudo aprobar la compra" };
+            }
+        }
+
+        private async Task NotifySellerOfTransferSaleAsync(PhotoCheckoutSession session, CancellationToken cancellationToken)
+        {
+            var seller = await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Id == session.PhotographerId)
+                .Select(u => new { u.Email, u.FullName })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (seller == null || string.IsNullOrWhiteSpace(seller.Email))
+                return;
+
+            var eventName = await _context.PhotographerEvents
+                .AsNoTracking()
+                .Where(e => e.Id == session.EventId)
+                .Select(e => e.Name)
+                .FirstOrDefaultAsync(cancellationToken) ?? "tu producto";
+
+            var buyerName = string.IsNullOrWhiteSpace(session.BuyerName) ? "Comprador" : session.BuyerName!;
+
+            try
+            {
+                await _emailService.SendSellerTransferSaleEmailAsync(
+                    seller.Email,
+                    seller.FullName ?? "Vendedor",
+                    eventName,
+                    buyerName,
+                    session.TotalAmount,
+                    _paymentSettings.Currency,
+                    session.ExternalReference);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "No se pudo notificar al vendedor sobre la venta por transferencia. SessionId={SessionId}", session.Id);
+            }
+        }
+
+        private async Task NotifyBuyerTransferPendingAsync(PhotoCheckoutSession session, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(session.BuyerEmail))
+                return;
+
+            var eventName = await _context.PhotographerEvents
+                .AsNoTracking()
+                .Where(e => e.Id == session.EventId)
+                .Select(e => e.Name)
+                .FirstOrDefaultAsync(cancellationToken) ?? "tu producto";
+
+            var buyerName = string.IsNullOrWhiteSpace(session.BuyerName) ? "Comprador" : session.BuyerName!;
+
+            try
+            {
+                await _emailService.SendBuyerTransferPendingEmailAsync(
+                    session.BuyerEmail,
+                    buyerName,
+                    eventName,
+                    session.ExternalReference);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "No se pudo notificar al comprador sobre la compra pendiente. SessionId={SessionId}", session.Id);
             }
         }
 

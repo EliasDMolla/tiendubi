@@ -7,11 +7,12 @@ import { DashboardService } from '../../data-access/dashboard.service';
 import { DashboardSummaryDto, EventSalesDto } from '../../data-access/dashboard.models';
 import { EventService } from '../../data-access/event.service';
 import { PhotographerEventDto } from '../../data-access/event.models';
+import { LucideIconDirective } from '../../../../core/icons/lucide-icon.directive';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LucideIconDirective],
   templateUrl: './dashboard-page.component.html'
 })
 export class DashboardPageComponent implements OnInit {
@@ -98,7 +99,7 @@ export class DashboardPageComponent implements OnInit {
   }
 
   goToEvents(): void {
-    void this.router.navigate(['/panel/events']);
+    void this.router.navigate(['/panel/items']);
   }
 
   goToUpload(eventId?: number): void {

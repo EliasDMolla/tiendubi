@@ -171,6 +171,7 @@ namespace Admin.WebApi.Services
 
                 if (session != null)
                 {
+                    dto.ExternalReference = session.ExternalReference;
                     var photoIds = ParsePhotoIdsCsv(session.PhotoIdsCsv).Distinct().ToList();
                     if (photoIds.Count > 0)
                     {

@@ -8,6 +8,12 @@ namespace Admin.Entities.Entities
         public string? PhoneNumber { get; set; }
         public string? FullName { get; set; }
         public string? PublicSlug { get; set; }
+
+        /// <summary>
+        /// Tema del sitio público en formato JSON (colores personalizados, solo plan Pro).
+        /// </summary>
+        public string? PublicSiteThemeJson { get; set; }
+
         public string? WithdrawalHolderName { get; set; }
         public string? WithdrawalBankName { get; set; }
         public string? WithdrawalAliasOrCbu { get; set; }
@@ -68,8 +74,10 @@ namespace Admin.Entities.Entities
             {
                 var now = DateTime.UtcNow;
                 
-                // Si es PRO con suscripción activa
-                if (PlanType == PlanType.PRO && ProSubscriptionEndDate.HasValue && ProSubscriptionEndDate.Value > now)
+                // Un PRO sin vencimiento es una asignación manual/permanente.
+                // Si tiene vencimiento, solo permanece activo mientras la fecha sea futura.
+                if (PlanType == PlanType.PRO &&
+                    (!ProSubscriptionEndDate.HasValue || ProSubscriptionEndDate.Value > now))
                     return true;
                 
                 // Si está en trial activo

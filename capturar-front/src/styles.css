@@ -19,3 +19,132 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* ============ Dark mode (class-based, toggled from the admin panel) ============ */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #080a10;
+  color: #e2e8f0;
+}
+
+/* Surfaces */
+html.dark .bg-white { background-color: #111524 !important; }
+html.dark .bg-slate-50 { background-color: #0d1220 !important; }
+html.dark .bg-slate-100 { background-color: #1d243b !important; }
+html.dark .bg-slate-200 { background-color: #26314d !important; }
+
+/* Dark buttons/cards get a readable dark surface instead of near-black */
+html.dark .bg-slate-900 { background-color: #334155 !important; }
+html.dark .bg-slate-950 { background-color: #334155 !important; }
+
+/* Text */
+html.dark .text-slate-900 { color: #f1f5f9 !important; }
+html.dark .text-slate-800 { color: #e2e8f0 !important; }
+html.dark .text-slate-700 { color: #cbd5e1 !important; }
+html.dark .text-slate-600 { color: #cbd5e1 !important; }
+html.dark .text-slate-500 { color: #94a3b8 !important; }
+html.dark .text-slate-400 { color: #94a3b8 !important; }
+html.dark .text-slate-300 { color: #cbd5e1 !important; }
+
+/* Borders */
+html.dark .border-slate-100 { border-color: #1d243b !important; }
+html.dark .border-slate-200 { border-color: #1d243b !important; }
+html.dark .border-slate-300 { border-color: #26314d !important; }
+html.dark .border-slate-900 { border-color: #475569 !important; }
+
+/* Hover */
+html.dark .hover\:bg-slate-100:hover { background-color: #1d243b !important; }
+html.dark .hover\:bg-slate-700:hover { background-color: #475569 !important; }
+html.dark .hover\:bg-slate-800:hover { background-color: #475569 !important; }
+html.dark .hover\:border-slate-500:hover { border-color: #64748b !important; }
+
+/* Soft status backgrounds */
+html.dark .bg-blue-50 { background-color: rgba(59, 130, 246, 0.14) !important; }
+html.dark .bg-amber-50 { background-color: rgba(245, 158, 11, 0.14) !important; }
+html.dark .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.14) !important; }
+html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.14) !important; }
+html.dark .bg-blue-100 { background-color: rgba(59, 130, 246, 0.22) !important; }
+
+/* Status text (brightened for dark) */
+html.dark .text-amber-700 { color: #fbbf24 !important; }
+html.dark .text-amber-800 { color: #fbbf24 !important; }
+html.dark .text-emerald-700 { color: #34d399 !important; }
+html.dark .text-emerald-800 { color: #34d399 !important; }
+html.dark .text-red-600 { color: #f87171 !important; }
+html.dark .text-red-700 { color: #f87171 !important; }
+html.dark .text-blue-600 { color: #60a5fa !important; }
+html.dark .text-blue-700 { color: #60a5fa !important; }
+html.dark .text-green-600 { color: #4ade80 !important; }
+html.dark .text-purple-600 { color: #a78bfa !important; }
+html.dark .text-orange-600 { color: #fb923c !important; }
+
+/* Status borders */
+html.dark .border-amber-200 { border-color: rgba(245, 158, 11, 0.4) !important; }
+html.dark .border-emerald-200 { border-color: rgba(16, 185, 129, 0.4) !important; }
+
+/* Placeholders */
+html.dark ::placeholder { color: #64748b; }
+
+/* Extra text shade + soft colors + event-create form */
+html.dark .text-slate-950 { color: #f8fafc !important; }
+html.dark .text-indigo-500 { color: #818cf8 !important; }
+html.dark .text-indigo-600 { color: #818cf8 !important; }
+
+html.dark .bg-indigo-50 { background-color: rgba(99, 102, 241, 0.14) !important; }
+html.dark .bg-indigo-100 { background-color: rgba(99, 102, 241, 0.2) !important; }
+html.dark .bg-emerald-100 { background-color: rgba(16, 185, 129, 0.18) !important; }
+html.dark .bg-red-100 { background-color: rgba(239, 68, 68, 0.16) !important; }
+html.dark .bg-amber-100 { background-color: rgba(245, 158, 11, 0.18) !important; }
+html.dark .border-indigo-200 { border-color: rgba(99, 102, 241, 0.4) !important; }
+html.dark .border-red-200 { border-color: rgba(239, 68, 68, 0.4) !important; }
+
+html.dark .hover\:bg-slate-50:hover { background-color: #1d243b !important; }
+html.dark .hover\:text-slate-950:hover { color: #f8fafc !important; }
+html.dark .hover\:bg-red-50:hover { background-color: rgba(239, 68, 68, 0.16) !important; }
+
+html.dark .form-label { color: #94a3b8 !important; }
+
+html.dark .form-input {
+  background: #111524 !important;
+  border-color: #1d243b !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark .cover-drop,
+html.dark .file-drop {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), transparent 42%), #0d1220 !important;
+  border-color: #26314d !important;
+}
+
+html.dark .cover-drop:hover,
+html.dark .file-drop:hover {
+  background-color: #111524 !important;
+  border-color: #6366f1 !important;
+}
+
+html.dark .choice-card {
+  background: #111524 !important;
+  border-color: #1d243b !important;
+}
+
+html.dark .choice-card:hover {
+  background: #0d1220 !important;
+  border-color: #6366f1 !important;
+}
+
+html.dark .choice-card-active {
+  background: rgba(99, 102, 241, 0.16) !important;
+  border-color: #6366f1 !important;
+}
+
+html.dark .payment-check {
+  background: #111524 !important;
+  border-color: #475569 !important;
+}
+
+html.dark .payment-method-disabled {
+  background: #0d1220 !important;
+}

@@ -26,32 +26,24 @@
 
   <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
     <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
-      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Disponible</p>
-      <p class="text-3xl font-black mt-2 text-green-600" *ngIf="!isLoading; else loadingMetric">${{ summary.availableAmount | number:'1.0-0' }}</p>
-      <p class="text-xs text-slate-500 mt-2">Listo para liquidar</p>
+      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Ventas del mes</p>
+      <p class="text-3xl font-black mt-2 text-green-600" *ngIf="!isLoading; else loadingMetric">${{ summary.totalSalesThisMonth | number:'1.0-0' }}</p>
+      <p class="text-xs text-slate-500 mt-2">{{ summary.photosSoldThisMonth | number:'1.0-0' }} unidades este mes</p>
     </div>
-
     <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
-      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Pendiente</p>
-      <p class="text-3xl font-black mt-2 text-yellow-600" *ngIf="!isLoading; else loadingMetric">${{ summary.pendingAmount | number:'1.0-0' }}</p>
-      <p class="text-xs text-slate-500 mt-2" *ngIf="summary.nextAvailableAt; else pendingWithoutDate">
-        Disponible para retirar el {{ summary.nextAvailableAt | date:'dd/MM/yyyy HH:mm' }}
-      </p>
-      <ng-template #pendingWithoutDate>
-        <p class="text-xs text-slate-500 mt-2">Acredita luego del clearing</p>
-      </ng-template>
-    </div>
-
-    <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
-      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Total retirado</p>
-      <p class="text-3xl font-black mt-2 text-sky-600" *ngIf="!isLoading; else loadingMetric">${{ summary.totalWithdrawn | number:'1.0-0' }}</p>
-      <p class="text-xs text-slate-500 mt-2">Histórico retirado</p>
-    </div>
-
-    <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
-      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Ventas totales</p>
+      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Ingresos totales</p>
       <p class="text-3xl font-black mt-2" *ngIf="!isLoading; else loadingMetric">${{ summary.totalSalesAllTime | number:'1.0-0' }}</p>
-      <p class="text-xs text-slate-500 mt-2">{{ summary.totalPhotosSold | number:'1.0-0' }} unidades vendidas</p>
+      <p class="text-xs text-slate-500 mt-2">Facturado histórico</p>
+    </div>
+    <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Ítems vendidos</p>
+      <p class="text-3xl font-black mt-2 text-purple-600" *ngIf="!isLoading; else loadingMetric">{{ summary.totalPhotosSold | number:'1.0-0' }}</p>
+      <p class="text-xs text-slate-500 mt-2">Unidades vendidas en total</p>
+    </div>
+    <div class="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
+      <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">Ítems del mes</p>
+      <p class="text-3xl font-black mt-2 text-blue-600" *ngIf="!isLoading; else loadingMetric">{{ summary.photosSoldThisMonth | number:'1.0-0' }}</p>
+      <p class="text-xs text-slate-500 mt-2">Unidades vendidas este mes</p>
     </div>
   </div>
 
@@ -165,6 +157,7 @@
             <th class="py-3 pr-3 font-black">Detalle</th>
             <th class="py-3 pr-3 font-black">Comprador</th>
             <th class="py-3 pr-3 font-black">Medio de pago</th>
+            <th class="py-3 pr-3 font-black">Estado</th>
             <th class="py-3 pr-3 font-black text-right">Monto</th>
           </tr>
         </thead>
@@ -185,7 +178,7 @@
                 </li>
               </ul>
               <ng-template #noPurchasedPhotos>
-                <p class="text-xs text-slate-500 font-medium mt-1">Producto completo</p>
+                <p class="text-xs text-slate-500 font-medium mt-1">{{ sale.eventName }}</p>
               </ng-template>
             </td>
             <td class="py-3 pr-3">
@@ -198,6 +191,21 @@
                 {{ getPaymentMethodLabel(sale.paymentMethod) }}
               </span>
             </td>
+            <td class="py-3 pr-3">
+              <div class="flex flex-col items-start gap-2">
+                <span class="inline-flex px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wide whitespace-nowrap"
+                      [ngClass]="sale.status === 'pending_confirmation' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'">
+                  {{ getStatusLabel(sale) }}
+                </span>
+                <button
+                  *ngIf="isApprovableTransfer(sale)"
+                  (click)="approveTransfer(sale)"
+                  [disabled]="approvingSaleId !== null"
+                  class="rounded-lg bg-emerald-600 px-3 py-1.5 text-[11px] font-black uppercase tracking-wide text-white hover:bg-emerald-500 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                  {{ approvingSaleId === sale.saleId ? 'Aprobando…' : 'Aprobar' }}
+                </button>
+              </div>
+            </td>
             <td class="py-3 pr-3 text-right font-black text-slate-900">${{ sale.totalAmount | number:'1.0-0' }}</td>
           </tr>
         </tbody>
@@ -207,5 +215,42 @@
     <ng-template #emptySaleDetails>
       <p class="text-sm text-slate-500">Aún no hay detalle de compradores para mostrar.</p>
     </ng-template>
+  </div>
+
+  <div
+    *ngIf="pendingApprovalSale"
+    class="fixed inset-0 z-[60] bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4"
+    (click)="cancelApproval()"
+  >
+    <div class="w-full max-w-md bg-white rounded-2xl p-6 border border-slate-200 shadow-2xl" (click)="$event.stopPropagation()">
+      <h3 class="text-lg font-black text-slate-900 mb-2">Aprobar venta</h3>
+      <p class="text-sm text-slate-600 mb-4">
+        ¿Aprobás esta venta por transferencia? Se liberará la entrega al comprador.
+      </p>
+
+      <div class="mb-6 space-y-1 rounded-xl bg-slate-50 p-4 text-sm">
+        <p class="font-bold text-slate-800">{{ pendingApprovalSale.eventName }}</p>
+        <p class="text-slate-500">{{ pendingApprovalSale.buyerName || 'Sin nombre' }} · ${{ pendingApprovalSale.totalAmount | number:'1.0-0' }}</p>
+      </div>
+
+      <div class="flex items-center justify-end gap-3">
+        <button
+          type="button"
+          (click)="cancelApproval()"
+          [disabled]="approvingSaleId !== null"
+          class="px-4 py-2 rounded-lg border border-slate-300 text-xs font-black uppercase tracking-wider text-slate-700 hover:bg-slate-50 transition disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="confirmApproval()"
+          [disabled]="approvingSaleId !== null"
+          class="px-4 py-2 rounded-lg bg-emerald-600 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-500 transition disabled:opacity-60"
+        >
+          {{ approvingSaleId !== null ? 'Aprobando…' : 'Sí, aprobar' }}
+        </button>
+      </div>
+    </div>
   </div>
 </div>

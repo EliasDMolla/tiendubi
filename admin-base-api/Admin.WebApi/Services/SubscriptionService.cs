@@ -18,7 +18,7 @@ namespace Admin.WebApi.Services
         Task<ActivateTrialResponse> ActivateTrialAsync(int userId);
         Task<CreateMercadoPagoCheckoutResponse> CreateMercadoPagoCheckoutAsync(int userId, int months);
         Task ProcessMercadoPagoNotificationAsync(string topic, long id);
-        Task<ConfirmMercadoPagoPaymentResponse> ConfirmMercadoPagoPaymentAsync(long merchantOrderId);
+        Task<ConfirmMercadoPagoPaymentResponse> ConfirmMercadoPagoPaymentAsync(int userId, long merchantOrderId);
     }
 
     public class SubscriptionService : ISubscriptionService
@@ -27,16 +27,19 @@ namespace Admin.WebApi.Services
         private readonly PaymentSettings _paymentSettings;
         private readonly MercadoPagoSettings _mercadoPagoSettings;
         private readonly ILogger<SubscriptionService> _logger;
+        private readonly string _frontendUrl;
 
         public SubscriptionService(
             Context context,
             IOptions<PaymentSettings> paymentSettings,
             IOptions<MercadoPagoSettings> mercadoPagoSettings,
+            IConfiguration configuration,
             ILogger<SubscriptionService> logger)
         {
             _context = context;
             _paymentSettings = paymentSettings.Value;
             _mercadoPagoSettings = mercadoPagoSettings.Value;
+            _frontendUrl = configuration["AppSettings:FrontendUrl"] ?? "http://localhost:4200";
             _logger = logger;
         }
 
@@ -55,7 +58,9 @@ namespace Admin.WebApi.Services
             return new PlanStatusResponse
             {
                 PlanType = user.PlanType.ToString(),
-                IsProActive = user.IsProActive,
+                IsProActive = user.IsProActive ||
+                              user.Role == UserRole.Admin ||
+                              user.Role == UserRole.SuperAdmin,
                 TrialUsed = user.TrialUsed,
                 CanActivateTrial = user.PlanType == PlanType.FREE && !user.TrialUsed,
                 TrialStartDate = user.TrialStartDate,
@@ -65,8 +70,12 @@ namespace Admin.WebApi.Services
                 ProSubscriptionEndDate = user.ProSubscriptionEndDate,
                 ProDaysRemaining = proDaysRemaining,
                 MonthlyPrice = _paymentSettings.MonthlyPrice,
+                AnnualPrice = _paymentSettings.AnnualPrice,
                 Currency = _paymentSettings.Currency,
-                PriceDisplay = $"{_paymentSettings.MonthlyPrice.ToString("N0", new CultureInfo("es-AR"))} {_paymentSettings.Currency}"
+                PriceDisplay = $"{_paymentSettings.MonthlyPrice.ToString("N0", new CultureInfo("es-AR"))} {_paymentSettings.Currency}",
+                AnnualPriceDisplay = $"{_paymentSettings.AnnualPrice.ToString("N0", new CultureInfo("es-AR"))} {_paymentSettings.Currency}",
+                PaymentEnabled = _paymentSettings.Enabled,
+                MercadoPagoEnabled = _paymentSettings.MercadoPagoEnabled
             };
         }
 
@@ -145,12 +154,12 @@ namespace Admin.WebApi.Services
                 return new CreateMercadoPagoCheckoutResponse { Success = false, Message = "Usuario no encontrado" };
             }
 
-            months = months < 1 ? 1 : months;
-            var amount = _paymentSettings.MonthlyPrice * months;
+            months = months == 12 ? 12 : 1;
+            var amount = months == 12 ? _paymentSettings.AnnualPrice : _paymentSettings.MonthlyPrice;
 
-            var successUrl = NormalizeAbsoluteUrl(_mercadoPagoSettings.SuccessUrl);
-            var failureUrl = NormalizeAbsoluteUrl(_mercadoPagoSettings.FailureUrl);
-            var pendingUrl = NormalizeAbsoluteUrl(_mercadoPagoSettings.PendingUrl);
+            var successUrl = BuildPlanReturnUrl(_frontendUrl, "success");
+            var failureUrl = BuildPlanReturnUrl(_frontendUrl, "failure");
+            var pendingUrl = BuildPlanReturnUrl(_frontendUrl, "pending");
             var notificationUrl = NormalizeAbsoluteUrl(_mercadoPagoSettings.NotificationUrl);
             var hasAnyBackUrl = !string.IsNullOrWhiteSpace(successUrl)
                                 || !string.IsNullOrWhiteSpace(failureUrl)
@@ -188,7 +197,7 @@ namespace Admin.WebApi.Services
                     new PreferenceItemRequest
                     {
                         Id = $"pro-{months}",
-                        Title = $"Suscripción Pro ({months} mes{(months > 1 ? "es" : string.Empty)})",
+                        Title = months == 12 ? "Suscripción Pro anual" : "Suscripción Pro mensual",
                         Quantity = 1,
                         CurrencyId = _paymentSettings.Currency,
                         UnitPrice = amount
@@ -239,6 +248,12 @@ namespace Admin.WebApi.Services
                 return false;
 
             return true;
+        }
+
+        private static string BuildPlanReturnUrl(string? frontendBaseUrl, string paymentStatus)
+        {
+            var normalizedBase = NormalizeAbsoluteUrl(frontendBaseUrl) ?? "http://localhost:4200";
+            return $"{normalizedBase.TrimEnd('/')}/panel/plans?payment={paymentStatus}";
         }
 
         public async Task ProcessMercadoPagoNotificationAsync(string topic, long id)
@@ -308,15 +323,17 @@ namespace Admin.WebApi.Services
             }
 
             var now = DateTime.UtcNow;
-            var startDate = now;
-            var endDate = now.AddMonths(months);
+            var renewalBaseDate = user.ProSubscriptionEndDate.HasValue && user.ProSubscriptionEndDate.Value > now
+                ? user.ProSubscriptionEndDate.Value
+                : now;
+            var endDate = renewalBaseDate.AddMonths(months);
 
             user.PlanType = PlanType.PRO;
-            user.ProSubscriptionStartDate = startDate;
+            user.ProSubscriptionStartDate ??= now;
             user.ProSubscriptionEndDate = endDate;
 #pragma warning disable CS0618
             user.Plan = "PRO";
-            user.ProUpgradeDate = startDate;
+            user.ProUpgradeDate ??= now;
             user.SubscriptionStatus = "ACTIVO";
 #pragma warning restore CS0618
             user.UpdatedAt = now;
@@ -338,7 +355,7 @@ namespace Admin.WebApi.Services
             _logger.LogInformation("Pago MercadoPago aplicado correctamente. Id={Id}, UserId={UserId}, Months={Months}", id, userId, months);
         }
 
-        public async Task<ConfirmMercadoPagoPaymentResponse> ConfirmMercadoPagoPaymentAsync(long merchantOrderId)
+        public async Task<ConfirmMercadoPagoPaymentResponse> ConfirmMercadoPagoPaymentAsync(int userId, long merchantOrderId)
         {
             if (merchantOrderId <= 0)
             {
@@ -349,7 +366,50 @@ namespace Admin.WebApi.Services
                 };
             }
 
+            if (string.IsNullOrWhiteSpace(_mercadoPagoSettings.AccessToken))
+            {
+                return new ConfirmMercadoPagoPaymentResponse
+                {
+                    Success = false,
+                    Message = "Mercado Pago no está configurado"
+                };
+            }
+
+            MercadoPagoConfig.AccessToken = _mercadoPagoSettings.AccessToken;
+            var merchantOrder = new MerchantOrderClient().Get(merchantOrderId);
+            if (merchantOrder == null
+                || !int.TryParse(merchantOrder.ExternalReference, out var orderUserId)
+                || orderUserId != userId)
+            {
+                return new ConfirmMercadoPagoPaymentResponse
+                {
+                    Success = false,
+                    Message = "La orden no pertenece al usuario autenticado"
+                };
+            }
+
+            var paid = string.Equals(merchantOrder.Status, "approved", StringComparison.OrdinalIgnoreCase)
+                       || string.Equals(merchantOrder.OrderStatus, "paid", StringComparison.OrdinalIgnoreCase);
+            if (!paid)
+            {
+                return new ConfirmMercadoPagoPaymentResponse
+                {
+                    Success = false,
+                    Message = "El pago todavía no fue acreditado por Mercado Pago"
+                };
+            }
+
             await ProcessMercadoPagoNotificationAsync("merchant_order", merchantOrderId);
+
+            var user = await _context.Users.AsNoTracking().FirstOrDefaultAsync(item => item.Id == userId);
+            if (user?.IsProActive != true)
+            {
+                return new ConfirmMercadoPagoPaymentResponse
+                {
+                    Success = false,
+                    Message = "El pago todavía no fue acreditado por Mercado Pago"
+                };
+            }
 
             return new ConfirmMercadoPagoPaymentResponse
             {

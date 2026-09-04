@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../../../core/config/api.config';
 import {
+  ApproveTransferResultDto,
   DashboardSummaryDto,
   EventSalesDto,
   LiquidationDto,
@@ -38,5 +39,12 @@ export class DashboardService {
 
   withdrawAvailable(): Observable<WithdrawalResultDto> {
     return this.http.post<WithdrawalResultDto>(`${this.salesApi}/withdraw`, {});
+  }
+
+  approveTransfer(externalReference: string): Observable<ApproveTransferResultDto> {
+    return this.http.post<ApproveTransferResultDto>(
+      `${this.salesApi}/approve-transfer/${encodeURIComponent(externalReference)}`,
+      {}
+    );
   }
 }

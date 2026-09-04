@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { LucideIconDirective } from '../../../../core/icons/lucide-icon.directive';
 
 type AuthView = 'login' | 'register' | 'forgot' | 'dashboard';
 
@@ -15,11 +16,11 @@ declare global {
 @Component({
   selector: 'app-auth-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideIconDirective],
   templateUrl: './auth-page.component.html',
   styleUrl: './auth-page.component.css'
 })
-export class AuthPageComponent implements OnInit, AfterViewInit {
+export class AuthPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -41,13 +42,28 @@ export class AuthPageComponent implements OnInit, AfterViewInit {
   registerEmail = '';
   registerPublicSlug = '';
   registerPassword = '';
+  isCheckingPublicSlug = false;
+  publicSlugAvailable: boolean | null = null;
+  private publicSlugAvailabilityTimer?: ReturnType<typeof setTimeout>;
 
   get isLoginFormValid(): boolean {
     return this.getLoginValidationError() === null;
   }
 
   get isRegisterFormValid(): boolean {
-    return this.getRegisterValidationError() === null;
+    return this.getRegisterValidationError() === null &&
+      !this.isCheckingPublicSlug &&
+      this.publicSlugAvailable !== false;
+  }
+
+  get publicSlugSuggestions(): string[] {
+    const baseSlug = this.registerPublicSlug.trim().toLowerCase();
+    if (!baseSlug || this.publicSlugAvailable !== false) return [];
+
+    return [
+      this.appendPublicSlugSuffix(baseSlug, '-2'),
+      this.appendPublicSlugSuffix(baseSlug, '-online')
+    ].filter((value, index, values) => value !== baseSlug && values.indexOf(value) === index);
   }
 
   ngOnInit(): void {
@@ -62,6 +78,7 @@ export class AuthPageComponent implements OnInit, AfterViewInit {
     const requestedPublicSlug = this.route.snapshot.queryParamMap.get('publicSlug');
     if (requestedPublicSlug) {
       this.registerPublicSlug = this.sanitizePublicSlug(requestedPublicSlug);
+      this.schedulePublicSlugAvailabilityCheck();
     }
 
     this.authService.restoreSession().subscribe((restored) => {
@@ -84,6 +101,12 @@ export class AuthPageComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.renderIcons();
+  }
+
+  ngOnDestroy(): void {
+    if (this.publicSlugAvailabilityTimer) {
+      clearTimeout(this.publicSlugAvailabilityTimer);
+    }
   }
 
   navigateTo(view: AuthView): void {
@@ -225,14 +248,35 @@ export class AuthPageComponent implements OnInit, AfterViewInit {
     const email = this.registerEmail.trim().toLowerCase();
     const publicSlug = this.registerPublicSlug.trim().toLowerCase();
 
-    this.authService
-      .register({
-        email,
-        password: this.registerPassword,
-        fullName: publicSlug,
-        publicSlug
-      })
-      .subscribe({
+    this.authService.checkAvailability(email, publicSlug).subscribe({
+      next: (availability) => {
+        this.publicSlugAvailable = availability.publicSlugAvailable;
+
+        if (!availability.publicSlugAvailable) {
+          this.isLoading = false;
+          this.errorMessage = 'Ese nombre público ya está en uso. Probá con otro.';
+          return;
+        }
+
+        if (!availability.emailAvailable) {
+          this.isLoading = false;
+          this.errorMessage = 'El email ya está registrado.';
+          return;
+        }
+
+        this.createAccount(email, publicSlug);
+      },
+      error: () => this.createAccount(email, publicSlug)
+    });
+  }
+
+  private createAccount(email: string, publicSlug: string): void {
+    this.authService.register({
+      email,
+      password: this.registerPassword,
+      fullName: publicSlug,
+      publicSlug
+    }).subscribe({
         next: (response) => {
           this.isLoading = false;
           this.successMessage = response.message || 'Registro creado. Pendiente de aprobación.';
@@ -240,13 +284,14 @@ export class AuthPageComponent implements OnInit, AfterViewInit {
           this.loginEmail = email;
           this.loginPassword = '';
           this.registerPassword = '';
+          this.publicSlugAvailable = null;
           window.scrollTo(0, 0);
         },
         error: (error: { error?: { message?: string } }) => {
           this.isLoading = false;
           this.errorMessage = error.error?.message ?? 'No se pudo crear la cuenta';
         }
-      });
+    });
   }
 
   private getRegisterValidationError(): string | null {
@@ -278,10 +323,51 @@ export class AuthPageComponent implements OnInit, AfterViewInit {
     const cleanValue = this.sanitizePublicSlug(input.value);
     input.value = cleanValue;
     this.registerPublicSlug = cleanValue;
+    this.schedulePublicSlugAvailabilityCheck();
+  }
+
+  usePublicSlugSuggestion(publicSlug: string): void {
+    this.registerPublicSlug = this.sanitizePublicSlug(publicSlug);
+    this.errorMessage = '';
+    this.schedulePublicSlugAvailabilityCheck();
+  }
+
+  private schedulePublicSlugAvailabilityCheck(): void {
+    if (this.publicSlugAvailabilityTimer) {
+      clearTimeout(this.publicSlugAvailabilityTimer);
+    }
+
+    this.publicSlugAvailable = null;
+    this.isCheckingPublicSlug = false;
+
+    const publicSlug = this.registerPublicSlug.trim().toLowerCase();
+    if (!/^[a-z0-9][a-z0-9-_]{1,39}$/.test(publicSlug)) {
+      return;
+    }
+
+    this.isCheckingPublicSlug = true;
+    this.publicSlugAvailabilityTimer = setTimeout(() => {
+      this.authService.checkAvailability('', publicSlug).subscribe({
+        next: (availability) => {
+          if (this.registerPublicSlug.trim().toLowerCase() !== publicSlug) return;
+          this.isCheckingPublicSlug = false;
+          this.publicSlugAvailable = availability.publicSlugAvailable;
+        },
+        error: () => {
+          if (this.registerPublicSlug.trim().toLowerCase() !== publicSlug) return;
+          this.isCheckingPublicSlug = false;
+          this.publicSlugAvailable = null;
+        }
+      });
+    }, 400);
   }
 
   private sanitizePublicSlug(value: string): string {
     return value.toLowerCase().replace(/[^a-z0-9-_]/g, '').slice(0, 40);
+  }
+
+  private appendPublicSlugSuffix(baseSlug: string, suffix: string): string {
+    return `${baseSlug.slice(0, 40 - suffix.length).replace(/[-_]+$/g, '')}${suffix}`;
   }
 
   private resolveReturnUrl(returnUrl: string | null): string {

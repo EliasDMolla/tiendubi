@@ -1,15 +1,18 @@
 <div class="text-slate-900 min-h-screen">
   <div class="flex min-h-screen">
     <aside class="w-64 bg-white border-r border-slate-200 hidden lg:flex flex-col sticky top-0 h-screen">
-      <div class="p-8 flex items-center gap-3" style="display: flex; align-items: center; justify-content: center;">
-        <!-- <img src="capturar-logo.png" alt="CapturAr" class="h-9 w-auto" style="width: 70%; height: auto;" /> -->
+      <div class="p-6 flex items-center justify-center gap-3 border-b border-slate-100">
+        <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white">
+          <i data-lucide="store" class="w-6 h-6"></i>
+        </div>
+        <span class="text-xl font-black tracking-tight">Tiendubi</span>
       </div>
 
       <nav class="flex-1 px-4 space-y-2">
         <a routerLink="/panel" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
           <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
         </a>
-        <a routerLink="/panel/events" routerLinkActive="active" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
+        <a routerLink="/panel/items" routerLinkActive="active" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
           <i data-lucide="package" class="w-5 h-5"></i> Productos
         </a>
         <!-- <a routerLink="/panel/upload" routerLinkActive="active" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
@@ -20,6 +23,9 @@
         </a>
         <a routerLink="/panel/sales" routerLinkActive="active" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
           <i data-lucide="dollar-sign" class="w-5 h-5"></i> Ventas
+        </a>
+        <a routerLink="/panel/plans" routerLinkActive="active" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
+          <i data-lucide="credit-card" class="w-5 h-5"></i> Planes
         </a>
         <!-- <a routerLink="/panel/master-gallery" routerLinkActive="active" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
           <i data-lucide="image" class="w-5 h-5"></i> Galería Master
@@ -78,7 +84,12 @@
       [class.-translate-x-full]="!mobileMenuOpen"
     >
       <div class="p-6 flex items-center justify-between border-b border-slate-100">
-        <!-- <img src="capturar-logo.png" alt="CapturAr" class="h-8 w-auto" /> -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-blue-600 rounded-xl flex items-center justify-center text-white">
+            <i data-lucide="store" class="w-5 h-5"></i>
+          </div>
+          <span class="text-lg font-black tracking-tight">Tiendubi</span>
+        </div>
         <button (click)="closeMobileMenu()" class="p-2 rounded-xl hover:bg-slate-100 text-slate-600">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
@@ -88,7 +99,7 @@
         <a (click)="closeMobileMenu()" routerLink="/panel" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
           <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
         </a>
-        <a (click)="closeMobileMenu()" routerLink="/panel/events" routerLinkActive="active" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
+        <a (click)="closeMobileMenu()" routerLink="/panel/items" routerLinkActive="active" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
           <i data-lucide="package" class="w-5 h-5"></i> Productos
         </a>
         <a (click)="closeMobileMenu()" routerLink="/panel/upload" routerLinkActive="active" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
@@ -99,6 +110,9 @@
         </a>
         <a (click)="closeMobileMenu()" routerLink="/panel/sales" routerLinkActive="active" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
           <i data-lucide="dollar-sign" class="w-5 h-5"></i> Ventas
+        </a>
+        <a (click)="closeMobileMenu()" routerLink="/panel/plans" routerLinkActive="active" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
+          <i data-lucide="credit-card" class="w-5 h-5"></i> Planes
         </a>
         <a (click)="closeMobileMenu()" routerLink="/panel/master-gallery" routerLinkActive="active" class="sidebar-link flex items-center gap-3 p-3 rounded-xl font-bold transition-all text-sm text-slate-500">
           <i data-lucide="image" class="w-5 h-5"></i> Galería Master
@@ -129,6 +143,14 @@
           <h2 class="text-lg font-bold">Panel de Control</h2>
         </div>
         <div class="flex items-center gap-4">
+          <button
+            (click)="toggleDarkMode()"
+            class="p-2 flex items-center justify-center text-slate-500 hover:text-blue-600 dark:text-slate-400 dark:hover:text-white transition"
+            [attr.aria-label]="isDarkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+          >
+            <svg *ngIf="!isDarkMode" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+            <svg *ngIf="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          </button>
           <button class="p-2 text-slate-400 hover:text-slate-900 transition"><i data-lucide="bell" class="w-5 h-5"></i></button>
           <div class="flex items-center gap-3 pl-3 sm:pl-4 border-l border-slate-200">
             <div class="text-right hidden sm:block">

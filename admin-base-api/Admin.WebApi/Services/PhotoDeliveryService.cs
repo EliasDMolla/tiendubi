@@ -6,7 +6,7 @@ namespace Admin.WebApi.Services;
 
 public interface IPhotoDeliveryService
 {
-    Task<(bool Success, string Message)> SendPurchasedPhotosAsync(int checkoutSessionId, CancellationToken cancellationToken = default);
+    Task<(bool Success, string Message)> DeliverAsync(int checkoutSessionId, CancellationToken cancellationToken = default);
 }
 
 public class PhotoDeliveryService : IPhotoDeliveryService
@@ -28,9 +28,10 @@ public class PhotoDeliveryService : IPhotoDeliveryService
         _logger = logger;
     }
 
-    public async Task<(bool Success, string Message)> SendPurchasedPhotosAsync(int checkoutSessionId, CancellationToken cancellationToken = default)
+    public async Task<(bool Success, string Message)> DeliverAsync(int checkoutSessionId, CancellationToken cancellationToken = default)
     {
         var session = await _context.PhotoCheckoutSessions
+            .Include(s => s.Event)
             .FirstOrDefaultAsync(s => s.Id == checkoutSessionId, cancellationToken);
 
         if (session == null)
@@ -42,59 +43,44 @@ public class PhotoDeliveryService : IPhotoDeliveryService
         if (string.Equals(session.DeliveryEmailStatus, "Sent", StringComparison.OrdinalIgnoreCase))
             return (true, "El email de entrega ya fue enviado");
 
+        if (string.Equals(session.DeliveryEmailStatus, "NotRequired", StringComparison.OrdinalIgnoreCase))
+            return (true, "Este producto no requiere entrega automática");
+
+        var photoIds = ParsePhotoIds(session.PhotoIdsCsv);
+        var productType = (session.Event?.ProductType ?? string.Empty).Trim().ToLowerInvariant();
+
+        if (photoIds.Count == 0 && productType == "physical")
+        {
+            session.DeliveryEmailStatus = "NotRequired";
+            session.DeliveryEmailError = null;
+            await _context.SaveChangesAsync(cancellationToken);
+            return (true, "Entrega física registrada para coordinar manualmente");
+        }
+
         session.DeliveryEmailAttempts += 1;
         session.DeliveryEmailLastAttemptAt = DateTime.UtcNow;
 
         try
         {
-            var photoIds = ParsePhotoIds(session.PhotoIdsCsv);
-            if (photoIds.Count == 0)
+            var result = photoIds.Count > 0
+                ? await SendPhotosAsync(session, photoIds, cancellationToken)
+                : await SendProductAsync(session, productType, cancellationToken);
+
+            if (!result.Success)
             {
                 session.DeliveryEmailStatus = "Failed";
-                session.DeliveryEmailError = "No hay fotos válidas para enviar";
+                session.DeliveryEmailError = TruncateError(result.Message);
                 await _context.SaveChangesAsync(cancellationToken);
-                return (false, session.DeliveryEmailError);
+                return result;
             }
-
-            var eventName = await _context.PhotographerEvents
-                .AsNoTracking()
-                .Where(e => e.Id == session.EventId)
-                .Select(e => e.Name)
-                .FirstOrDefaultAsync(cancellationToken) ?? "tu evento";
-
-            var photos = await _context.EventPhotos
-                .AsNoTracking()
-                .Where(p => p.PhotographerEventId == session.EventId && photoIds.Contains(p.Id))
-                .Select(p => new { p.Id, p.OriginalFileName, p.OriginalPath, p.RelativePath })
-                .ToListAsync(cancellationToken);
-
-            if (photos.Count == 0)
-            {
-                session.DeliveryEmailStatus = "Failed";
-                session.DeliveryEmailError = "No se encontraron las fotos compradas";
-                await _context.SaveChangesAsync(cancellationToken);
-                return (false, session.DeliveryEmailError);
-            }
-
-            var links = photos
-                .Select(photo =>
-                {
-                    var objectKey = ResolveObjectKey(photo.OriginalPath, photo.RelativePath);
-                    var presignedUrl = _storageService.GeneratePresignedGetUrl(objectKey, TimeSpan.FromHours(24));
-                    return new PhotoDeliveryLink(photo.Id, photo.OriginalFileName, presignedUrl);
-                })
-                .ToList();
-
-            var buyerName = string.IsNullOrWhiteSpace(session.BuyerName) ? "Comprador" : session.BuyerName!;
-            await _emailService.SendPurchasedPhotosEmailAsync(session.BuyerEmail, buyerName, eventName, session.ExternalReference, links);
 
             session.DeliveryEmailStatus = "Sent";
             session.DeliveryEmailSentAt = DateTime.UtcNow;
             session.DeliveryEmailError = null;
             await _context.SaveChangesAsync(cancellationToken);
 
-            _logger.LogInformation("Email de entrega enviado correctamente. SessionId={SessionId}, ExternalReference={ExternalReference}", session.Id, session.ExternalReference);
-            return (true, "Email de entrega enviado");
+            _logger.LogInformation("Entrega completada. SessionId={SessionId}, ExternalReference={ExternalReference}, Message={Message}", session.Id, session.ExternalReference, result.Message);
+            return result;
         }
         catch (Exception ex)
         {
@@ -102,9 +88,100 @@ public class PhotoDeliveryService : IPhotoDeliveryService
             session.DeliveryEmailError = TruncateError(ex.Message);
             await _context.SaveChangesAsync(cancellationToken);
 
-            _logger.LogError(ex, "Error enviando email de entrega de fotos. SessionId={SessionId}, ExternalReference={ExternalReference}", session.Id, session.ExternalReference);
-            return (false, "No se pudo enviar el email de entrega");
+            _logger.LogError(ex, "Error entregando compra. SessionId={SessionId}, ExternalReference={ExternalReference}", session.Id, session.ExternalReference);
+            return (false, "No se pudo completar la entrega");
         }
+    }
+
+    private async Task<(bool Success, string Message)> SendPhotosAsync(PhotoCheckoutSession session, List<int> photoIds, CancellationToken cancellationToken)
+    {
+        var eventName = await _context.PhotographerEvents
+            .AsNoTracking()
+            .Where(e => e.Id == session.EventId)
+            .Select(e => e.Name)
+            .FirstOrDefaultAsync(cancellationToken) ?? "tu evento";
+
+        var photos = await _context.EventPhotos
+            .AsNoTracking()
+            .Where(p => p.PhotographerEventId == session.EventId && photoIds.Contains(p.Id))
+            .Select(p => new { p.Id, p.OriginalFileName, p.OriginalPath, p.RelativePath })
+            .ToListAsync(cancellationToken);
+
+        if (photos.Count == 0)
+            return (false, "No se encontraron las fotos compradas");
+
+        var links = photos
+            .Select(photo =>
+            {
+                var objectKey = ResolveObjectKey(photo.OriginalPath, photo.RelativePath);
+                var presignedUrl = _storageService.GeneratePresignedGetUrl(objectKey, TimeSpan.FromHours(24));
+                return new PhotoDeliveryLink(photo.Id, photo.OriginalFileName, presignedUrl);
+            })
+            .ToList();
+
+        var buyerName = string.IsNullOrWhiteSpace(session.BuyerName) ? "Comprador" : session.BuyerName!;
+        await _emailService.SendPurchasedPhotosEmailAsync(session.BuyerEmail, buyerName, eventName, session.ExternalReference, links);
+
+        return (true, "Email de entrega enviado");
+    }
+
+    private async Task<(bool Success, string Message)> SendProductAsync(PhotoCheckoutSession session, string productType, CancellationToken cancellationToken)
+    {
+        var eventInfo = await _context.PhotographerEvents
+            .AsNoTracking()
+            .Where(e => e.Id == session.EventId)
+            .Select(e => new { e.Name, e.DeliveryLink, e.BuyerInstructions })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var productName = eventInfo?.Name ?? "tu producto";
+        var buyerName = string.IsNullOrWhiteSpace(session.BuyerName) ? "Comprador" : session.BuyerName!;
+
+        if (productType == "digital_link")
+        {
+            if (string.IsNullOrWhiteSpace(eventInfo?.DeliveryLink))
+                return (false, "El producto no tiene link de entrega configurado");
+
+            await _emailService.SendDigitalProductDeliveryEmailAsync(
+                session.BuyerEmail,
+                buyerName,
+                productName,
+                eventInfo!.DeliveryLink!,
+                eventInfo.BuyerInstructions);
+
+            return (true, "Link de entrega enviado al comprador");
+        }
+
+        if (productType == "digital_file")
+        {
+            var assets = await _context.ProductAssets
+                .AsNoTracking()
+                .Where(a => a.PhotographerEventId == session.EventId && a.Kind == "digital_file")
+                .OrderBy(a => a.Id)
+                .Select(a => new { a.Id, a.OriginalFileName, a.ObjectKey })
+                .ToListAsync(cancellationToken);
+
+            if (assets.Count == 0)
+                return (false, "No se encontraron los archivos digitales del producto");
+
+            var links = assets
+                .Select(asset =>
+                {
+                    var presignedUrl = _storageService.GeneratePresignedGetUrl(asset.ObjectKey, TimeSpan.FromHours(24));
+                    return new PhotoDeliveryLink(asset.Id, asset.OriginalFileName, presignedUrl);
+                })
+                .ToList();
+
+            await _emailService.SendDigitalAssetsDeliveryEmailAsync(
+                session.BuyerEmail,
+                buyerName,
+                productName,
+                session.ExternalReference,
+                links);
+
+            return (true, "Archivos digitales enviados al comprador");
+        }
+
+        return (true, "Compra registrada");
     }
 
     private static List<int> ParsePhotoIds(string? csv)

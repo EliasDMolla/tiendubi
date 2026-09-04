@@ -1,14 +1,14 @@
 # Deploy de Tiendubi API en VPS
 
-La API se publica en Docker, escucha solamente en `127.0.0.1:5002` y queda expuesta por Nginx con HTTPS. Las migraciones de Entity Framework se aplican automáticamente al iniciar.
+La API se ejecuta en Docker, escucha solamente en `127.0.0.1` y se publica con Nginx y HTTPS. Las migraciones de Entity Framework se aplican automáticamente al iniciar.
 
 ## Requisitos
 
-- Ubuntu/Debian con Git, Docker Engine y Docker Compose v2.
+- Ubuntu/Debian con Git y Docker Engine.
+- Un contenedor PostgreSQL existente llamado `postgres`.
 - Nginx y Certbot si el script administrará HTTPS.
-- DNS `A` de `api.tiendubi.com` apuntando al VPS.
-- PostgreSQL externo (por ejemplo Supabase) o un contenedor PostgreSQL ya existente.
-- Puertos 80 y 443 abiertos. El 5002 no debe exponerse públicamente.
+- El DNS `A` de `api.tiendubi.com` apuntando al VPS.
+- Puertos 80 y 443 abiertos. El puerto interno de la API no debe exponerse públicamente.
 
 ## Primera instalación
 
@@ -20,42 +20,49 @@ chmod 600 .env.production
 nano .env.production
 ```
 
-Valores obligatorios que se deben revisar:
+Revisá especialmente:
 
-- `DEPLOY_CERTBOT_EMAIL`
-- `ConnectionStrings__PostgresConnection` si `DEPLOY_DATABASE_MODE=external`
-- `POSTGRES_*` si `DEPLOY_DATABASE_MODE=docker`
-- `OwnerSecurity__OwnerEmail`
-- credenciales de Mercado Pago, R2 y SMTP para las funciones habilitadas
+- `DEPLOY_HOST_PORT`: debe ser un puerto libre del VPS.
+- `DEPLOY_CERTBOT_EMAIL`.
+- `POSTGRES_CONTAINER`, `POSTGRES_DB`, `POSTGRES_USER` y `POSTGRES_PASSWORD`.
+- Credenciales de Mercado Pago, R2 y SMTP para las funciones habilitadas.
 
-No hace falta inventar manualmente el JWT: si `Jwt__Secret` conserva el placeholder, el script genera uno criptográficamente seguro y lo guarda con permisos `600`.
+No hace falta crear manualmente el JWT: si conserva el placeholder, el script genera uno seguro y lo guarda en `.env.production`.
 
 ## Desplegar o actualizar
 
 ```bash
-bash deploy.sh
+chmod +x deploy.sh
+./deploy.sh
 ```
 
-El script actualiza Git, valida la configuración, crea la red Docker, construye la imagen, levanta el servicio, espera `/api/health` y configura Nginx/Certbot.
+El proceso hace `git pull`, detecta el usuario administrador del contenedor PostgreSQL existente, conecta PostgreSQL y la API a la misma red Docker, crea la base y el usuario cuando sea necesario, reconstruye la imagen, recrea el contenedor, espera `/api/health` y configura Nginx/Certbot.
 
-Si el checkout ya fue actualizado por CI o manualmente:
+Si la conexión guardada usa `127.0.0.1`, `localhost` o `::1`, el script reconoce que PostgreSQL está en el VPS y la reemplaza por `Host=postgres;Port=5432`, que es la dirección válida entre contenedores.
+
+Para desplegar sin actualizar Git:
 
 ```bash
-SKIP_GIT_PULL=true bash deploy.sh
+SKIP_GIT_PULL=true ./deploy.sh
 ```
 
-Para usar Caddy en lugar de Nginx, configurá `DEPLOY_CONFIGURE_NGINX=false` y copiá el `Caddyfile` incluido a la configuración del Caddy instalado en el host.
-
-## Verificación y operación
+## Verificación
 
 ```bash
 curl -f https://api.tiendubi.com/api/health
-docker compose --env-file .env.production ps
+docker ps --filter name=tiendubi-webapi
 docker logs -f tiendubi-webapi
 ```
 
-Las claves de Data Protection y la carpeta `uploads` viven en volúmenes Docker, por lo que sobreviven a la recreación del contenedor. `.env.production` está excluido de Git y del contexto de construcción de Docker.
+Las claves de Data Protection y la carpeta `uploads` se guardan en volúmenes Docker y sobreviven a la recreación del contenedor. `.env.production` está excluido de Git y del contexto de construcción.
 
-## Seguridad de datos iniciales
+## Base externa opcional
 
-En producción no se crea ni se resetea `admin/admin`. El usuario indicado por `OwnerSecurity__OwnerEmail` se promueve a SuperAdmin únicamente si ya existe. Registralo primero por el flujo normal de la aplicación. La cuenta demo solo se carga si se activa explícitamente `Features__SeedDemoData=true`.
+Para usar Supabase u otro PostgreSQL administrado:
+
+```env
+DEPLOY_DATABASE_MODE=external
+ConnectionStrings__PostgresConnection=Host=HOST_REMOTO;Port=5432;Database=postgres;Username=USUARIO;Password=CLAVE;SSL Mode=Require;Trust Server Certificate=true
+```
+
+En modo externo, el host no puede ser `127.0.0.1` ni `localhost` porque esas direcciones apuntan al contenedor de la API.

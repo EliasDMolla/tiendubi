@@ -13,8 +13,12 @@ namespace Admin.WebApi.Models
         public DateTime? ProSubscriptionEndDate { get; set; }
         public int ProDaysRemaining { get; set; }
         public decimal MonthlyPrice { get; set; }
+        public decimal AnnualPrice { get; set; }
         public string Currency { get; set; } = "ARS";
         public string PriceDisplay { get; set; } = "$0";
+        public string AnnualPriceDisplay { get; set; } = "$0";
+        public bool PaymentEnabled { get; set; }
+        public bool MercadoPagoEnabled { get; set; }
     }
 
     public class ActivateTrialResponse

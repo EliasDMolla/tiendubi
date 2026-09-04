@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PublicEventDetail } from '../../data-access/public-site.models';
 import { PublicSiteService } from '../../data-access/public-site.service';
 import { PublicSettingsService } from '../../../../core/config/public-settings.service';
+import { LucideIconDirective } from '../../../../core/icons/lucide-icon.directive';
 
 interface CartItem {
   id: number;
@@ -29,7 +30,7 @@ declare global {
 @Component({
   selector: 'app-market-photo-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, LucideIconDirective],
   templateUrl: './market-photo-page.component.html',
   styleUrl: './market-photo-page.component.css'
 })
@@ -58,6 +59,7 @@ export class MarketPhotoPageComponent implements OnInit, AfterViewInit, OnDestro
   isLoading = true;
   isLoadingMorePhotos = false;
   notFoundMessage = '';
+  readonly currentYear = new Date().getFullYear();
   readonly fallbackImageUrl = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=900';
 
   photos: PhotoItem[] = [

@@ -7,6 +7,7 @@ namespace Admin.WebApi.Models
         public int UserId { get; set; }
         public string StudioName { get; set; } = string.Empty;
         public string Slug { get; set; } = string.Empty;
+        public SiteThemeDto? Theme { get; set; }
         public List<PublicEventCardDto> Events { get; set; } = new();
     }
 

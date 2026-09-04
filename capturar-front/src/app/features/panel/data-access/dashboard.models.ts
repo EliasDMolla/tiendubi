@@ -31,12 +31,20 @@ export interface SaleDetailDto {
   totalAmount: number;
   quantity: number;
   status: string;
+  externalReference?: string | null;
   purchasedPhotos: SalePurchasedPhotoDto[];
 }
 
 export interface SalePurchasedPhotoDto {
   photoId: number;
   label: string;
+}
+
+export interface ApproveTransferResultDto {
+  success: boolean;
+  message: string;
+  externalReference?: string | null;
+  status?: string;
 }
 
 export interface LiquidationDto {

@@ -27,13 +27,13 @@
         </button>
       </form>
 
-      <div class="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+      <!-- <div class="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4">
         <p class="text-[10px] font-black uppercase tracking-[0.2em] text-amber-700">Demo guiado</p>
         <p class="mt-2 text-sm font-medium text-slate-700">Ingresa con una cuenta ya cargada con eventos deportivos, fotos demo y ventas. La cuenta navega completa, pero no permite cambios.</p>
         <button (click)="loginWithDemo()" [disabled]="isLoading || isDemoLoading" type="button" class="mt-4 w-full rounded-2xl border border-slate-900 bg-slate-900 px-4 py-4 text-xs font-black uppercase tracking-widest text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60">
           {{ isDemoLoading ? 'Abriendo demo...' : 'Entrar al demo solo lectura' }}
         </button>
-      </div>
+      </div> -->
 
       <div class="mt-8 pt-8 border-t border-slate-100 text-center">
         <p *ngIf="registrationEnabled; else registerDisabled" class="text-sm text-slate-500 font-medium">
@@ -83,11 +83,44 @@
       <form (submit)="onRegisterSubmit($event)" class="space-y-5">
         <div>
           <label for="register-public-slug" class="mb-2 block px-1 text-[10px] font-black uppercase text-slate-400">Nombre público</label>
-          <div class="flex min-w-0 items-center overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 transition focus-within:border-blue-500">
+          <div
+            class="flex min-w-0 items-center overflow-hidden rounded-2xl border bg-[#080a10] transition focus-within:ring-4"
+            [ngClass]="publicSlugAvailable === false
+              ? 'border-red-400 focus-within:border-red-500 focus-within:ring-red-500/10'
+              : publicSlugAvailable === true
+                ? 'border-emerald-400 focus-within:border-emerald-500 focus-within:ring-emerald-500/10'
+                : 'border-slate-100 focus-within:border-blue-500 focus-within:ring-blue-500/5'"
+          >
             <span class="shrink-0 pl-3 text-xs font-bold text-slate-500 sm:pl-4 sm:text-sm">tiendubi.com/</span>
             <input id="register-public-slug" [(ngModel)]="registerPublicSlug" (input)="updateRegisterPublicSlug($event)" name="registerPublicSlug" type="text" required minlength="2" maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="tu-marca" class="min-w-0 flex-1 border-0 bg-transparent px-1 py-3.5 text-sm font-medium outline-none focus:ring-0 sm:py-4 sm:text-base">
+            <span *ngIf="isCheckingPublicSlug" class="mr-3 h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-blue-600" aria-hidden="true"></span>
+            <span *ngIf="!isCheckingPublicSlug && publicSlugAvailable === true" class="mr-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-black text-white" aria-hidden="true">✓</span>
+            <span *ngIf="!isCheckingPublicSlug && publicSlugAvailable === false" class="mr-3 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500 text-xs font-black text-white" aria-hidden="true">×</span>
           </div>
-          <p class="mt-2 px-1 text-[11px] leading-relaxed text-slate-500">Usá letras, números o guiones. Este nombre no puede repetirse.</p>
+          <div aria-live="polite" class="mt-2 min-h-4 px-1 text-[11px] font-medium leading-relaxed">
+            <p *ngIf="isCheckingPublicSlug" class="text-slate-500">Verificando disponibilidad...</p>
+            <p *ngIf="!isCheckingPublicSlug && publicSlugAvailable === true" class="text-emerald-600">
+              ¡Está disponible! Tu link será <strong>tiendubi.com/{{ registerPublicSlug }}</strong>
+            </p>
+            <div *ngIf="!isCheckingPublicSlug && publicSlugAvailable === false" class="rounded-xl border border-red-200 bg-red-50 p-3 text-red-700">
+              <p class="font-bold">Ese nombre ya está en uso.</p>
+              <p class="mt-0.5 text-red-600">El link <strong>tiendubi.com/{{ registerPublicSlug }}</strong> ya pertenece a otra cuenta.</p>
+              <div *ngIf="publicSlugSuggestions.length" class="mt-2 flex flex-wrap items-center gap-2">
+                <span class="text-red-600">Podés probar:</span>
+                <button
+                  *ngFor="let suggestion of publicSlugSuggestions"
+                  type="button"
+                  (click)="usePublicSlugSuggestion(suggestion)"
+                  class="rounded-lg border border-red-200 bg-white px-2.5 py-1 font-bold text-red-700 transition hover:border-red-400 hover:bg-red-100"
+                >
+                  {{ suggestion }}
+                </button>
+              </div>
+            </div>
+            <p *ngIf="!isCheckingPublicSlug && publicSlugAvailable === null" class="text-slate-500">
+              Usá letras, números o guiones. Este nombre no puede repetirse.
+            </p>
+          </div>
         </div>
         <div>
           <label for="register-email" class="mb-2 block px-1 text-[10px] font-black uppercase text-slate-400">Email</label>

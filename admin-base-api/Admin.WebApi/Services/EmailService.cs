@@ -14,6 +14,10 @@ public interface IEmailService
     Task SendPurchaseProcessingEmailAsync(string toEmail, string buyerName, string externalReference);
     Task SendPhotoDeliveryIssueEmailAsync(string toEmail, string buyerName, string externalReference, string issueDescription);
     Task SendPhotoDeliveryExhaustedEmailAsync(string toEmail, string buyerName, string externalReference);
+    Task SendDigitalProductDeliveryEmailAsync(string toEmail, string buyerName, string productName, string deliveryLink, string? buyerInstructions);
+    Task SendDigitalAssetsDeliveryEmailAsync(string toEmail, string buyerName, string productName, string externalReference, IReadOnlyList<PhotoDeliveryLink> assetLinks);
+    Task SendSellerTransferSaleEmailAsync(string toEmail, string sellerName, string productName, string buyerName, decimal totalAmount, string currency, string externalReference);
+    Task SendBuyerTransferPendingEmailAsync(string toEmail, string buyerName, string productName, string externalReference);
 }
 
 public record PhotoDeliveryLink(int PhotoId, string FileName, string DownloadUrl);
@@ -367,6 +371,182 @@ public class EmailService : IEmailService
             <p><strong>Referencia:</strong> {WebUtility.HtmlEncode(externalReference)}</p>
             <p>Ya lo estamos gestionando manualmente para que recibas tu compra lo antes posible.</p>
             <p>No necesitás hacer nada por ahora; te vamos a contactar por esta vía.</p>
+        </div>
+        <div class='footer'>
+            <p>© 2026 Tiendubi</p>
+        </div>
+    </div>
+</body>
+</html>";
+
+        await SendEmailAsync(toEmail, subject, body);
+    }
+
+    public async Task SendDigitalProductDeliveryEmailAsync(string toEmail, string buyerName, string productName, string deliveryLink, string? buyerInstructions)
+    {
+        var safeBuyerName = string.IsNullOrWhiteSpace(buyerName) ? "Comprador" : buyerName.Trim();
+        var safeProductName = string.IsNullOrWhiteSpace(productName) ? "tu producto" : productName.Trim();
+        var safeLink = WebUtility.HtmlEncode(deliveryLink.Trim());
+
+        var instructionsHtml = string.IsNullOrWhiteSpace(buyerInstructions)
+            ? string.Empty
+            : $"<div style='background:#f1f5f9;padding:16px;border-radius:8px;margin:20px 0;white-space:pre-line;'>{WebUtility.HtmlEncode(buyerInstructions.Trim())}</div>";
+
+        var subject = "Tu producto digital ya está disponible";
+        var body = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0; }}
+        .content {{ background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }}
+        .button {{ display: inline-block; padding: 14px 35px; background: #7c3aed; color: white; text-decoration: none; border-radius: 8px; margin: 20px 0; font-weight: bold; font-size: 16px; }}
+        .footer {{ text-align: center; color: #6b7280; font-size: 12px; margin-top: 20px; }}
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>✅ Compra confirmada</h1>
+        </div>
+        <div class='content'>
+            <p>Hola {WebUtility.HtmlEncode(safeBuyerName)},</p>
+            <p>Tu compra de <strong>{WebUtility.HtmlEncode(safeProductName)}</strong> ya está confirmada.</p>
+            <p style='text-align: center;'>
+                <a href='{safeLink}' class='button' style='color: white;' target='_blank'>Acceder a mi producto</a>
+            </p>
+            <p>Si el botón no funciona, copiá y pegá este enlace en tu navegador:</p>
+            <p style='word-break: break-all; color: #7c3aed;'>{safeLink}</p>
+            {instructionsHtml}
+        </div>
+        <div class='footer'>
+            <p>© 2026 Tiendubi</p>
+        </div>
+    </div>
+</body>
+</html>";
+
+        await SendEmailAsync(toEmail, subject, body);
+    }
+
+    public async Task SendDigitalAssetsDeliveryEmailAsync(string toEmail, string buyerName, string productName, string externalReference, IReadOnlyList<PhotoDeliveryLink> assetLinks)
+    {
+        var safeBuyerName = string.IsNullOrWhiteSpace(buyerName) ? "Comprador" : buyerName.Trim();
+        var safeProductName = string.IsNullOrWhiteSpace(productName) ? "tu producto" : productName.Trim();
+
+        var linksHtml = string.Join(string.Empty, assetLinks.Select(link =>
+            $"<li style='margin-bottom:10px;'><a href='{link.DownloadUrl}' style='color:#7c3aed;text-decoration:none;' target='_blank'>📦 {WebUtility.HtmlEncode(link.FileName)}</a></li>"));
+
+        var subject = "Tus archivos digitales están listos";
+        var body = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0; }}
+        .content {{ background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }}
+        .footer {{ text-align: center; color: #6b7280; font-size: 12px; margin-top: 20px; }}
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>✅ Compra confirmada</h1>
+        </div>
+        <div class='content'>
+            <p>Hola {WebUtility.HtmlEncode(safeBuyerName)},</p>
+            <p>Tu compra de <strong>{WebUtility.HtmlEncode(safeProductName)}</strong> ya está confirmada. Descargá tus archivos:</p>
+            <ul style='list-style: none; padding: 0;'>{linksHtml}</ul>
+            <p><strong>Referencia:</strong> {WebUtility.HtmlEncode(externalReference)}</p>
+            <p>Los enlaces de descarga expiran en 24 horas.</p>
+        </div>
+        <div class='footer'>
+            <p>© 2026 Tiendubi</p>
+        </div>
+    </div>
+</body>
+</html>";
+
+        await SendEmailAsync(toEmail, subject, body);
+    }
+
+    public async Task SendSellerTransferSaleEmailAsync(string toEmail, string sellerName, string productName, string buyerName, decimal totalAmount, string currency, string externalReference)
+    {
+        var safeSellerName = string.IsNullOrWhiteSpace(sellerName) ? "Vendedor" : sellerName.Trim();
+        var safeProductName = string.IsNullOrWhiteSpace(productName) ? "tu producto" : productName.Trim();
+        var safeBuyerName = string.IsNullOrWhiteSpace(buyerName) ? "Comprador" : buyerName.Trim();
+
+        var subject = "Nueva venta por transferencia para aprobar";
+        var body = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0; }}
+        .content {{ background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }}
+        .footer {{ text-align: center; color: #6b7280; font-size: 12px; margin-top: 20px; }}
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>💰 Venta pendiente de aprobación</h1>
+        </div>
+        <div class='content'>
+            <p>Hola {WebUtility.HtmlEncode(safeSellerName)},</p>
+            <p>Recibiste una nueva compra por <strong>transferencia</strong> que está esperando tu aprobación:</p>
+            <ul>
+                <li><strong>Producto:</strong> {WebUtility.HtmlEncode(safeProductName)}</li>
+                <li><strong>Comprador:</strong> {WebUtility.HtmlEncode(safeBuyerName)}</li>
+                <li><strong>Monto:</strong> {totalAmount:0.00} {WebUtility.HtmlEncode(currency)}</li>
+                <li><strong>Referencia:</strong> {WebUtility.HtmlEncode(externalReference)}</li>
+            </ul>
+            <p>Cuando verifiques el pago, aprobá la compra desde tu panel para que se libere la entrega al comprador.</p>
+        </div>
+        <div class='footer'>
+            <p>© 2026 Tiendubi</p>
+        </div>
+    </div>
+</body>
+</html>";
+
+        await SendEmailAsync(toEmail, subject, body);
+    }
+
+    public async Task SendBuyerTransferPendingEmailAsync(string toEmail, string buyerName, string productName, string externalReference)
+    {
+        var safeBuyerName = string.IsNullOrWhiteSpace(buyerName) ? "Comprador" : buyerName.Trim();
+        var safeProductName = string.IsNullOrWhiteSpace(productName) ? "tu producto" : productName.Trim();
+
+        var subject = "Recibimos tu pago, en breve liberamos tu compra";
+        var body = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); padding: 30px; text-align: center; color: white; border-radius: 10px 10px 0 0; }}
+        .content {{ background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px; }}
+        .footer {{ text-align: center; color: #6b7280; font-size: 12px; margin-top: 20px; }}
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>⏳ Pago en verificación</h1>
+        </div>
+        <div class='content'>
+            <p>Hola {WebUtility.HtmlEncode(safeBuyerName)},</p>
+            <p>Recibimos tu comprobante de transferencia para <strong>{WebUtility.HtmlEncode(safeProductName)}</strong>.</p>
+            <p>El vendedor está verificando el pago. En cuanto lo apruebe, recibirás tu producto automáticamente por este medio.</p>
+            <p><strong>Referencia:</strong> {WebUtility.HtmlEncode(externalReference)}</p>
         </div>
         <div class='footer'>
             <p>© 2026 Tiendubi</p>

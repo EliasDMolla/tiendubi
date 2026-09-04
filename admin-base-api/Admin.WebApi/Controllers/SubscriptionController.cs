@@ -68,7 +68,10 @@ namespace Admin.WebApi.Controllers
                 });
             }
 
-            var response = await _subscriptionService.ConfirmMercadoPagoPaymentAsync(request.MerchantOrderId);
+            var userId = GetCurrentUserId();
+            if (userId <= 0) return Unauthorized();
+
+            var response = await _subscriptionService.ConfirmMercadoPagoPaymentAsync(userId, request.MerchantOrderId);
             if (!response.Success) return BadRequest(response);
 
             return Ok(response);

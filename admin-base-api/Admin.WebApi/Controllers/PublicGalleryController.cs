@@ -68,6 +68,7 @@ namespace Admin.WebApi.Controllers
                 UserId = user.Id,
                 StudioName = user.FullName ?? user.Email,
                 Slug = user.PublicSlug ?? slug,
+                Theme = SiteThemeStore.Normalize(SiteThemeStore.Parse(user.PublicSiteThemeJson)),
                 Events = events
             });
         }

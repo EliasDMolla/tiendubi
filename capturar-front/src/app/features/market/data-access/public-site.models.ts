@@ -13,10 +13,18 @@ export interface PublicEventCard {
   coverPhotoUrl?: string | null;
 }
 
+export interface SiteTheme {
+  accent: string;
+  background: string;
+  surface: string;
+  text: string;
+}
+
 export interface PublicStudio {
   userId: number;
   studioName: string;
   slug: string;
+  theme?: SiteTheme | null;
   events: PublicEventCard[];
 }
 

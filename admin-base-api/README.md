@@ -51,7 +51,8 @@ Ejemplo:
 	},
 	"Payment": {
 		"Enabled": true,
-		"MonthlyPrice": 2999,
+		"MonthlyPrice": 24999,
+		"AnnualPrice": 239990,
 		"Currency": "ARS",
 		"TrialDays": 30
 	},
@@ -154,6 +155,7 @@ Usá `__` para mapear secciones anidadas en .NET:
 - `Google__ClientSecret`
 - `Payment__Enabled`
 - `Payment__MonthlyPrice`
+- `Payment__AnnualPrice`
 - `Payment__Currency`
 - `Payment__TrialDays`
 - `MercadoPagoSettings__PublicKey`

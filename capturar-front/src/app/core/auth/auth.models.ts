@@ -26,6 +26,8 @@ export interface UserDto {
   role: string;
   isAdmin: boolean;
   planType: string;
+  isProActive: boolean;
+  trialDaysRemaining?: number;
   usageTypeName: string;
 }
 

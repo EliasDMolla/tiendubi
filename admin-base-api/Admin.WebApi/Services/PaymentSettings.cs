@@ -13,10 +13,11 @@ namespace Admin.WebApi.Services
         public bool Enabled { get; set; } = false;
         public bool MercadoPagoEnabled { get; set; } = true;
         public bool TransfersEnabled { get; set; } = false;
-        public decimal MonthlyPrice { get; set; } = 2999;
+        public decimal MonthlyPrice { get; set; } = 24999;
+        public decimal AnnualPrice { get; set; } = 239990;
         public string Currency { get; set; } = "ARS";
         public int TrialDays { get; set; } = 30;
-        public decimal CommissionPercent { get; set; } = 25;
+        public decimal CommissionPercent { get; set; } = 0;
         public string DiscountCode { get; set; } = string.Empty;
         public decimal DiscountPercent { get; set; } = 0;
         public string TransferHolderName { get; set; } = string.Empty;
@@ -31,7 +32,7 @@ namespace Admin.WebApi.Services
         public string ClientId { get; set; } = string.Empty;
         public string ClientSecret { get; set; } = string.Empty;
         public string RedirectUri { get; set; } = string.Empty;
-        public decimal CommissionPercentage { get; set; } = 10m;
+        public decimal CommissionPercentage { get; set; } = 0m;
 
         public string PublicKey { get; set; } = string.Empty;
         public string AccessToken { get; set; } = string.Empty;

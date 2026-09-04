@@ -1,0 +1,142 @@
+<section class="mx-auto w-full max-w-6xl p-4 sm:p-6 lg:p-8">
+  <div class="mb-8">
+    <span class="mb-2 inline-flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
+      <i data-lucide="sparkles" class="h-4 w-4"></i>
+      Planes Tiendubi
+    </span>
+    <h1 class="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Elegí el plan para tu negocio</h1>
+    <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+      Empezá gratis con hasta 3 productos o activá Pro para publicar hasta 50 y administrar todo sin límites de edición.
+    </p>
+  </div>
+
+  <div *ngIf="successMessage" class="mb-6 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+    <i data-lucide="check-circle" class="mt-0.5 h-5 w-5 shrink-0"></i>
+    <span>{{ successMessage }}</span>
+  </div>
+  <div *ngIf="warningMessage || isConfirmingPayment" class="mb-6 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+    <i [data-lucide]="isConfirmingPayment ? 'loader-circle' : 'clock'" class="mt-0.5 h-5 w-5 shrink-0" [class.animate-spin]="isConfirmingPayment"></i>
+    <span>{{ isConfirmingPayment ? 'Verificando el pago con Mercado Pago...' : warningMessage }}</span>
+  </div>
+  <div *ngIf="errorMessage" class="mb-6 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+    <i data-lucide="alert-circle" class="mt-0.5 h-5 w-5 shrink-0"></i>
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div *ngIf="isLoading" class="flex min-h-64 items-center justify-center rounded-3xl border border-slate-200 bg-white">
+    <div class="flex items-center gap-3 text-sm font-semibold text-slate-500">
+      <i data-lucide="loader-circle" class="h-5 w-5 animate-spin"></i>
+      Cargando tus planes...
+    </div>
+  </div>
+
+  <ng-container *ngIf="!isLoading && status as planStatus">
+    <div class="mb-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Tu plan actual</p>
+        <p class="mt-1 text-lg font-black text-slate-950">
+          {{ isPro ? (planStatus.planType === 'PRO_TRIAL' ? 'Pro de prueba' : 'Plan Pro') : 'Plan Inicial' }}
+        </p>
+      </div>
+      <div *ngIf="isPro && (planStatus.proSubscriptionEndDate || planStatus.trialEndDate)" class="rounded-xl bg-emerald-50 px-4 py-2 text-sm text-emerald-800">
+        Activo hasta el <strong>{{ formatDate(planStatus.proSubscriptionEndDate || planStatus.trialEndDate) }}</strong>
+      </div>
+      <div *ngIf="!isPro" class="rounded-xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-600">
+        Hasta 3 productos
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-stretch">
+      <article class="flex flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+        <div class="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Para empezar</span>
+            <h2 class="mt-2 text-2xl font-black text-slate-950">Plan Inicial</h2>
+          </div>
+          <span *ngIf="!isPro" class="rounded-full bg-slate-900 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">Plan actual</span>
+        </div>
+
+        <div class="mb-7">
+          <span class="text-4xl font-black text-slate-950">$0</span>
+          <span class="ml-1 text-sm font-semibold text-slate-400">ARS / mes</span>
+          <p class="mt-2 text-xs font-bold text-emerald-600">0% de comisión de Tiendubi</p>
+        </div>
+
+        <ul class="flex flex-1 flex-col gap-4 text-sm text-slate-600">
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Hasta 3 productos digitales activos</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Archivos de hasta 500 MB cada uno</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Perfil público en tiendubi.com/tu-marca</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Cobros integrados con Mercado Pago</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Entrega automática básica por email</li>
+          <li class="flex gap-3 text-slate-400"><i data-lucide="lock" class="mt-0.5 h-5 w-5 shrink-0"></i>La edición y eliminación de productos requiere Pro</li>
+        </ul>
+
+        <button type="button" disabled class="mt-8 w-full cursor-not-allowed rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3.5 text-sm font-bold text-slate-400">
+          {{ !isPro ? 'Tu plan actual' : 'Plan gratuito disponible' }}
+        </button>
+      </article>
+
+      <article class="relative flex flex-col overflow-hidden rounded-3xl border-2 border-blue-600 bg-slate-950 p-6 text-white shadow-xl shadow-blue-600/10 sm:p-8">
+        <div class="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-blue-500/20 blur-3xl"></div>
+        <div class="relative mb-6 flex items-start justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-blue-300">Para crecer</span>
+            <h2 class="mt-2 text-2xl font-black">Plan Pro</h2>
+          </div>
+          <span class="rounded-full bg-blue-600 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">
+            {{ isPro ? 'Plan actual' : 'Recomendado' }}
+          </span>
+        </div>
+
+        <div class="relative mb-7">
+          <div class="mb-6 grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-white/5 p-1.5">
+            <button
+              type="button"
+              (click)="selectBillingCycle('monthly')"
+              class="rounded-xl px-3 py-2.5 text-xs font-black transition"
+              [ngClass]="billingCycle === 'monthly' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'"
+            >
+              Mensual
+            </button>
+            <button
+              type="button"
+              (click)="selectBillingCycle('annual')"
+              class="flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-black transition"
+              [ngClass]="billingCycle === 'annual' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'"
+            >
+              Anual
+              <span class="rounded-full bg-emerald-400/15 px-2 py-0.5 text-[9px] text-emerald-300">-20%</span>
+            </button>
+          </div>
+
+          <span class="text-4xl font-black">{{ formatMoney(selectedPrice) }}</span>
+          <span class="ml-1 text-sm font-semibold text-slate-400">{{ planStatus.currency }} / {{ selectedPeriodLabel }}</span>
+          <p class="mt-2 text-xs text-slate-400">
+            {{ billingCycle === 'annual' ? 'Un pago anual · equivale a aproximadamente $20.000 por mes' : 'Facturación mes a mes' }}
+          </p>
+          <p class="mt-2 text-xs font-bold text-emerald-400">0% de comisión de Tiendubi</p>
+        </div>
+
+        <ul class="relative flex flex-1 flex-col gap-4 text-sm text-slate-300">
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Hasta 50 productos digitales y recursos privados</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Archivos de hasta 1 GB cada uno</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Crear, editar y eliminar productos</li>
+          <!-- <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Reservas integradas con Google Calendar</li> -->
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Dominio propio, cupones y automatizaciones</li>
+          <li class="flex gap-3"><i data-lucide="shield-check" class="mt-0.5 h-5 w-5 shrink-0 text-blue-300"></i>Pago seguro procesado por Mercado Pago</li>
+        </ul>
+
+        <button
+          type="button"
+          (click)="startMercadoPagoCheckout()"
+          [disabled]="isStartingCheckout || !canPayWithMercadoPago"
+          class="relative mt-8 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3.5 text-sm font-black text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+        >
+          <i [data-lucide]="isStartingCheckout ? 'loader-circle' : 'credit-card'" class="h-5 w-5" [class.animate-spin]="isStartingCheckout"></i>
+          {{ canPayWithMercadoPago ? proButtonLabel : 'Mercado Pago no disponible' }}
+        </button>
+        <p class="relative mt-3 text-center text-[11px] text-slate-500">Mercado Pago cobra el período elegido en una sola operación.</p>
+      </article>
+    </div>
+  </ng-container>
+</section>

@@ -12,10 +12,12 @@ namespace Admin.WebApi.Controllers
     public class SalesController : ControllerBase
     {
         private readonly ISalesService _salesService;
+        private readonly IPhotoCheckoutService _photoCheckoutService;
 
-        public SalesController(ISalesService salesService)
+        public SalesController(ISalesService salesService, IPhotoCheckoutService photoCheckoutService)
         {
             _salesService = salesService;
+            _photoCheckoutService = photoCheckoutService;
         }
 
         [HttpGet("summary")]
@@ -59,6 +61,20 @@ namespace Admin.WebApi.Controllers
                 return Unauthorized();
 
             var result = await _salesService.WithdrawAvailableAsync(userId.Value, cancellationToken);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("approve-transfer/{externalReference}")]
+        public async Task<IActionResult> ApproveTransfer(string externalReference, CancellationToken cancellationToken)
+        {
+            var userId = GetUserId();
+            if (userId == null)
+                return Unauthorized();
+
+            var result = await _photoCheckoutService.ApproveTransferAsync(userId.Value, externalReference, cancellationToken);
             if (!result.Success)
                 return BadRequest(result);
 

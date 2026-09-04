@@ -472,7 +472,9 @@ namespace Admin.WebApi.Services
                 
                 // Sistema de planes
                 PlanType = user.PlanType.ToString(),
-                IsProActive = user.IsProActive,
+                IsProActive = user.IsProActive ||
+                              user.Role == Entities.Entities.UserRole.Admin ||
+                              user.Role == Entities.Entities.UserRole.SuperAdmin,
                 TrialUsed = user.TrialUsed,
                 CanActivateTrial = user.PlanType == Entities.Entities.PlanType.FREE && !user.TrialUsed,
                 TrialStartDate = user.TrialStartDate,
@@ -541,7 +543,7 @@ namespace Admin.WebApi.Services
                 if (!Regex.IsMatch(requestedPublicSlug, "^[a-z0-9][a-z0-9-_]{1,39}$"))
                     return (false, "El nombre público debe tener entre 2 y 40 caracteres, usando letras, números, guiones o guion bajo", null, null);
 
-                var slugExists = await _context.Users.AnyAsync(u => u.PublicSlug == requestedPublicSlug && u.Email != request.Email);
+                var slugExists = await _context.Users.AnyAsync(u => u.PublicSlug == requestedPublicSlug);
                 if (slugExists)
                     return (false, "El nombre público ya está en uso", null, null);
             }

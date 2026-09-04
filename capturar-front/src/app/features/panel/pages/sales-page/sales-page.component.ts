@@ -30,6 +30,8 @@ export class SalesPageComponent implements OnInit {
   syncMessage = '';
   withdrawalMessage = '';
   withdrawalSuccess = false;
+  approvingSaleId: number | null = null;
+  pendingApprovalSale: SaleDetailDto | null = null;
 
   summary: DashboardSummaryDto = {
     totalSalesThisMonth: 0,
@@ -164,6 +166,76 @@ export class SalesPageComponent implements OnInit {
         },
         error: (error: { error?: { message?: string } }) => {
           this.withdrawalMessage = error.error?.message ?? 'No se pudo registrar el retiro.';
+          this.withdrawalSuccess = false;
+        }
+      });
+  }
+
+  getStatusLabel(sale: SaleDetailDto): string {
+    const payment = (sale.paymentMethod ?? '').trim().toLowerCase();
+    const status = (sale.status ?? '').trim().toLowerCase();
+
+    if (status === 'pending_confirmation') {
+      return 'Pendiente de aprobación';
+    }
+
+    if (status === 'paid' && payment === 'mercadopago') {
+      return 'Pagada';
+    }
+
+    if (status === 'paid') {
+      return 'Aprobada';
+    }
+
+    return sale.status || '—';
+  }
+
+  isApprovableTransfer(sale: SaleDetailDto): boolean {
+    const payment = (sale.paymentMethod ?? '').trim().toLowerCase();
+    const status = (sale.status ?? '').trim().toLowerCase();
+    const transferLikeMethods = ['transfer', 'transferencia', 'bank_transfer'];
+    return transferLikeMethods.includes(payment) && status === 'pending_confirmation' && !!sale.externalReference;
+  }
+
+  approveTransfer(sale: SaleDetailDto): void {
+    if (this.approvingSaleId !== null) {
+      return;
+    }
+
+    this.pendingApprovalSale = sale;
+  }
+
+  cancelApproval(): void {
+    this.pendingApprovalSale = null;
+  }
+
+  confirmApproval(): void {
+    const sale = this.pendingApprovalSale;
+    if (!sale) {
+      return;
+    }
+
+    const reference = sale.externalReference?.trim();
+    if (!reference || this.approvingSaleId !== null) {
+      return;
+    }
+
+    this.approvingSaleId = sale.saleId;
+    this.pendingApprovalSale = null;
+    this.syncMessage = '';
+    this.withdrawalMessage = '';
+    this.withdrawalSuccess = false;
+
+    this.dashboardService.approveTransfer(reference)
+      .pipe(finalize(() => (this.approvingSaleId = null)))
+      .subscribe({
+        next: (result) => {
+          this.withdrawalMessage = result.message || 'Compra aprobada correctamente.';
+          this.withdrawalSuccess = true;
+          this.syncSales();
+        },
+        error: (error: { error?: { message?: string } }) => {
+          this.withdrawalMessage = error.error?.message ?? 'No se pudo aprobar la compra.';
           this.withdrawalSuccess = false;
         }
       });

@@ -4,8 +4,8 @@ import { AfterViewInit, Component, OnDestroy, OnInit, PLATFORM_ID, inject } from
 import { Meta, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import emailjs from '@emailjs/browser';
-import { PublicSettingsService } from '../../../../core/config/public-settings.service';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { LucideIconDirective } from '../../../../core/icons/lucide-icon.directive';
 
 declare global {
   interface Window {
@@ -16,7 +16,7 @@ declare global {
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideIconDirective],
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.css'
 })
@@ -28,7 +28,6 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly document = inject(DOCUMENT);
-  private readonly publicSettingsService = inject(PublicSettingsService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
@@ -37,7 +36,6 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private structuredDataScriptEls: HTMLScriptElement[] = [];
   private toastTimeoutId: number | null = null;
 
-  baseCommissionPercent = 10;
   mobileDrawerOpen = false;
   heroUsername = '';
   modalUsername = '';
@@ -66,34 +64,16 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   contactSubmitting = false;
   contactSubmitted = false;
   contactErrorMessage = '';
-
-  get baseCommissionLabel(): string {
-    return `${this.baseCommissionPercent}%`;
-  }
+  openFaqId: string | null = null;
 
   get displayUsername(): string {
     return this.heroUsername || 'tu-marca';
-  }
-
-  get proBreakEvenLabel(): string {
-    if (this.baseCommissionPercent <= 0) {
-      return '$0';
-    }
-
-    const proPrice = this.billingInterval === 'mensual' ? 24_999 : 239_990;
-    const breakEvenSales = Math.ceil(proPrice / (this.baseCommissionPercent / 100));
-    return `$${new Intl.NumberFormat('es-AR').format(breakEvenSales)}`;
-  }
-
-  get proBreakEvenPeriodLabel(): string {
-    return this.billingInterval === 'mensual' ? 'por mes' : 'por año';
   }
 
   ngOnInit(): void {
     this.applySeoTags();
     if (isPlatformBrowser(this.platformId)) {
       emailjs.init({ publicKey: LandingPageComponent.emailJsPublicKey });
-      this.loadCommissionSettings();
     }
   }
 
@@ -320,11 +300,11 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
 
   switchBilling(interval: 'mensual' | 'anual'): void {
     this.billingInterval = interval;
-    this.priceValue = interval === 'mensual' ? '$24.999' : '$239.990';
+    this.priceValue = interval === 'mensual' ? '$24.999' : '$20.000';
     this.priceIntervalLabel =
       interval === 'mensual'
         ? 'Facturación mes a mes.'
-        : 'Equivale a $19.999 por mes. Se factura una vez al año.';
+        : 'Se factura una vez al año.';
 
     const mensualButton = this.document.getElementById('billing-btn-mensual');
     const anualButton = this.document.getElementById('billing-btn-anual');
@@ -350,39 +330,8 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  toggleFAQ(event: Event): void {
-    const button = event.currentTarget as HTMLButtonElement;
-    const item = button.parentElement;
-    const answer = item?.querySelector<HTMLElement>('.faq-answer');
-    const icon = button.querySelector<HTMLElement>('i');
-
-    if (!item || !answer || !icon) {
-      return;
-    }
-
-    this.document.querySelectorAll<HTMLElement>('.faq-item').forEach((otherItem) => {
-      if (otherItem !== item) {
-        const otherAnswer = otherItem.querySelector<HTMLElement>('.faq-answer');
-        const otherIcon = otherItem.querySelector<HTMLElement>('button i');
-        if (otherAnswer) {
-          otherAnswer.style.maxHeight = '';
-        }
-        if (otherIcon) {
-          otherIcon.style.transform = 'rotate(0deg)';
-        }
-        otherItem.querySelector('button')?.setAttribute('aria-expanded', 'false');
-      }
-    });
-
-    if (answer.style.maxHeight) {
-      answer.style.maxHeight = '';
-      icon.style.transform = 'rotate(0deg)';
-      button.setAttribute('aria-expanded', 'false');
-    } else {
-      answer.style.maxHeight = `${answer.scrollHeight}px`;
-      icon.style.transform = 'rotate(180deg)';
-      button.setAttribute('aria-expanded', 'true');
-    }
+  toggleFAQ(faqId: string): void {
+    this.openFaqId = this.openFaqId === faqId ? null : faqId;
   }
 
   openModal(mode: 'login' | 'signup'): void {
@@ -640,7 +589,7 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
               url: `${canonicalUrl}#planes`,
               price: '0',
               priceCurrency: 'ARS',
-              description: 'Sin abono mensual; aplica comisión por venta.'
+              description: 'Sin abono mensual y sin comisión de Tiendubi.'
             },
             {
               '@type': 'Offer',
@@ -648,7 +597,7 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
               url: `${canonicalUrl}#planes`,
               price: '24999',
               priceCurrency: 'ARS',
-              description: 'Plan mensual sin comisión de Tiendubi.'
+              description: 'Plan mensual con más capacidad, automatizaciones y recursos ilimitados.'
             }
           ],
           provider: { '@id': `${canonicalUrl}#organization` }
@@ -663,7 +612,7 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
               name: '¿Qué puedo vender exactamente con Tiendubi?',
               acceptedAnswer: {
                 '@type': 'Answer',
-                text: 'Podés vender ebooks, PDFs, plantillas, cursos, archivos descargables y accesos privados. También podés cobrar consultas, asesorías, mentorías, clases, sesiones, talleres y otros servicios reservables.'
+                text: 'Podés vender ebooks, PDFs, plantillas, cursos, archivos descargables, fotos y videos con marca de agua, y accesos privados. También podés cobrar consultas, asesorías, mentorías, clases, sesiones, talleres y otros servicios reservables.'
               }
             },
             {
@@ -755,9 +704,4 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
     this.canonicalLinkEl = link;
   }
 
-  private loadCommissionSettings(): void {
-    this.publicSettingsService.getCommissionPercent().subscribe((commissionPercent) => {
-      this.baseCommissionPercent = commissionPercent;
-    });
-  }
 }

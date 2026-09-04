@@ -38,7 +38,7 @@
                 <!-- Mobile Menu Button -->
                 <div class="md:hidden">
                     <button id="mobile-menu-btn" type="button" (click)="toggleMobileMenu()" [attr.aria-expanded]="mobileDrawerOpen" aria-controls="mobile-drawer" aria-label="Abrir navegación" class="p-2 text-slate-400 hover:text-white transition-colors">
-                        <i [attr.data-lucide]="mobileDrawerOpen ? 'x' : 'menu'" class="w-6 h-6"></i>
+                        <i [data-lucide]="mobileDrawerOpen ? 'x' : 'menu'" class="w-6 h-6"></i>
                     </button>
                 </div>
             </div>
@@ -72,10 +72,10 @@
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
                 <!-- Hero Text Left -->
                 <div class="lg:col-span-7 flex flex-col gap-6 text-center lg:text-left">
-                    <div class="inline-flex items-center gap-2 self-center lg:self-start bg-purple-500/10 border border-purple-500/20 px-3 py-1.5 rounded-full text-purple-400 text-xs font-semibold uppercase tracking-wider">
+                    <!-- <div class="inline-flex items-center gap-2 self-center lg:self-start bg-purple-500/10 border border-purple-500/20 px-3 py-1.5 rounded-full text-purple-400 text-xs font-semibold uppercase tracking-wider">
                         <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
                         Tiendubi · tu link de venta
-                    </div>
+                    </div> -->
                     
                     <h1 id="hero-title" class="font-display font-extrabold text-4xl sm:text-5xl lg:text-6xl text-white leading-[1.1] tracking-tight">
                         Vendé por Instagram y WhatsApp
@@ -774,7 +774,7 @@
                             <span class="text-slate-500 text-xs">ARS</span>
                             <span class="text-slate-500 text-[10px] mt-1 block">Sin abono mensual</span>
                             <div class="text-[11px] text-purple-400 font-semibold mt-2 bg-purple-500/5 border border-purple-500/10 py-1.5 px-3 rounded-lg inline-block">
-                                {{ baseCommissionLabel }} de comisión de Tiendubi por venta
+                                0% de comisión de Tiendubi
                             </div>
                         </div>
 
@@ -782,23 +782,27 @@
 
                         <ul class="flex flex-col gap-4 text-xs text-slate-300">
                             <li class="flex items-center gap-2.5">
-                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                <i data-lucide="check" class="h-[18px] w-[18px] shrink-0 text-accentEmerald"></i>
                                 Perfil público autogenerado <span class="font-mono">tiendubi.com/tu-marca</span>
                             </li>
                             <li class="flex items-center gap-2.5">
-                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                <i data-lucide="check" class="h-[18px] w-[18px] shrink-0 text-accentEmerald"></i>
                                 Hasta 3 productos digitales activos (PDFs, plantillas, etc.)
                             </li>
                             <li class="flex items-center gap-2.5">
-                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
-                                Hasta 1 servicio de reserva manual integrado
+                                <i data-lucide="check" class="h-[18px] w-[18px] shrink-0 text-accentEmerald"></i>
+                                Archivos de hasta 500 MB cada uno
                             </li>
+                            <!-- <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="h-[18px] w-[18px] shrink-0 text-accentEmerald"></i>
+                                Hasta 1 servicio de reserva manual integrado
+                            </li> -->
                             <li class="flex items-center gap-2.5">
-                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                <i data-lucide="check" class="h-[18px] w-[18px] shrink-0 text-accentEmerald"></i>
                                 Cobros de tus ventas integrados con Mercado Pago
                             </li>
                             <li class="flex items-center gap-2.5">
-                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                                <i data-lucide="check" class="h-[18px] w-[18px] shrink-0 text-accentEmerald"></i>
                                 Entrega automática básica de archivos por email
                             </li>
                         </ul>
@@ -815,58 +819,59 @@
                 <div class="relative bg-gradient-to-b from-darkCard to-indigo-950/20 border-2 border-purple-500 rounded-[32px] p-8 flex flex-col justify-between shadow-2xl shadow-purple-500/[0.05]">
                     <!-- Badge Featured -->
                     <span class="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-accentViolet via-accentPurple to-accentPink text-white text-[10px] font-extrabold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg">
-                        SIN COMISIÓN DE TIENDUBI
+                        MÁS HERRAMIENTAS PARA CRECER
                     </span>
 
                     <div>
                         <div class="mb-6">
                             <span class="text-purple-400 text-xs uppercase tracking-wider font-semibold block mb-2">Para profesionales independientes</span>
                             <h3 class="font-display font-extrabold text-2xl text-white">Plan Pro</h3>
-                            <p class="text-slate-400 text-xs mt-2 leading-relaxed">Para quienes ya venden de forma sostenida y quieren eliminar la comisión de Tiendubi.</p>
+                            <p class="text-slate-400 text-xs mt-2 leading-relaxed">Para quienes ya venden de forma sostenida y necesitan más capacidad y automatización.</p>
                         </div>
 
                         <div class="my-8">
                             <div class="flex items-baseline gap-1.5">
                                 <span id="price-value" class="text-4xl font-extrabold font-display text-white">{{ priceValue }}</span>
-                                <span class="text-slate-400 text-xs font-semibold">ARS / {{ billingInterval === 'mensual' ? 'mes' : 'año' }}</span>
+                                <span class="text-slate-400 text-xs font-semibold">ARS / mes</span>
                             </div>
                             <span id="price-interval-label" class="text-slate-500 text-[10px] mt-1 block">{{ priceIntervalLabel }}</span>
                             <div class="text-[11px] text-accentEmerald font-semibold mt-2 bg-emerald-500/5 border border-emerald-500/10 py-1.5 px-3 rounded-lg inline-block">
                                 0% de comisión de Tiendubi
                             </div>
                             <p class="text-slate-500 text-[10px] mt-2">Solo aplican los costos habituales de procesamiento de Mercado Pago.</p>
-                            <p class="text-purple-300 text-[11px] mt-4 leading-relaxed bg-purple-500/5 border border-purple-500/10 p-3 rounded-xl">
-                                Con ventas de {{ proBreakEvenLabel }} {{ proBreakEvenPeriodLabel }}, la comisión del plan Inicial iguala el precio de Pro.
-                            </p>
                         </div>
 
                         <div class="h-[1px] bg-darkBorder my-6"></div>
 
                         <ul class="flex flex-col gap-4 text-xs text-slate-300">
                             <li class="flex items-center gap-2.5 font-semibold text-white">
-                                <i data-lucide="plus" class="w-4.5 h-4.5 text-accentPurple"></i>
+                                <i data-lucide="plus" class="h-[18px] w-[18px] shrink-0 text-accentPurple"></i>
                                 Todo lo del plan Inicial, y además:
                             </li>
                             <li class="flex items-center gap-2.5">
-                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
-                                Productos digitales y descargas <strong class="text-white font-medium">ilimitadas</strong>
+                                <i data-lucide="check" class="h-[18px] w-[18px] shrink-0 text-accentEmerald"></i>
+                                Productos digitales y descargas <strong class="text-white font-medium">hasta 50</strong>
                             </li>
-                            <li class="flex items-center gap-2.5">
-                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                            <!-- <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="h-[18px] w-[18px] shrink-0 text-accentEmerald"></i>
                                 Reservas ilimitadas integradas con Google Calendar
+                            </li> -->
+                            <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="h-[18px] w-[18px] shrink-0 text-accentEmerald"></i>
+                                Productos digitales y recursos privados hasta 50
                             </li>
                             <li class="flex items-center gap-2.5">
-                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
-                                Productos digitales y recursos privados ilimitados
+                                <i data-lucide="check" class="h-[18px] w-[18px] shrink-0 text-accentEmerald"></i>
+                                Archivos de hasta 1 GB cada uno
                             </li>
                             <li class="flex items-center gap-2.5">
-                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
-                                Conexión de dominio propio (ej: <span class="font-mono">tudominio.com</span>)
+                                <i data-lucide="check" class="h-[18px] w-[18px] shrink-0 text-accentEmerald"></i>
+                                Personalización visual de tu tienda pública
                             </li>
-                            <li class="flex items-center gap-2.5">
-                                <i data-lucide="check" class="w-4.5 h-4.5 text-accentEmerald"></i>
+                            <!-- <li class="flex items-center gap-2.5">
+                                <i data-lucide="check" class="h-[18px] w-[18px] shrink-0 text-accentEmerald"></i>
                                 Cupones de descuento y notificaciones automatizadas
-                            </li>
+                            </li> -->
                         </ul>
                     </div>
 
@@ -897,24 +902,24 @@
             <div class="space-y-4">
                 <!-- FAQ Item 1 -->
                 <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
-                    <button type="button" aria-expanded="false" aria-controls="faq-respuesta-productos" (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                    <button id="faq-pregunta-productos" type="button" [attr.aria-expanded]="openFaqId === 'productos'" aria-controls="faq-respuesta-productos" (click)="toggleFAQ('productos')" class="w-full py-5 px-6 flex items-center justify-between gap-4 text-left text-white font-semibold hover:bg-slate-850/50">
                         <span>¿Qué puedo vender exactamente con Tiendubi?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                        <span [class.rotate-180]="openFaqId === 'productos'" class="shrink-0 text-purple-400 transition-transform duration-300"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
                     </button>
-                    <div id="faq-respuesta-productos" class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                    <div id="faq-respuesta-productos" role="region" aria-labelledby="faq-pregunta-productos" [attr.aria-hidden]="openFaqId !== 'productos'" [style.max-height]="openFaqId === 'productos' ? '500px' : '0px'" class="faq-answer overflow-hidden transition-all duration-300 ease-in-out">
                         <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
-                            Podés vender ebooks, PDFs, plantillas, cursos, archivos descargables y accesos privados. También podés cobrar consultas, asesorías, mentorías, clases, sesiones, talleres y otros servicios reservables.
+                            Podés vender ebooks, PDFs, plantillas, cursos, archivos descargables, fotos y videos con marca de agua, y accesos privados. También podés cobrar consultas, asesorías, mentorías, clases, sesiones, talleres y otros servicios reservables.
                         </div>
                     </div>
                 </div>
 
                 <!-- FAQ Item 2 -->
                 <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
-                    <button type="button" aria-expanded="false" aria-controls="faq-respuesta-web" (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                    <button id="faq-pregunta-web" type="button" [attr.aria-expanded]="openFaqId === 'web'" aria-controls="faq-respuesta-web" (click)="toggleFAQ('web')" class="w-full py-5 px-6 flex items-center justify-between gap-4 text-left text-white font-semibold hover:bg-slate-850/50">
                         <span>¿Necesito una página web o saber programación?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                        <span [class.rotate-180]="openFaqId === 'web'" class="shrink-0 text-purple-400 transition-transform duration-300"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
                     </button>
-                    <div id="faq-respuesta-web" class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                    <div id="faq-respuesta-web" role="region" aria-labelledby="faq-pregunta-web" [attr.aria-hidden]="openFaqId !== 'web'" [style.max-height]="openFaqId === 'web' ? '500px' : '0px'" class="faq-answer overflow-hidden transition-all duration-300 ease-in-out">
                         <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
                             No. Tiendubi genera tu perfil y tu link de venta sin WordPress, plugins ni diseño web. Completás tus datos, cargás lo que vendés y obtenés una página adaptada a celulares.
                         </div>
@@ -923,11 +928,11 @@
 
                 <!-- FAQ Item 3 -->
                 <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
-                    <button type="button" aria-expanded="false" aria-controls="faq-respuesta-mercadopago" (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                    <button id="faq-pregunta-mercadopago" type="button" [attr.aria-expanded]="openFaqId === 'mercadopago'" aria-controls="faq-respuesta-mercadopago" (click)="toggleFAQ('mercadopago')" class="w-full py-5 px-6 flex items-center justify-between gap-4 text-left text-white font-semibold hover:bg-slate-850/50">
                         <span>¿Cómo cobro con Mercado Pago desde mi link?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                        <span [class.rotate-180]="openFaqId === 'mercadopago'" class="shrink-0 text-purple-400 transition-transform duration-300"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
                     </button>
-                    <div id="faq-respuesta-mercadopago" class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                    <div id="faq-respuesta-mercadopago" role="region" aria-labelledby="faq-pregunta-mercadopago" [attr.aria-hidden]="openFaqId !== 'mercadopago'" [style.max-height]="openFaqId === 'mercadopago' ? '500px' : '0px'" class="faq-answer overflow-hidden transition-all duration-300 ease-in-out">
                         <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
                             Vinculás tu cuenta de <strong>Mercado Pago</strong> y tus clientes pagan con los medios disponibles en esa plataforma. El dinero va directamente a tu cuenta. Mercado Pago aplica sus costos habituales de procesamiento según el medio y el plazo de cobro elegidos.
                         </div>
@@ -936,11 +941,11 @@
 
                 <!-- FAQ Item 4 -->
                 <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
-                    <button type="button" aria-expanded="false" aria-controls="faq-respuesta-reservas" (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                    <button id="faq-pregunta-reservas" type="button" [attr.aria-expanded]="openFaqId === 'reservas'" aria-controls="faq-respuesta-reservas" (click)="toggleFAQ('reservas')" class="w-full py-5 px-6 flex items-center justify-between gap-4 text-left text-white font-semibold hover:bg-slate-850/50">
                         <span>¿Cómo funcionan los turnos y las reservas online?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                        <span [class.rotate-180]="openFaqId === 'reservas'" class="shrink-0 text-purple-400 transition-transform duration-300"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
                     </button>
-                    <div id="faq-respuesta-reservas" class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                    <div id="faq-respuesta-reservas" role="region" aria-labelledby="faq-pregunta-reservas" [attr.aria-hidden]="openFaqId !== 'reservas'" [style.max-height]="openFaqId === 'reservas' ? '500px' : '0px'" class="faq-answer overflow-hidden transition-all duration-300 ease-in-out">
                         <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
                             Publicás un servicio con sus horarios disponibles. El cliente elige una opción desde tu link, completa sus datos, paga cuando corresponde y recibe la confirmación de la reserva.
                         </div>
@@ -949,11 +954,11 @@
 
                 <!-- FAQ Item 5 -->
                 <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
-                    <button type="button" aria-expanded="false" aria-controls="faq-respuesta-combinada" (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                    <button id="faq-pregunta-combinada" type="button" [attr.aria-expanded]="openFaqId === 'combinada'" aria-controls="faq-respuesta-combinada" (click)="toggleFAQ('combinada')" class="w-full py-5 px-6 flex items-center justify-between gap-4 text-left text-white font-semibold hover:bg-slate-850/50">
                         <span>¿Puedo vender servicios y archivos a la vez?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                        <span [class.rotate-180]="openFaqId === 'combinada'" class="shrink-0 text-purple-400 transition-transform duration-300"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
                     </button>
-                    <div id="faq-respuesta-combinada" class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                    <div id="faq-respuesta-combinada" role="region" aria-labelledby="faq-pregunta-combinada" [attr.aria-hidden]="openFaqId !== 'combinada'" [style.max-height]="openFaqId === 'combinada' ? '500px' : '0px'" class="faq-answer overflow-hidden transition-all duration-300 ease-in-out">
                         <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
                             Sí. En el mismo perfil podés ofrecer una consulta o mentoría con reserva y, al mismo tiempo, vender un ebook, una plantilla, un curso o un archivo descargable.
                         </div>
@@ -962,11 +967,11 @@
 
                 <!-- FAQ Item 6 -->
                 <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
-                    <button type="button" aria-expanded="false" aria-controls="faq-respuesta-registro" (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                    <button id="faq-pregunta-registro" type="button" [attr.aria-expanded]="openFaqId === 'registro'" aria-controls="faq-respuesta-registro" (click)="toggleFAQ('registro')" class="w-full py-5 px-6 flex items-center justify-between gap-4 text-left text-white font-semibold hover:bg-slate-850/50">
                         <span>¿Mis clientes necesitan tener una cuenta?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                        <span [class.rotate-180]="openFaqId === 'registro'" class="shrink-0 text-purple-400 transition-transform duration-300"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
                     </button>
-                    <div id="faq-respuesta-registro" class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                    <div id="faq-respuesta-registro" role="region" aria-labelledby="faq-pregunta-registro" [attr.aria-hidden]="openFaqId !== 'registro'" [style.max-height]="openFaqId === 'registro' ? '500px' : '0px'" class="faq-answer overflow-hidden transition-all duration-300 ease-in-out">
                         <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
                             No. Tu cliente entra al link, selecciona lo que quiere, completa sus datos, paga y recibe la descarga o la confirmación. No necesita crear una cuenta en Tiendubi.
                         </div>
@@ -975,11 +980,11 @@
 
                 <!-- FAQ Item 7 -->
                 <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
-                    <button type="button" aria-expanded="false" aria-controls="faq-respuesta-instagram" (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                    <button id="faq-pregunta-instagram" type="button" [attr.aria-expanded]="openFaqId === 'instagram'" aria-controls="faq-respuesta-instagram" (click)="toggleFAQ('instagram')" class="w-full py-5 px-6 flex items-center justify-between gap-4 text-left text-white font-semibold hover:bg-slate-850/50">
                         <span>¿Cómo vendo por Instagram con Tiendubi?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                        <span [class.rotate-180]="openFaqId === 'instagram'" class="shrink-0 text-purple-400 transition-transform duration-300"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
                     </button>
-                    <div id="faq-respuesta-instagram" class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                    <div id="faq-respuesta-instagram" role="region" aria-labelledby="faq-pregunta-instagram" [attr.aria-hidden]="openFaqId !== 'instagram'" [style.max-height]="openFaqId === 'instagram' ? '500px' : '0px'" class="faq-answer overflow-hidden transition-all duration-300 ease-in-out">
                         <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
                             Colocás <strong>tiendubi.com/tu-marca</strong> en la bio de Instagram. Desde ahí, tus seguidores pueden ver qué ofrecés, pagar con Mercado Pago y reservar o recibir su compra.
                         </div>
@@ -988,11 +993,11 @@
 
                 <!-- FAQ Item 8 -->
                 <div class="faq-item bg-darkCard border border-darkBorder rounded-2xl overflow-hidden transition-colors">
-                    <button type="button" aria-expanded="false" aria-controls="faq-respuesta-whatsapp" (click)="toggleFAQ($event)" class="w-full py-5 px-6 flex items-center justify-between text-left text-white font-semibold hover:bg-slate-850/50">
+                    <button id="faq-pregunta-whatsapp" type="button" [attr.aria-expanded]="openFaqId === 'whatsapp'" aria-controls="faq-respuesta-whatsapp" (click)="toggleFAQ('whatsapp')" class="w-full py-5 px-6 flex items-center justify-between gap-4 text-left text-white font-semibold hover:bg-slate-850/50">
                         <span>¿Puedo usar el mismo link para vender por WhatsApp?</span>
-                        <i data-lucide="chevron-down" class="w-5 h-5 text-purple-400 shrink-0 transition-transform duration-300"></i>
+                        <span [class.rotate-180]="openFaqId === 'whatsapp'" class="shrink-0 text-purple-400 transition-transform duration-300"><i data-lucide="chevron-down" class="w-5 h-5"></i></span>
                     </button>
-                    <div id="faq-respuesta-whatsapp" class="faq-answer max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+                    <div id="faq-respuesta-whatsapp" role="region" aria-labelledby="faq-pregunta-whatsapp" [attr.aria-hidden]="openFaqId !== 'whatsapp'" [style.max-height]="openFaqId === 'whatsapp' ? '500px' : '0px'" class="faq-answer overflow-hidden transition-all duration-300 ease-in-out">
                         <div class="p-6 pt-0 text-slate-400 text-sm leading-relaxed border-t border-darkBorder/20">
                             Sí. Compartís el mismo link en conversaciones, estados o respuestas automáticas de WhatsApp para que cada cliente consulte opciones y compre sin coordinar todo por mensaje.
                         </div>
@@ -1197,7 +1202,7 @@
     <!-- CUSTOM TOAST MESSAGE BOX (Alternative to Alert) -->
     <div id="toast" [class.translate-y-24]="!toastVisible" [class.opacity-0]="!toastVisible" [class.translate-y-0]="toastVisible" [class.opacity-100]="toastVisible" class="fixed bottom-6 right-6 z-50 bg-slate-900 border border-darkBorder p-4 rounded-2xl flex items-center gap-3 shadow-2xl translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
         <div id="toast-icon-wrapper" class="w-8 h-8 rounded-lg flex items-center justify-center" [ngClass]="toastType === 'success' ? 'bg-emerald-500/10 text-accentEmerald' : 'bg-red-500/10 text-red-400'">
-            <i id="toast-icon" [attr.data-lucide]="toastType === 'success' ? 'check' : 'alert-circle'" class="w-4 h-4"></i>
+            <i id="toast-icon" [data-lucide]="toastType === 'success' ? 'check' : 'alert-circle'" class="w-4 h-4"></i>
         </div>
         <div>
             <p id="toast-title" class="font-bold text-xs text-white">{{ toastTitle }}</p>

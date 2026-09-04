@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin, of, switchMap } from 'rxjs';
+import { forkJoin, of, Subscription, switchMap } from 'rxjs';
 import { AuthService } from '../../../../core/auth/auth.service';
 import { PublicSettingsService } from '../../../../core/config/public-settings.service';
 import { EventService } from '../../data-access/event.service';
 import { PhotographerEventDto, ProductAssetDto, ProductPriceType, ProductType } from '../../data-access/event.models';
+import { LucideIconDirective } from '../../../../core/icons/lucide-icon.directive';
 
 declare global {
   interface Window {
@@ -17,16 +18,16 @@ declare global {
 @Component({
   selector: 'app-event-create-page',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, LucideIconDirective],
   templateUrl: './event-create-page.component.html',
   styleUrl: './event-create-page.component.css'
 })
-export class EventCreatePageComponent implements OnInit, AfterViewInit {
+export class EventCreatePageComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly eventService = inject(EventService);
   private readonly router = inject(Router);
   private readonly publicSettingsService = inject(PublicSettingsService);
-  private commissionRate = 0.1;
+  private commissionRate = 0;
 
   isSaving = false;
   isUploadingAssets = false;
@@ -56,19 +57,49 @@ export class EventCreatePageComponent implements OnInit, AfterViewInit {
   events: PhotographerEventDto[] = [];
   isLoadingEvents = false;
   isReadOnlyUser = false;
+  isProUser = false;
+  readonly freePlanMaxItems = 3;
+  readonly proPlanMaxItems = 50;
+  readonly freePlanMaxDigitalFileBytes = 500 * 1024 * 1024;
+  readonly proPlanMaxDigitalFileBytes = 1024 * 1024 * 1024;
   showCreateForm = false;
   editingEventId: number | null = null;
   deletingEventId: number | null = null;
   isPublished = false;
+  private currentUserSubscription?: Subscription;
+
+  get planMaxItems(): number {
+    return this.isProUser ? this.proPlanMaxItems : this.freePlanMaxItems;
+  }
+
+  get hasReachedItemLimit(): boolean {
+    return this.events.length >= this.planMaxItems;
+  }
+
+  get maxDigitalFileBytes(): number {
+    return this.isProUser ? this.proPlanMaxDigitalFileBytes : this.freePlanMaxDigitalFileBytes;
+  }
+
+  get maxDigitalFileLabel(): string {
+    return this.isProUser ? '1 GB' : '500 MB';
+  }
 
   ngOnInit(): void {
     this.isReadOnlyUser = this.authService.getCurrentUserSnapshot()?.isReadOnly ?? false;
+    this.isProUser = this.authService.getCurrentUserSnapshot()?.isProActive ?? false;
+    this.currentUserSubscription = this.authService.currentUser$.subscribe((user) => {
+      this.isProUser = user?.isProActive ?? false;
+    });
     this.loadCommissionSettings();
     this.loadEvents();
   }
 
   ngAfterViewInit(): void {
     this.renderIcons();
+  }
+
+  ngOnDestroy(): void {
+    this.currentUserSubscription?.unsubscribe();
   }
 
   onSubmit(event: Event): void {
@@ -84,6 +115,18 @@ export class EventCreatePageComponent implements OnInit, AfterViewInit {
 
     if (this.isReadOnlyUser) {
       this.errorMessage = 'La cuenta demo esta en modo solo lectura.';
+      return;
+    }
+
+    if (this.editingEventId !== null && !this.isProUser) {
+      this.errorMessage = 'El plan gratuito no permite editar productos. Actualizá a Pro para modificarlos.';
+      return;
+    }
+
+    if (this.editingEventId === null && this.hasReachedItemLimit) {
+      this.errorMessage = this.isProUser
+        ? `Alcanzaste el límite de ${this.proPlanMaxItems} productos de tu plan Pro.`
+        : `El plan gratuito permite hasta ${this.freePlanMaxItems} productos. Actualizá a Pro para crear más.`;
       return;
     }
 
@@ -164,6 +207,14 @@ export class EventCreatePageComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    if (!this.showCreateForm && this.editingEventId === null && this.hasReachedItemLimit) {
+      this.errorMessage = this.isProUser
+        ? `Alcanzaste el límite de ${this.proPlanMaxItems} productos de tu plan Pro.`
+        : `El plan gratuito permite hasta ${this.freePlanMaxItems} productos. Actualizá a Pro para crear más.`;
+      this.successMessage = '';
+      return;
+    }
+
     this.showCreateForm = !this.showCreateForm;
     this.successMessage = '';
     this.errorMessage = '';
@@ -182,6 +233,12 @@ export class EventCreatePageComponent implements OnInit, AfterViewInit {
   startEditEvent(event: PhotographerEventDto): void {
     if (this.isReadOnlyUser) {
       this.errorMessage = 'La cuenta demo esta en modo solo lectura.';
+      this.successMessage = '';
+      return;
+    }
+
+    if (!this.isProUser) {
+      this.errorMessage = 'El plan gratuito no permite editar productos. Actualizá a Pro para modificarlos.';
       this.successMessage = '';
       return;
     }
@@ -231,6 +288,12 @@ export class EventCreatePageComponent implements OnInit, AfterViewInit {
   confirmDeleteEvent(event: PhotographerEventDto): void {
     if (this.isReadOnlyUser) {
       this.errorMessage = 'La cuenta demo esta en modo solo lectura.';
+      this.successMessage = '';
+      return;
+    }
+
+    if (!this.isProUser) {
+      this.errorMessage = 'El plan gratuito no permite eliminar productos. Actualizá a Pro.';
       this.successMessage = '';
       return;
     }
@@ -302,20 +365,6 @@ export class EventCreatePageComponent implements OnInit, AfterViewInit {
       this.pricePerPhotoInput = this.formatPriceInput(this.pricePerPhoto);
       this.paymentMercadoPago = true;
     }
-  }
-
-  togglePaymentMethod(method: 'mercadopago' | 'transfer'): void {
-    if (this.priceType === 'free') {
-      return;
-    }
-
-    if (method === 'mercadopago') {
-      this.paymentMercadoPago = !this.paymentMercadoPago;
-    } else {
-      this.paymentTransfer = !this.paymentTransfer;
-    }
-
-    this.renderIcons();
   }
 
   onPricePerPhotoInputChange(value: string): void {
@@ -437,8 +486,8 @@ export class EventCreatePageComponent implements OnInit, AfterViewInit {
         continue;
       }
 
-      if (file.size > 500 * 1024 * 1024) {
-        this.errorMessage = `${file.name} supera 500MB.`;
+      if (file.size > this.maxDigitalFileBytes) {
+        this.errorMessage = `${file.name} supera el límite de ${this.maxDigitalFileLabel} de tu plan.`;
         continue;
       }
 
