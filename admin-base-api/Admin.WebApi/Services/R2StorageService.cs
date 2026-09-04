@@ -17,10 +17,10 @@ public class R2StorageService : IR2StorageService
         _options = options.Value;
         _logger = logger;
 
-        _isConfigured = !string.IsNullOrWhiteSpace(_options.AccountId)
-                        && !string.IsNullOrWhiteSpace(_options.AccessKeyId)
-                        && !string.IsNullOrWhiteSpace(_options.SecretAccessKey)
-                        && !string.IsNullOrWhiteSpace(_options.BucketName);
+        _isConfigured = HasRealValue(_options.AccountId)
+                        && HasRealValue(_options.AccessKeyId)
+                        && HasRealValue(_options.SecretAccessKey)
+                        && HasRealValue(_options.BucketName);
 
         if (!_isConfigured)
         {
@@ -161,5 +161,16 @@ public class R2StorageService : IR2StorageService
             return;
 
         throw new InvalidOperationException("R2 no está configurado. Definí R2__AccountId, R2__AccessKeyId, R2__SecretAccessKey y R2__BucketName.");
+    }
+
+    private static bool HasRealValue(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        var normalized = value.Trim();
+        return !normalized.Equals("REPLACE", StringComparison.OrdinalIgnoreCase)
+               && !normalized.Equals("CHANGE_ME", StringComparison.OrdinalIgnoreCase)
+               && !normalized.StartsWith("your-", StringComparison.OrdinalIgnoreCase);
     }
 }

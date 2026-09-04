@@ -159,6 +159,24 @@ if [ "$CONFIGURE_NGINX" = "true" ] && [ "$ENABLE_HTTPS" = "true" ]; then
   fi
 fi
 
+PHOTO_UPLOAD_ENABLED="$(get_env_value Features__PhotoUploadEnabled)"
+if [ "${PHOTO_UPLOAD_ENABLED,,}" = "true" ]; then
+  R2_CONFIG_INVALID=false
+  for r2_key in R2__AccountId R2__AccessKeyId R2__SecretAccessKey R2__BucketName; do
+    r2_value="$(get_env_value "$r2_key")"
+    if is_placeholder "$r2_value"; then
+      echo "ERROR: Configura $r2_key en $ENV_FILE."
+      R2_CONFIG_INVALID=true
+    fi
+  done
+
+  if [ "$R2_CONFIG_INVALID" = "true" ]; then
+    echo "Cloudflare R2 esta habilitado, pero conserva valores de ejemplo."
+    echo "Crea credenciales Object Read & Write para el bucket y reemplaza los valores REPLACE."
+    exit 1
+  fi
+fi
+
 JWT_SECRET="$(get_env_value Jwt__Secret)"
 if is_placeholder "$JWT_SECRET" || [ "${#JWT_SECRET}" -lt 32 ]; then
   JWT_SECRET="$(generate_secret)"
@@ -390,9 +408,9 @@ if [ "$CONFIGURE_NGINX" = "true" ]; then
   sudo nginx -t
   sudo systemctl reload nginx
 
-  if [ "$ENABLE_HTTPS" = "true" ] && ! sudo grep -Eq 'listen[[:space:]]+443([^;]*[[:space:]])?ssl' "$NGINX_SITE_PATH"; then
+  if [ "$ENABLE_HTTPS" = "true" ]; then
     sudo certbot --nginx --non-interactive --agree-tos --redirect --keep-until-expiring \
-      --email "$CERTBOT_EMAIL" -d "$API_DOMAIN"
+      --cert-name "$API_DOMAIN" --email "$CERTBOT_EMAIL" -d "$API_DOMAIN"
     sudo nginx -t
     sudo systemctl reload nginx
   fi

@@ -300,6 +300,14 @@ namespace Admin.WebApi.Controllers
                     message = "El bucket configurado en R2 no existe. Revisá R2:BucketName y que pertenezca al R2:AccountId configurado."
                 });
             }
+            catch (AmazonS3Exception ex)
+            {
+                _logger.LogError(ex, "No se pudo conectar con R2 al subir un asset de producto. EventId={EventId}, ObjectKey={ObjectKey}, ErrorCode={ErrorCode}", eventId, objectKey, ex.ErrorCode);
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, new
+                {
+                    message = "No se pudo conectar con el almacenamiento en la nube. Revisá las credenciales y el bucket configurados en el servidor."
+                });
+            }
             catch (InvalidOperationException ex)
             {
                 _logger.LogError(ex, "No se pudo subir asset de producto por configuracion de R2. EventId={EventId}, ObjectKey={ObjectKey}", eventId, objectKey);
