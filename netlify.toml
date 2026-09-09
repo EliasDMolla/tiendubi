@@ -4,6 +4,13 @@
   publish = "dist/capturar-front/browser"
 
 [[redirects]]
-  from = "/*"
+  from = "/"
   to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  # Keep the prerendered landing only for `/`. Client-side routes must start
+  # from Angular's empty shell so a public store never flashes the landing.
+  to = "/index.csr.html"
   status = 200

@@ -3,6 +3,14 @@
   publish = "dist/capturar-front/browser"
 
 [[redirects]]
-  from = "/*"
+  from = "/"
   to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  # Angular genera index.html con la landing prerenderizada e index.csr.html
+  # como shell vacio. Las rutas SPA deben hidratar desde el shell para no
+  # mostrar la landing antes de resolver la tienda publica.
+  to = "/index.csr.html"
   status = 200

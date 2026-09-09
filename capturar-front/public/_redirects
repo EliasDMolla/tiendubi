@@ -1,3 +1,4 @@
 https://www.tiendubi.com/* https://tiendubi.com/:splat 301!
 /landing / 301
-/* /index.html 200
+/ /index.html 200
+/* /index.csr.html 200
