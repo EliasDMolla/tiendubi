@@ -528,6 +528,57 @@
   width: 100%;
 }
 
+.store-brand-skeleton {
+  flex: 1;
+}
+
+.store-skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 12px;
+}
+
+.store-skeleton-label {
+  width: 5rem;
+  height: 0.5rem;
+  margin-bottom: 0.45rem;
+}
+
+.store-skeleton-brand-name {
+  width: 8rem;
+  height: 1rem;
+}
+
+.store-hero-skeleton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.store-skeleton-eyebrow {
+  width: 11rem;
+  height: 0.65rem;
+  margin-bottom: 1.25rem;
+}
+
+.store-skeleton-hero-title {
+  width: min(28rem, 85%);
+  height: 3rem;
+  border-radius: 12px;
+}
+
+.store-skeleton-hero-subtitle {
+  width: min(34rem, 95%);
+  height: 0.85rem;
+  margin-top: 1.25rem;
+}
+
+.store-skeleton-hero-subtitle-short {
+  width: min(25rem, 70%);
+  margin-top: 0.65rem;
+}
+
 @keyframes store-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.45; }

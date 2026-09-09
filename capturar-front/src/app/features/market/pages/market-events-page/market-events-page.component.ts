@@ -24,7 +24,7 @@ export class MarketEventsPageComponent implements OnInit, AfterViewInit {
   private readonly publicSiteService = inject(PublicSiteService);
 
   events: PublicEventCard[] = [];
-  studioName = 'Tienda pública';
+  studioName = '';
   studioSlug = '';
   searchTerm = '';
   isLoading = true;

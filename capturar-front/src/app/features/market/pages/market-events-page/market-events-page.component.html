@@ -2,13 +2,23 @@
   <!-- HEADER -->
   <header class="store-header">
     <div class="store-header-inner">
-      <div class="store-brand">
+      <div *ngIf="!isLoading && !notFoundMessage" class="store-brand">
         <div class="store-avatar">{{ (studioName || 'T') | slice:0:1 }}</div>
         <div class="store-brand-text">
           <span class="store-brand-label">Tienda pública</span>
           <h1 class="store-brand-name">{{ studioName }}</h1>
         </div>
       </div>
+
+      <div *ngIf="isLoading" class="store-brand store-brand-skeleton" aria-hidden="true">
+        <div class="store-skeleton store-skeleton-avatar"></div>
+        <div class="store-brand-text">
+          <div class="store-skeleton store-skeleton-label"></div>
+          <div class="store-skeleton store-skeleton-brand-name"></div>
+        </div>
+      </div>
+
+      <div *ngIf="notFoundMessage" aria-hidden="true"></div>
 
       <a routerLink="/landing" class="store-tiendubi-link">
         <i data-lucide="store" class="store-tiendubi-icon"></i> Tiendubi
@@ -17,7 +27,16 @@
   </header>
 
   <!-- HERO -->
-  <section class="store-hero">
+  <section *ngIf="isLoading" class="store-hero" aria-hidden="true">
+    <div class="store-hero-inner store-hero-skeleton">
+      <div class="store-skeleton store-skeleton-eyebrow"></div>
+      <div class="store-skeleton store-skeleton-hero-title"></div>
+      <div class="store-skeleton store-skeleton-hero-subtitle"></div>
+      <div class="store-skeleton store-skeleton-hero-subtitle store-skeleton-hero-subtitle-short"></div>
+    </div>
+  </section>
+
+  <section *ngIf="!isLoading && !notFoundMessage" class="store-hero">
     <div class="store-hero-inner">
       <p class="store-eyebrow">Digitales · Físicos · Recursos privados</p>
       <h2 class="store-title">Comprá directo a <span class="store-title-accent">{{ studioName }}</span></h2>
@@ -151,7 +170,7 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="store-footer">
+  <footer *ngIf="!isLoading && !notFoundMessage" class="store-footer">
     <div class="store-footer-inner">
       <span>© {{ currentYear }} {{ studioName }}</span>
       <a routerLink="/landing" class="store-footer-link">Creado con <span>Tiendubi</span></a>
