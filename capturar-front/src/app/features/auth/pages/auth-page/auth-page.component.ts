@@ -1,26 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AfterViewInit, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../../core/auth/auth.service';
-import { LucideIconDirective } from '../../../../core/icons/lucide-icon.directive';
-
-type AuthView = 'login' | 'register' | 'forgot' | 'dashboard';
-
-declare global {
-  interface Window {
-    lucide?: { createIcons: () => void };
-  }
-}
+type AuthView = 'login' | 'register' | 'forgot';
 
 @Component({
   selector: 'app-auth-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideIconDirective],
+  imports: [CommonModule, FormsModule],
   templateUrl: './auth-page.component.html',
   styleUrl: './auth-page.component.css'
 })
-export class AuthPageComponent implements OnInit, AfterViewInit, OnDestroy {
+export class AuthPageComponent implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -99,10 +91,6 @@ export class AuthPageComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  ngAfterViewInit(): void {
-    this.renderIcons();
-  }
-
   ngOnDestroy(): void {
     if (this.publicSlugAvailabilityTimer) {
       clearTimeout(this.publicSlugAvailabilityTimer);
@@ -123,7 +111,6 @@ export class AuthPageComponent implements OnInit, AfterViewInit, OnDestroy {
       this.forgotEmail = this.loginEmail;
     }
     window.scrollTo(0, 0);
-    this.renderIcons();
   }
 
   onLoginSubmit(event: Event): void {
@@ -209,7 +196,6 @@ export class AuthPageComponent implements OnInit, AfterViewInit, OnDestroy {
   backToLogin(): void {
     this.currentView = 'login';
     this.errorMessage = '';
-    this.renderIcons();
   }
 
   private getLoginValidationError(): string | null {
@@ -312,10 +298,6 @@ export class AuthPageComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     return null;
-  }
-
-  private renderIcons(): void {
-    setTimeout(() => window.lucide?.createIcons());
   }
 
   updateRegisterPublicSlug(event: Event): void {

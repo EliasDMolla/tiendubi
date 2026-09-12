@@ -1,22 +1,14 @@
 import { CommonModule, DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { AfterViewInit, Component, OnDestroy, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import emailjs from '@emailjs/browser';
-import { AuthService } from '../../../../core/auth/auth.service';
 import { LucideIconDirective } from '../../../../core/icons/lucide-icon.directive';
-
-declare global {
-  interface Window {
-    lucide?: { createIcons: () => void };
-  }
-}
 
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideIconDirective],
+  imports: [CommonModule, LucideIconDirective],
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.css'
 })
@@ -28,46 +20,176 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly document = inject(DOCUMENT);
-  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
   private readonly platformId = inject(PLATFORM_ID);
 
   private canonicalLinkEl: HTMLLinkElement | null = null;
   private structuredDataScriptEls: HTMLScriptElement[] = [];
-  private toastTimeoutId: number | null = null;
 
-  mobileDrawerOpen = false;
+  mobileMenuOpen = false;
   heroUsername = '';
-  modalUsername = '';
-  simScreen: 'main' | 'booking' | 'payment' | 'success' = 'main';
-  simType: 'turno' | 'ebook' | 'pack' | null = null;
-  simHourSelected: string | null = null;
-  simPaymentAmount = '$22.000 ARS';
-  simReference = 'TIEN-8392-AUTO';
-  simSuccessDesc = 'El archivo se ha enviado a tu mail.';
-  billingInterval: 'mensual' | 'anual' = 'mensual';
-  priceValue = '$24.999';
-  priceIntervalLabel = 'Facturación mes a mes.';
-  authModalOpen = false;
-  authMode: 'login' | 'signup' = 'signup';
-  modalTitle = 'Comenzá Gratis';
-  modalDesc = 'Automatizá tus ventas y reservas hoy mismo.';
-  authEmail = '';
-  authPassword = '';
-  isAuthSubmitting = false;
-  authErrorMessage = '';
-  authSuccessMessage = '';
-  toastVisible = false;
-  toastTitle = 'Notificación';
-  toastMsg = 'Mensaje del sistema';
-  toastType: 'success' | 'error' = 'success';
+  annual = false;
   contactSubmitting = false;
   contactSubmitted = false;
   contactErrorMessage = '';
-  openFaqId: string | null = null;
+  contactFormOpen = false;
+
+  readonly mobileNav = [
+    { label: 'Cómo funciona', id: 'como-funciona' },
+    { label: 'Qué podés vender', id: 'posibilidades' },
+    { label: 'Por qué Tiendubi', id: 'beneficios' },
+    { label: 'Planes', id: 'planes' },
+    { label: 'Preguntas frecuentes', id: 'preguntas' }
+  ];
+
+  readonly steps = [
+    { number: '01', title: 'Creás tu link', text: 'Elegís un nombre único y completás tu perfil profesional.' },
+    {
+      number: '02',
+      title: 'Cargás lo que vendés',
+      text: 'Subís archivos, links privados, servicios o turnos y definís el precio.'
+    },
+    {
+      number: '03',
+      title: 'Conectás Mercado Pago',
+      text: 'El dinero de cada venta va directo a tu cuenta vinculada.'
+    },
+    {
+      number: '04',
+      title: 'Compartís y cobrás',
+      text: 'Publicás tu link en Instagram o WhatsApp y Tiendubi hace el resto.'
+    }
+  ];
+
+  readonly possibilities = [
+    {
+      icon: 'file-text',
+      title: 'Productos digitales',
+      text: 'Ebooks, PDFs, cursos y plantillas listos para entregar.',
+      bg: 'bg-butter/45',
+      isNew: false
+    },
+    {
+      icon: 'calendar-days',
+      title: 'Servicios y reservas',
+      text: 'Consultas, mentorías y sesiones con turno online.',
+      bg: 'bg-sage/35',
+      isNew: false
+    },
+    {
+      icon: 'graduation-cap',
+      title: 'Clases y talleres',
+      text: 'Cupos, horarios y accesos para tus alumnos.',
+      bg: 'bg-accent/20',
+      isNew: false
+    },
+    {
+      icon: 'download',
+      title: 'Descargables',
+      text: 'Plantillas, recursos y accesos privados.',
+      bg: 'bg-card',
+      isNew: false
+    },
+    {
+      icon: 'repeat',
+      title: 'Suscripciones',
+      text: 'Cobro recurrente para tu comunidad.',
+      bg: 'bg-sage/30',
+      isNew: true
+    },
+    {
+      icon: 'ticket',
+      title: 'Eventos',
+      text: 'Webinars y encuentros digitales o presenciales.',
+      bg: 'bg-butter/30',
+      isNew: false
+    }
+  ];
+
+  readonly benefits = [
+    {
+      icon: 'credit-card',
+      title: 'Cobrá con Mercado Pago',
+      text: 'Vendé en pesos argentinos y recibí cada pago directamente en tu cuenta vinculada.'
+    },
+    {
+      icon: 'zap',
+      title: 'En 5 minutos',
+      text: 'Sin configurar envíos, instalar plugins ni aprender a usar una tienda compleja.'
+    },
+    {
+      icon: 'link-2',
+      title: 'Un recorrido directo',
+      text: 'Instagram o WhatsApp → tu link → el cliente elige → paga → recibe.'
+    }
+  ];
+
+  readonly planInicialItems = [
+    'Cobros integrados con Mercado Pago',
+    'Hasta 3 productos digitales activos',
+    'Entrega automática por email',
+    'Perfil público tiendubi.com/tu-marca',
+    'Archivos de hasta 500 MB'
+  ];
+
+  readonly planProItems = [
+    'Todo lo del plan Inicial',
+    'Hasta 50 productos digitales',
+    'Reservas avanzadas y recordatorios',
+    'Estadísticas de ventas y visitas',
+    'Dominio personalizado',
+    'Cupones y descuentos',
+    'Automatizaciones y emails personalizados',
+    'Sin branding de Tiendubi'
+  ];
+
+  readonly packTiles = [
+    { type: 'PDF', bg: 'bg-butter/50' },
+    { type: 'Plantilla', bg: 'bg-sage/35' },
+    { type: 'Curso', bg: 'bg-accent/20' }
+  ];
+
+  readonly faqs = [
+    {
+      question: '¿Qué puedo vender exactamente con Tiendubi?',
+      answer:
+        'Servicios profesionales, consultas, mentorías, clases, talleres, ebooks, PDFs, plantillas, cursos y otros recursos digitales.'
+    },
+    {
+      question: '¿Necesito una página web o saber programación?',
+      answer: 'No. Elegís el nombre de tu link, completás tu perfil, cargás lo que vendés y ya podés compartirlo.'
+    },
+    {
+      question: '¿Cómo cobro con Mercado Pago desde mi link?',
+      answer:
+        'Conectás tu cuenta de Mercado Pago con un clic. Cada venta se acredita directamente en tu cuenta vinculada.'
+    },
+    {
+      question: '¿Cómo funcionan los turnos y las reservas online?',
+      answer:
+        'Publicás tus horarios disponibles y el cliente elige y confirma su turno desde tu link, sin coordinar por mensajes.'
+    },
+    {
+      question: '¿Puedo vender servicios y archivos a la vez?',
+      answer: 'Sí. Podés reunir servicios, reservas y productos digitales dentro del mismo perfil público.'
+    },
+    {
+      question: '¿Mis clientes necesitan tener una cuenta?',
+      answer: 'No. Pueden elegir y comprar directamente desde tu link sin crear una cuenta en Tiendubi.'
+    },
+    {
+      question: '¿Cómo vendo por Instagram o WhatsApp?',
+      answer:
+        'Compartís el mismo link en tu bio, historias, respuestas automáticas o chats. El cliente continúa la compra desde ahí.'
+    }
+  ];
 
   get displayUsername(): string {
     return this.heroUsername || 'tu-marca';
+  }
+
+  get proPrice(): string {
+    return this.annual ? '$19.999' : '$24.999';
   }
 
   ngOnInit(): void {
@@ -81,8 +203,6 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
-
-    this.renderIcons();
 
     const sectionId = this.document.defaultView?.location.hash.slice(1);
     if (sectionId) {
@@ -102,20 +222,19 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
       scriptEl.parentNode?.removeChild(scriptEl);
     }
     this.structuredDataScriptEls = [];
-
-    if (this.toastTimeoutId !== null && isPlatformBrowser(this.platformId)) {
-      this.document.defaultView?.clearTimeout(this.toastTimeoutId);
-    }
   }
 
   toggleMobileMenu(): void {
-    this.mobileDrawerOpen = !this.mobileDrawerOpen;
-    this.renderIcons();
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  toggleContactForm(): void {
+    this.contactFormOpen = !this.contactFormOpen;
   }
 
   scrollToSection(event: Event, sectionId: string): void {
     event.preventDefault();
-    this.mobileDrawerOpen = false;
+    this.mobileMenuOpen = false;
 
     const section = this.document.getElementById(sectionId);
     if (!section) {
@@ -130,7 +249,33 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
       '',
       `${windowRef.location.pathname}${windowRef.location.search}#${sectionId}`
     );
-    this.renderIcons();
+  }
+
+  updateHeroUsername(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const cleanValue = input.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    input.value = cleanValue;
+    this.heroUsername = cleanValue;
+  }
+
+  createLink(): void {
+    const publicSlug = this.heroUsername.trim();
+    void this.router.navigate(['/auth'], {
+      queryParams: {
+        view: 'register',
+        ...(publicSlug ? { publicSlug } : {})
+      }
+    });
+  }
+
+  openAuth(mode: 'login' | 'signup'): void {
+    void this.router.navigate(['/auth'], {
+      queryParams: mode === 'signup' ? { view: 'register' } : undefined
+    });
+  }
+
+  setBilling(annual: boolean): void {
+    this.annual = annual;
   }
 
   async handleContactSubmit(event: Event): Promise<void> {
@@ -188,353 +333,56 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
       this.contactErrorMessage = 'No pudimos enviar tu consulta. Intentá nuevamente en unos minutos.';
     } finally {
       this.contactSubmitting = false;
-      this.renderIcons();
     }
-  }
-
-  resetContactForm(): void {
-    this.contactSubmitted = false;
-    this.contactErrorMessage = '';
-    this.renderIcons();
-  }
-
-  updateHeroUsername(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const cleanValue = input.value.toLowerCase().replace(/[^a-z0-9-_]/g, '');
-    input.value = cleanValue;
-    this.heroUsername = cleanValue;
-  }
-
-  updateModalUsername(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const cleanValue = input.value.toLowerCase().replace(/[^a-z0-9-_]/g, '');
-    input.value = cleanValue;
-    this.modalUsername = cleanValue;
-  }
-
-  claimUsername(): void {
-    const publicSlug = this.heroUsername.trim();
-    void this.router.navigate(['/auth'], {
-      queryParams: {
-        view: 'register',
-        ...(publicSlug ? { publicSlug } : {})
-      }
-    });
-  }
-
-  simTriggerOffer(offerType: 'turno' | 'ebook' | 'pack'): void {
-    this.simType = offerType;
-
-    if (offerType === 'turno') {
-      this.simScreen = 'booking';
-      return;
-    }
-
-    this.simTriggerPayment(offerType);
-  }
-
-  selectHour(event: Event): void {
-    const button = event.currentTarget as HTMLButtonElement;
-    this.simHourSelected = button.textContent?.trim() ?? null;
-
-    this.document.querySelectorAll<HTMLButtonElement>('.hour-btn').forEach((hourButton) => {
-      hourButton.classList.remove('bg-indigo-500', 'text-white', 'border-transparent');
-      hourButton.classList.add('bg-darkCard', 'border-darkBorder');
-    });
-
-    button.classList.remove('bg-darkCard', 'border-darkBorder');
-    button.classList.add('bg-indigo-500', 'text-white', 'border-transparent');
-  }
-
-  simTriggerPayment(type: 'turno' | 'ebook' | 'pack'): void {
-    this.simType = type;
-    this.simScreen = 'payment';
-    this.simPaymentAmount =
-      type === 'turno' ? '$22.000 ARS' : type === 'ebook' ? '$4.500 ARS' : '$9.000 ARS';
-    this.simReference = `TIEN-${Math.floor(Math.random() * 9000) + 1000}-AUTO`;
-  }
-
-  simConfirmPayment(): void {
-    this.simScreen = 'success';
-
-    if (this.simType === 'turno') {
-      this.simSuccessDesc = 'Tu reserva se ha registrado de forma instantánea.';
-    } else if (this.simType === 'ebook') {
-      this.simSuccessDesc = 'Tu libro digital se desbloqueó inmediatamente.';
-    } else if (this.simType === 'pack') {
-      this.simSuccessDesc = 'Producto digital desbloqueado con éxito.';
-    }
-
-    this.showToast('Simulador', '¡Transacción cobrada y entregada de manera automática!', 'success');
-  }
-
-  simGoBack(): void {
-    this.simScreen = 'main';
-  }
-
-  simReset(): void {
-    this.simScreen = 'main';
-    this.simType = null;
-    this.simHourSelected = null;
-  }
-
-  switchTab(tabId: string): void {
-    this.document.querySelectorAll<HTMLElement>('.tab-content').forEach((content) => {
-      content.classList.add('hidden');
-    });
-    this.document.getElementById(`tab-content-${tabId}`)?.classList.remove('hidden');
-
-    this.document.querySelectorAll<HTMLButtonElement>('.tab-btn').forEach((button) => {
-      button.className =
-        'tab-btn px-5 py-3 rounded-2xl font-semibold text-sm transition-all flex items-center gap-2 bg-darkCard border border-darkBorder text-slate-400 hover:text-white hover:border-slate-800';
-    });
-
-    const activeButton = this.document.getElementById(`tab-btn-${tabId}`);
-    if (activeButton) {
-      activeButton.className =
-        'tab-btn px-5 py-3 rounded-2xl font-semibold text-sm transition-all flex items-center gap-2 bg-gradient-to-r from-accentViolet to-accentPurple text-white';
-    }
-
-    this.renderIcons();
-  }
-
-  switchBilling(interval: 'mensual' | 'anual'): void {
-    this.billingInterval = interval;
-    this.priceValue = interval === 'mensual' ? '$24.999' : '$20.000';
-    this.priceIntervalLabel =
-      interval === 'mensual'
-        ? 'Facturación mes a mes.'
-        : 'Se factura una vez al año.';
-
-    const mensualButton = this.document.getElementById('billing-btn-mensual');
-    const anualButton = this.document.getElementById('billing-btn-anual');
-
-    if (interval === 'mensual') {
-      mensualButton?.setAttribute(
-        'class',
-        'px-4 py-2 text-xs font-semibold rounded-xl transition-all bg-indigo-500 text-white shadow'
-      );
-      anualButton?.setAttribute(
-        'class',
-        'px-4 py-2 text-xs font-semibold rounded-xl transition-all text-slate-400 hover:text-white flex items-center gap-1'
-      );
-    } else {
-      anualButton?.setAttribute(
-        'class',
-        'px-4 py-2 text-xs font-semibold rounded-xl transition-all bg-indigo-500 text-white shadow flex items-center gap-1'
-      );
-      mensualButton?.setAttribute(
-        'class',
-        'px-4 py-2 text-xs font-semibold rounded-xl transition-all text-slate-400 hover:text-white'
-      );
-    }
-  }
-
-  toggleFAQ(faqId: string): void {
-    this.openFaqId = this.openFaqId === faqId ? null : faqId;
-  }
-
-  openModal(mode: 'login' | 'signup'): void {
-    void this.router.navigate(['/auth'], {
-      queryParams: mode === 'signup' ? { view: 'register' } : undefined
-    });
-    return;
-
-    this.authMode = mode;
-    this.authModalOpen = true;
-    this.authErrorMessage = '';
-    this.authSuccessMessage = '';
-
-    if (mode === 'login') {
-      this.modalTitle = 'Ingresá a tu Cuenta';
-      this.modalDesc = 'Continuá administrando tu link público de Tiendubi.';
-    } else {
-      this.modalTitle = 'Creá tu Cuenta Gratis';
-      this.modalDesc = 'Configurá tu plataforma y empezá a automatizar tus cobros.';
-    }
-
-    this.renderIcons();
-  }
-
-  closeModal(): void {
-    this.authModalOpen = false;
-  }
-
-  handleAuthSubmit(event: Event): void {
-    event.preventDefault();
-
-    if (this.isAuthSubmitting) {
-      return;
-    }
-
-    if (this.authMode === 'login') {
-      this.handleLoginSubmit();
-      return;
-    }
-
-    const validationError = this.getSignupValidationError();
-    if (validationError) {
-      this.authErrorMessage = validationError;
-      this.authSuccessMessage = '';
-      return;
-    }
-
-    const email = this.authEmail.trim().toLowerCase();
-    const publicSlug = this.modalUsername.trim().toLowerCase();
-
-    this.authErrorMessage = '';
-    this.authSuccessMessage = '';
-    this.isAuthSubmitting = true;
-
-    this.authService
-      .register({
-        email,
-        password: this.authPassword,
-        fullName: publicSlug,
-        publicSlug
-      })
-      .subscribe({
-        next: (response) => {
-          this.isAuthSubmitting = false;
-          this.authPassword = '';
-          this.authSuccessMessage =
-            response.message || 'Listo. Te mandamos un link de acceso para validar la cuenta. Revisá tu mail.';
-          this.showToast('Revisá tu mail', 'Te mandamos un link de acceso para validar la cuenta.', 'success');
-        },
-        error: (error: { error?: { message?: string } }) => {
-          this.isAuthSubmitting = false;
-          this.authErrorMessage = error.error?.message ?? 'No se pudo crear la cuenta';
-          this.showToast('Registro', this.authErrorMessage, 'error');
-        }
-      });
-  }
-
-  private handleLoginSubmit(): void {
-    const validationError = this.getLoginValidationError();
-    if (validationError) {
-      this.authErrorMessage = validationError;
-      this.authSuccessMessage = '';
-      return;
-    }
-
-    const email = this.authEmail.trim().toLowerCase();
-
-    this.authErrorMessage = '';
-    this.authSuccessMessage = '';
-    this.isAuthSubmitting = true;
-
-    this.authService
-      .login({
-        email,
-        password: this.authPassword
-      })
-      .subscribe({
-        next: () => {
-          this.isAuthSubmitting = false;
-          this.authPassword = '';
-          this.closeModal();
-          this.showToast('Bienvenido', 'Ingresaste correctamente a Tiendubi.', 'success');
-          void this.router.navigateByUrl('/panel');
-        },
-        error: (error: { error?: { message?: string } }) => {
-          this.isAuthSubmitting = false;
-          this.authErrorMessage = error.error?.message ?? 'No se pudo iniciar sesion';
-          this.showToast('Ingreso', this.authErrorMessage, 'error');
-        }
-      });
-  }
-
-  private renderIcons(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    this.document.defaultView?.setTimeout(() => this.document.defaultView?.lucide?.createIcons());
-  }
-
-  private showToast(title: string, msg: string, type: 'success' | 'error' = 'success'): void {
-    this.toastTitle = title;
-    this.toastMsg = msg;
-    this.toastType = type;
-    this.toastVisible = true;
-    this.renderIcons();
-
-    if (this.toastTimeoutId !== null) {
-      this.document.defaultView?.clearTimeout(this.toastTimeoutId);
-    }
-
-    this.toastTimeoutId = this.document.defaultView?.setTimeout(() => {
-      this.toastVisible = false;
-      this.toastTimeoutId = null;
-    }, 4000) ?? null;
-  }
-
-  private getSignupValidationError(): string | null {
-    const email = this.authEmail.trim();
-    const password = this.authPassword;
-    const publicSlug = this.modalUsername.trim();
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return 'Ingresá un email válido';
-    }
-
-    if (!/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(password)) {
-      return 'La contraseña debe tener al menos 8 caracteres, una letra y un número';
-    }
-
-    if (!/^[a-z0-9][a-z0-9-_]{1,39}$/.test(publicSlug)) {
-      return 'El subdominio debe tener entre 2 y 40 caracteres, usando letras, números, guiones o guion bajo';
-    }
-
-    return null;
-  }
-
-  private getLoginValidationError(): string | null {
-    const email = this.authEmail.trim();
-
-    if (!email) {
-      return 'Ingresa tu email';
-    }
-
-    if (!this.authPassword) {
-      return 'Ingresa tu contrasena';
-    }
-
-    return null;
   }
 
   private applySeoTags(): void {
     const canonicalUrl = 'https://tiendubi.com/';
-    const title = 'Tiendubi | Vendé por Instagram y WhatsApp desde un link';
+    const title = 'Tiendubi | Vendé desde un solo link';
     const description =
-      'Vendé servicios y productos digitales desde un link. Cobrá con Mercado Pago, recibí reservas y automatizá entregas por Instagram o WhatsApp.';
+      'Cobrá con Mercado Pago, recibí reservas y entregá productos digitales desde un link para Instagram y WhatsApp.';
     const imageUrl = 'https://tiendubi.com/tiendubi-og.png';
 
     this.title.setTitle(title);
 
     this.meta.updateTag({ name: 'description', content: description });
     this.meta.removeTag("name='keywords'");
-    this.meta.updateTag({ name: 'robots', content: 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1' });
+    this.meta.updateTag({
+      name: 'robots',
+      content: 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'
+    });
     this.meta.updateTag({ name: 'author', content: 'Tiendubi' });
     this.meta.updateTag({ name: 'application-name', content: 'Tiendubi' });
 
     this.meta.updateTag({ property: 'og:type', content: 'website' });
     this.meta.updateTag({ property: 'og:site_name', content: 'Tiendubi' });
     this.meta.updateTag({ property: 'og:locale', content: 'es_AR' });
-    this.meta.updateTag({ property: 'og:title', content: title });
-    this.meta.updateTag({ property: 'og:description', content: description });
+    this.meta.updateTag({ property: 'og:title', content: 'Tiendubi | Tu negocio en un solo link' });
+    this.meta.updateTag({
+      property: 'og:description',
+      content: 'Vendé servicios y productos digitales, cobrá y automatizá entregas desde Instagram y WhatsApp.'
+    });
     this.meta.updateTag({ property: 'og:url', content: canonicalUrl });
     this.meta.updateTag({ property: 'og:image', content: imageUrl });
     this.meta.updateTag({ property: 'og:image:type', content: 'image/png' });
     this.meta.updateTag({ property: 'og:image:width', content: '1200' });
     this.meta.updateTag({ property: 'og:image:height', content: '630' });
-    this.meta.updateTag({ property: 'og:image:alt', content: 'Tiendubi, tu link de venta para Instagram y WhatsApp' });
+    this.meta.updateTag({
+      property: 'og:image:alt',
+      content: 'Tiendubi, tu link de venta para Instagram y WhatsApp'
+    });
 
     this.meta.updateTag({ name: 'twitter:card', content: 'summary_large_image' });
-    this.meta.updateTag({ name: 'twitter:title', content: title });
-    this.meta.updateTag({ name: 'twitter:description', content: description });
+    this.meta.updateTag({ name: 'twitter:title', content: 'Tiendubi | Tu negocio en un solo link' });
+    this.meta.updateTag({
+      name: 'twitter:description',
+      content: 'Vendé servicios y productos digitales, cobrá y automatizá entregas desde Instagram y WhatsApp.'
+    });
     this.meta.updateTag({ name: 'twitter:image', content: imageUrl });
-    this.meta.updateTag({ name: 'twitter:image:alt', content: 'Tiendubi, tu link de venta para Instagram y WhatsApp' });
+    this.meta.updateTag({
+      name: 'twitter:image:alt',
+      content: 'Tiendubi, tu link de venta para Instagram y WhatsApp'
+    });
 
     this.setCanonicalTag(canonicalUrl);
     this.setStructuredData(canonicalUrl, imageUrl, description);
@@ -545,6 +393,15 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
       scriptEl.parentNode?.removeChild(scriptEl);
     }
     this.structuredDataScriptEls = [];
+
+    const faqEntities = this.faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer
+      }
+    }));
 
     const structuredData = {
       '@context': 'https://schema.org',
@@ -606,72 +463,7 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
           '@type': 'FAQPage',
           '@id': `${canonicalUrl}#faq`,
           inLanguage: 'es-AR',
-          mainEntity: [
-            {
-              '@type': 'Question',
-              name: '¿Qué puedo vender exactamente con Tiendubi?',
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: 'Podés vender ebooks, PDFs, plantillas, cursos, archivos descargables, fotos y videos con marca de agua, y accesos privados. También podés cobrar consultas, asesorías, mentorías, clases, sesiones, talleres y otros servicios reservables.'
-              }
-            },
-            {
-              '@type': 'Question',
-              name: '¿Necesito una página web o saber programación?',
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: 'No. Tiendubi genera tu perfil y tu link de venta sin WordPress, plugins ni diseño web. Completás tus datos, cargás lo que vendés y obtenés una página adaptada a celulares.'
-              }
-            },
-            {
-              '@type': 'Question',
-              name: '¿Cómo cobro con Mercado Pago desde mi link?',
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: 'Vinculás tu cuenta de Mercado Pago y tus clientes pagan con los medios disponibles en esa plataforma. El dinero va directamente a tu cuenta. Mercado Pago aplica sus costos habituales de procesamiento según el medio y el plazo de cobro elegidos.'
-              }
-            },
-            {
-              '@type': 'Question',
-              name: '¿Cómo funcionan los turnos y las reservas online?',
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: 'Publicás un servicio con sus horarios disponibles. El cliente elige una opción desde tu link, completa sus datos, paga cuando corresponde y recibe la confirmación de la reserva.'
-              }
-            },
-            {
-              '@type': 'Question',
-              name: '¿Puedo vender servicios y archivos a la vez?',
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: 'Sí. En el mismo perfil podés ofrecer una consulta o mentoría con reserva y, al mismo tiempo, vender un ebook, una plantilla, un curso o un archivo descargable.'
-              }
-            },
-            {
-              '@type': 'Question',
-              name: '¿Mis clientes necesitan tener una cuenta?',
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: 'No. Tu cliente entra al link, selecciona lo que quiere, completa sus datos, paga y recibe la descarga o la confirmación. No necesita crear una cuenta en Tiendubi.'
-              }
-            },
-            {
-              '@type': 'Question',
-              name: '¿Cómo vendo por Instagram con Tiendubi?',
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: 'Colocás tiendubi.com/tu-marca en la bio de Instagram. Desde ahí, tus seguidores pueden ver qué ofrecés, pagar con Mercado Pago y reservar o recibir su compra.'
-              }
-            },
-            {
-              '@type': 'Question',
-              name: '¿Puedo usar el mismo link para vender por WhatsApp?',
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: 'Sí. Compartís el mismo link en conversaciones, estados o respuestas automáticas de WhatsApp para que cada cliente consulte opciones y compre sin coordinar todo por mensaje.'
-              }
-            }
-          ]
+          mainEntity: faqEntities
         }
       ]
     };
@@ -703,5 +495,4 @@ export class LandingPageComponent implements OnInit, AfterViewInit, OnDestroy {
     head.appendChild(link);
     this.canonicalLinkEl = link;
   }
-
 }

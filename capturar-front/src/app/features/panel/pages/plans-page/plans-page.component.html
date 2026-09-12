@@ -4,9 +4,9 @@
       <i data-lucide="sparkles" class="h-4 w-4"></i>
       Planes Tiendubi
     </span>
-    <h1 class="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Elegí el plan para tu negocio</h1>
+    <h1 class="text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">Planes para cada etapa</h1>
     <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-      Empezá gratis con hasta 3 productos o activá Pro para publicar hasta 50 y administrar todo sin límites de edición.
+      Empezá gratis con lo esencial y pasate a Pro cuando quieras crecer.
     </p>
   </div>
 
@@ -50,7 +50,7 @@
       <article class="flex flex-col rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
         <div class="mb-6 flex items-start justify-between gap-4">
           <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Para empezar</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Para empezar a vender</span>
             <h2 class="mt-2 text-2xl font-black text-slate-950">Plan Inicial</h2>
           </div>
           <span *ngIf="!isPro" class="rounded-full bg-slate-900 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">Plan actual</span>
@@ -63,12 +63,11 @@
         </div>
 
         <ul class="flex flex-1 flex-col gap-4 text-sm text-slate-600">
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Hasta 3 productos digitales activos</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Archivos de hasta 500 MB cada uno</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Perfil público en tiendubi.com/tu-marca</li>
           <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Cobros integrados con Mercado Pago</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Entrega automática básica por email</li>
-          <li class="flex gap-3 text-slate-400"><i data-lucide="lock" class="mt-0.5 h-5 w-5 shrink-0"></i>La edición y eliminación de productos requiere Pro</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Hasta 3 productos digitales activos</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Entrega automática por email</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Perfil público en tiendubi.com/tu-marca</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-500"></i>Archivos de hasta 500 MB</li>
         </ul>
 
         <button type="button" disabled class="mt-8 w-full cursor-not-allowed rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3.5 text-sm font-bold text-slate-400">
@@ -80,7 +79,7 @@
         <div class="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-blue-500/20 blur-3xl"></div>
         <div class="relative mb-6 flex items-start justify-between gap-4">
           <div>
-            <span class="text-xs font-bold uppercase tracking-wider text-blue-300">Para crecer</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-blue-300">Para hacer crecer tu negocio</span>
             <h2 class="mt-2 text-2xl font-black">Plan Pro</h2>
           </div>
           <span class="rounded-full bg-blue-600 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-white">
@@ -110,20 +109,22 @@
           </div>
 
           <span class="text-4xl font-black">{{ formatMoney(selectedPrice) }}</span>
-          <span class="ml-1 text-sm font-semibold text-slate-400">{{ planStatus.currency }} / {{ selectedPeriodLabel }}</span>
+          <span class="ml-1 text-sm font-semibold text-slate-400">{{ planStatus.currency }} / mes</span>
           <p class="mt-2 text-xs text-slate-400">
-            {{ billingCycle === 'annual' ? 'Un pago anual · equivale a aproximadamente $20.000 por mes' : 'Facturación mes a mes' }}
+            {{ billingCycle === 'annual' ? 'Un pago anual de ' + formatMoney(planStatus.annualPrice) + ' · ahorrás 20%' : 'Facturación mes a mes' }}
           </p>
           <p class="mt-2 text-xs font-bold text-emerald-400">0% de comisión de Tiendubi</p>
         </div>
 
         <ul class="relative flex flex-1 flex-col gap-4 text-sm text-slate-300">
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Hasta 50 productos digitales y recursos privados</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Archivos de hasta 1 GB cada uno</li>
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Crear, editar y eliminar productos</li>
-          <!-- <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Reservas integradas con Google Calendar</li> -->
-          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Dominio propio, cupones y automatizaciones</li>
-          <li class="flex gap-3"><i data-lucide="shield-check" class="mt-0.5 h-5 w-5 shrink-0 text-blue-300"></i>Pago seguro procesado por Mercado Pago</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Todo lo del plan Inicial</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Hasta 50 productos digitales</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Reservas avanzadas y recordatorios</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Estadísticas de ventas y visitas</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Dominio personalizado</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Cupones y descuentos</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Automatizaciones y emails personalizados</li>
+          <li class="flex gap-3"><i data-lucide="check" class="mt-0.5 h-5 w-5 shrink-0 text-emerald-400"></i>Sin branding de Tiendubi</li>
         </ul>
 
         <button

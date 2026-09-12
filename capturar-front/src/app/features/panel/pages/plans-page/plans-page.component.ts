@@ -24,7 +24,7 @@ export class PlansPageComponent implements OnInit {
   isLoading = true;
   isStartingCheckout = false;
   isConfirmingPayment = false;
-  billingCycle: 'monthly' | 'annual' = 'monthly';
+  billingCycle: 'monthly' | 'annual' = 'annual';
   successMessage = '';
   warningMessage = '';
   errorMessage = '';
@@ -41,11 +41,7 @@ export class PlansPageComponent implements OnInit {
 
   get selectedPrice(): number {
     if (!this.status) return 0;
-    return this.billingCycle === 'annual' ? this.status.annualPrice : this.status.monthlyPrice;
-  }
-
-  get selectedPeriodLabel(): string {
-    return this.billingCycle === 'annual' ? 'año' : 'mes';
+    return this.billingCycle === 'annual' ? this.status.annualPrice / 12 : this.status.monthlyPrice;
   }
 
   get canPayWithMercadoPago(): boolean {
